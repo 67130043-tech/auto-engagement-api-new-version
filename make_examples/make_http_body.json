@@ -1,0 +1,7 @@
+{
+  "user_id": "{{Sender ID}}",
+  "message": "{{Message Text}}",
+  "channel": "facebook",
+  "display_name": "{{Sender Name}}",
+  "source": "make"
+}

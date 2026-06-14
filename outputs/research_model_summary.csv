@@ -1,0 +1,3 @@
+﻿model,dataset,accuracy
+Sentiment Classification,wongnai.csv,0.6578044596912521
+Category Classification,Dataset_Restaurant_CRM_4000_Rows.xlsx,1.0

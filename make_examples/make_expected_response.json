@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-06-14T10:00:00",
+  "user_id": "facebook_user_id",
+  "display_name": "Customer Name",
+  "channel": "facebook",
+  "source": "make",
+  "message": "อาหารมาช้ามาก",
+  "clean_text": "อาหารมาช้ามาก",
+  "sentiment": "negative",
+  "category": "การจัดส่ง (Delivery)",
+  "segment": "Regular",
+  "action": "apology_check_order",
+  "reply_message": "ขออภัยในความไม่สะดวกค่ะ ทางร้านจะรีบตรวจสอบรายการอาหาร/การจัดส่งให้ทันทีค่ะ",
+  "behavior": {
+    "total_messages": 0,
+    "positive_count": 0,
+    "negative_count": 0,
+    "complaint_count": 0,
+    "inactive_days": 0,
+    "favorite_hour": null
+  }
+}
