@@ -39,6 +39,16 @@ def make_test(request: PredictRequest):
     }
 
 # endpoint นี้ตั้งชื่อให้ Make จำง่าย
+#@app.post("/make/predict")
+#def make_predict(req: PredictRequest):
+#    return predict(req)
+
 @app.post("/make/predict")
 def make_predict(req: PredictRequest):
-    return predict(req)
+    return predict_message(
+        user_id=req.user_id,
+        message=req.message,
+        channel=req.channel,
+        display_name=req.display_name,
+        source=req.source
+    )
