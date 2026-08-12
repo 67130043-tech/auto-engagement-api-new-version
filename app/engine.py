@@ -107,6 +107,14 @@ def keyword_category_override(message: str, model_category: str) -> str:
     # 20. ห่อกลับ / ซื้อกลับบ้าน
     if any(w in text for w in ["ห่อกลับ", "ซื้อกลับ", "takeaway", "ใส่กล่อง", "แพ็คกลับ"]):
         return "ซื้อกลับบ้าน (Takeaway)"
+        
+    # 21. สอบถามสาขา/ทำเล
+    if any(w in text for w in ["สาขา", "ทำเล", "ที่ตั้ง", "อยู่ตรงไหน", "ใกล้", "BTS", "MRT", "แผนที่"]):
+        return "สอบถามสาขา/ทำเล"
+        
+    # 22. ที่จอดรถ
+    if any(w in text for w in ["ที่จอดรถ", "จอดรถ", "ลานจอด", "จอดที่ไหน"]):
+        return "ที่จอดรถ"
 
     return model_category
 
