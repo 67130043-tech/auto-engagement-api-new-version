@@ -86,7 +86,7 @@ def choose_action(sentiment, category, segment):
     if "สมัครงาน" in c or "รับสมัคร" in c:
         return "job_application_info"
 
-     if "สาขา" in c or "ทำเล" in c or "อยู่ตรงไหน" in c or "BTS" in c or "MRT" in c:
+    if "สาขา" in c or "ทำเล" in c or "อยู่ตรงไหน" in c or "BTS" in c or "MRT" in c:
         return "branch_location_info"
 
     if "ที่จอดรถ" in c or "จอดรถ" in c or "ลานจอด" in c:
