@@ -86,6 +86,12 @@ def choose_action(sentiment, category, segment):
     if "สมัครงาน" in c or "รับสมัคร" in c:
         return "job_application_info"
 
+     if "สาขา" in c or "ทำเล" in c or "อยู่ตรงไหน" in c or "BTS" in c or "MRT" in c:
+        return "branch_location_info"
+
+    if "ที่จอดรถ" in c or "จอดรถ" in c or "ลานจอด" in c:
+        return "parking_info"
+
     if "คืนเงิน" in c or "ยกเลิก" in c or "refund" in c:
         if seg in ["VIP", "At-Risk"]:
             return "refund_priority_support"
@@ -126,6 +132,8 @@ REPLY_TEMPLATES = {
     "refund_cancel_support": "รับทราบค่ะ ทางร้านจะดำเนินการคืนเงิน/ยกเลิกออเดอร์ให้ รบกวนแจ้งเลขที่ออเดอร์ด้วยนะคะ",
     "thank_you": "ขอบคุณมากค่ะ ทางร้านดีใจที่ลูกค้าประทับใจ หวังว่าจะได้ดูแลลูกค้าอีกครั้งนะคะ",
     "general_support": "ขอบคุณที่ติดต่อมาค่ะ ทางร้านยินดีให้บริการ ต้องการสอบถามข้อมูลเพิ่มเติมเรื่องใดแจ้งได้เลยค่ะ",
+    "branch_location_info": "ขอบคุณที่สอบถามค่ะ ทางร้านมีหลายสาขา สามารถดูที่ตั้งและแผนที่แต่ละสาขาได้ทางลิงก์ด้านล่างนี้ค่ะ",
+    "parking_info": "ร้านมีที่จอดรถให้บริการค่ะ หากที่จอดเต็มสามารถสอบถามพนักงานหน้าร้านเพื่อแนะนำจุดจอดใกล้เคียงได้เลยค่ะ"
 }
 
 def make_reply(action):
