@@ -88,3 +88,25 @@ def dashboard(threshold: float = 70.0):
             "ในชีตแล้ว และมีอย่างน้อย 1 แถวข้อมูล"
         )
     return render_dashboard_html(summary)
+
+
+@app.get("/debug-sheet")
+def debug_sheet():
+    sheet_url = os.environ.get("GOOGLE_SHEET_CSV_URL", "")
+    if not sheet_url:
+        return {"error": "GOOGLE_SHEET_CSV_URL not set"}
+    try:
+        resp = requests.get(sheet_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
+        info = {
+            "status_code": resp.status_code,
+            "content_type": resp.headers.get("content-type"),
+            "first_200_chars": resp.text[:200],
+        }
+        df = pd.read_csv(io.StringIO(resp.text), on_bad_lines="skip", engine="python")
+        info["shape"] = df.shape
+        info["columns"] = list(df.columns)
+        if "reply_confidence" in df.columns:
+            info["reply_confidence_sample"] = df["reply_confidence"].head(10).tolist()
+        return info
+    except Exception as e:
+        return {"error": str(e)}
