@@ -72,10 +72,10 @@ def dashboard(threshold: float = 70.0):
             "ให้ชี้ไปที่ลิงก์ export CSV ของ Google Sheet ที่ Make เขียนอยู่"
         )
     try:
-        df = pd.read_csv(sheet_url)
+        df = pd.read_csv(sheet_url, on_bad_lines="skip", engine="python")
     except Exception as e:
         return render_no_data_html(f"อ่านข้อมูลจาก Google Sheet ไม่สำเร็จ: {e}")
-
+        
     summary = compute_summary(df, threshold=threshold)
     if summary is None:
         return render_no_data_html(
