@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import io
 import pandas as pd
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
@@ -72,7 +73,9 @@ def dashboard(threshold: float = 70.0):
             "ให้ชี้ไปที่ลิงก์ export CSV ของ Google Sheet ที่ Make เขียนอยู่"
         )
     try:
-        df = pd.read_csv(sheet_url, on_bad_lines="skip", engine="python")
+        resp = requests.get(sheet_url, headers={"User-Agent": "Mozilla/5.0"}, timeout=15)
+        resp.raise_for_status()
+        df = pd.read_csv(io.StringIO(resp.text), on_bad_lines="skip", engine="python")
     except Exception as e:
         return render_no_data_html(f"อ่านข้อมูลจาก Google Sheet ไม่สำเร็จ: {e}")
         
