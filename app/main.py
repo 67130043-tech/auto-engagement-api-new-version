@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from app.engine import predict_message
 from app.dashboard import compute_summary, render_dashboard_html, render_no_data_html
+import requests
 
 app = FastAPI(title="User Behavior-based Auto Engagement AI Processing API")
 
