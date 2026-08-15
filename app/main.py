@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
+import os
+import pandas as pd
 from fastapi import FastAPI
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from app.engine import predict_message
+from app.dashboard import compute_summary, render_dashboard_html, render_no_data_html
 
 app = FastAPI(title="User Behavior-based Auto Engagement AI Processing API")
 
@@ -52,3 +56,31 @@ def make_predict(req: PredictRequest):
         display_name=req.display_name,
         source=req.source
     )
+
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard(threshold: float = 70.0):
+    """
+    เปิดหน้านี้ในเบราว์เซอร์ได้เลย เช่น https://your-app.onrender.com/dashboard
+    อ่านข้อมูลจาก Google Sheet เดียวกับที่ Make เขียนอยู่ (ต้องตั้งค่า env var GOOGLE_SHEET_CSV_URL
+    บน Render ก่อน ชี้ไปที่ลิงก์ export CSV ของชีตนั้น) แล้วคำนวณ + แสดงผลสดทุกครั้งที่เปิดหน้านี้
+    ปรับเกณฑ์ความมั่นใจสูงได้ผ่าน query string เช่น /dashboard?threshold=80
+    """
+    sheet_url = os.environ.get("GOOGLE_SHEET_CSV_URL", "")
+    if not sheet_url:
+        return render_no_data_html(
+            "ยังไม่ได้ตั้งค่า environment variable GOOGLE_SHEET_CSV_URL บน Render "
+            "ให้ชี้ไปที่ลิงก์ export CSV ของ Google Sheet ที่ Make เขียนอยู่"
+        )
+    try:
+        df = pd.read_csv(sheet_url)
+    except Exception as e:
+        return render_no_data_html(f"อ่านข้อมูลจาก Google Sheet ไม่สำเร็จ: {e}")
+
+    summary = compute_summary(df, threshold=threshold)
+    if summary is None:
+        return render_no_data_html(
+            "ยังไม่มีคอลัมน์ confidence ครบ หรือยังไม่มีคอมเมนต์จริงเข้ามาเลย "
+            "ตรวจสอบว่าเพิ่มคอลัมน์ sentiment_confidence / category_confidence / reply_confidence "
+            "ในชีตแล้ว และมีอย่างน้อย 1 แถวข้อมูล"
+        )
+    return render_dashboard_html(summary)
