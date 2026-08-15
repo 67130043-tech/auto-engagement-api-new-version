@@ -179,17 +179,65 @@ def get_user_behavior(user_id: str):
         r["segment"] = choose_segment(r.get("total_messages", 0), r.get("negative_count", 0), r.get("complaint_count", 0), r.get("inactive_days", 0))
     return r
 
+# def predict_message(user_id: str, message: str, channel: str = "manual", display_name: str = "", source: str = "api"):
+#     sentiment_model, category_model, _ = load_resources()
+#     text = clean_text(message)
+#     sentiment = str(sentiment_model.predict([text])[0])
+#     category = str(category_model.predict([text])[0])
+#     sentiment = keyword_sentiment_override(message, sentiment)
+#     category = keyword_category_override(message, category)
+#     behavior = get_user_behavior(user_id)
+#     segment = str(behavior.get("segment", "Regular"))
+#     action = choose_action(sentiment, category, segment)
+#     reply = make_reply(action)
+
+#     result = {
+#         "timestamp": datetime.now().isoformat(timespec="seconds"),
+#         "user_id": str(user_id),
+#         "display_name": display_name or "",
+#         "channel": channel,
+#         "source": source,
+#         "message": message,
+#         "clean_text": text,
+#         "sentiment": sentiment,
+#         "category": category,
+#         "segment": segment,
+#         "action": action,
+#         "reply_message": reply,
+#         "behavior": {
+#             "total_messages": int(behavior.get("total_messages", 0) or 0),
+#             "positive_count": int(behavior.get("positive_count", 0) or 0),
+#             "negative_count": int(behavior.get("negative_count", 0) or 0),
+#             "complaint_count": int(behavior.get("complaint_count", 0) or 0),
+#             "inactive_days": int(behavior.get("inactive_days", 0) or 0),
+#             "favorite_hour": None if pd.isna(behavior.get("favorite_hour", None)) else int(behavior.get("favorite_hour")),
+#         }
+#     }
+#     save_log(result)
+#     return result
+
 def predict_message(user_id: str, message: str, channel: str = "manual", display_name: str = "", source: str = "api"):
     sentiment_model, category_model, _ = load_resources()
     text = clean_text(message)
-    sentiment = str(sentiment_model.predict([text])[0])
-    category = str(category_model.predict([text])[0])
-    sentiment = keyword_sentiment_override(message, sentiment)
-    category = keyword_category_override(message, category)
+
+    sentiment_ml, sentiment_confidence = predict_with_confidence(sentiment_model, text)
+    category_ml, category_confidence = predict_with_confidence(category_model, text)
+
+    sentiment = keyword_sentiment_override(message, sentiment_ml)
+    category = keyword_category_override(message, category_ml)
+
+    # ถ้า keyword ทำให้คำตอบเปลี่ยนไปจากโมเดล ถือว่ามั่นใจ 100% (ตรงกับคำที่กำหนดไว้ตรงๆ)
+    if sentiment != sentiment_ml:
+        sentiment_confidence = 100.0
+    if category != category_ml:
+        category_confidence = 100.0
+
     behavior = get_user_behavior(user_id)
     segment = str(behavior.get("segment", "Regular"))
     action = choose_action(sentiment, category, segment)
     reply = make_reply(action)
+
+    reply_confidence = round((sentiment_confidence + category_confidence) / 2, 2)
 
     result = {
         "timestamp": datetime.now().isoformat(timespec="seconds"),
@@ -200,12 +248,15 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
         "message": message,
         "clean_text": text,
         "sentiment": sentiment,
+        "sentiment_confidence": sentiment_confidence,   # <-- ใหม่
         "category": category,
+        "category_confidence": category_confidence,     # <-- ใหม่
         "segment": segment,
         "action": action,
         "reply_message": reply,
+        "reply_confidence": reply_confidence,            # <-- ใหม่
         "behavior": {
-            "total_messages": int(behavior.get("total_messages", 0) or 0),
+             "total_messages": int(behavior.get("total_messages", 0) or 0),
             "positive_count": int(behavior.get("positive_count", 0) or 0),
             "negative_count": int(behavior.get("negative_count", 0) or 0),
             "complaint_count": int(behavior.get("complaint_count", 0) or 0),
