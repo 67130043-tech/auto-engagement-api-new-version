@@ -1,11 +1,29 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
 from datetime import datetime
+import numpy as np 
 import pandas as pd
 import joblib
 
 from app.preprocess import clean_text
 from app.decision_engine import choose_segment, choose_action, make_reply
+
+# เพิ่มใหม่สำหรับคำนวณความแม่นยำ
+def predict_with_confidence(model, text: str):
+    
+    pred = str(model.predict([text])[0])
+    scores = model.decision_function([text])[0]
+    scores = np.atleast_1d(scores)
+    if scores.shape[0] == 1:
+        confidence = float(1 / (1 + np.exp(-abs(scores[0])))) * 100
+    else:
+        exp_scores = np.exp(scores - np.max(scores))
+        probs = exp_scores / exp_scores.sum()
+        classes = list(model.named_steps["clf"].classes_) if hasattr(model, "named_steps") else list(model.classes_)
+        idx = classes.index(pred)
+        confidence = float(probs[idx]) * 100
+    return pred, round(confidence, 2)
+
 
 def keyword_sentiment_override(message: str, model_sentiment: str) -> str:
     text = str(message)
