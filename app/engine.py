@@ -37,10 +37,18 @@ def keyword_sentiment_override(message: str, model_sentiment: str) -> str:
                       "กรอบ", "นุ่ม", "พอดี", "ลงตัว", "รสจัดจ้าน", "อร่อยเด็ด", "บริการเร็ว", "ยิ้มแย้ม", "เป็นกันเอง", "ใส่ใจ", "สุภาพ", "ดูแลดี", "พนักงานน่ารัก", "ตอบสนองไว" ,
                       "สะอาด", "บรรยากาศดี", "ตกแต่งสวย", "โปร่งโล่ง", "เงียบสงบ", "น่านั่ง", "สวยงาม", "คุ้มค่า", "ราคาย่อมเยา", "ปริมาณเยอะ", "คุ้มราคา", 
                       "ประทับใจมาก", "จะกลับมาอีก", "แนะนำเลย", "ชอบมาก", "สุดยอด", "เด็ดมาก", "ต้องลอง", "โดนใจ"]
+    # คำที่บ่งบอกว่าเป็นคำถามข้อมูลทั่วไป ไม่ใช่การแสดงความรู้สึก
+    question_indicators = ["ไหม", "กี่โมง", "เท่าไหร่", "ยังไง", "อย่างไร", "ที่ไหน", "ตรงไหน", "หรือเปล่า", "รึเปล่า", "มั้ย"]
+
     if any(w in text for w in negative_words):
         return "negative"
     if any(w in text for w in positive_words):
         return "positive"
+    
+    # ถ้าไม่มี keyword บวก/ลบ แต่มีลักษณะเป็นคำถาม → ให้เป็น neutral แทนที่จะเชื่อ ML เฉยๆ
+    if any(w in text for w in question_indicators):
+        return "neutral"
+    
     return model_sentiment
 
 def keyword_category_override(message: str, model_category: str) -> str:
