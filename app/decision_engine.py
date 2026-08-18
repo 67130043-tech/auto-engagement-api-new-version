@@ -34,6 +34,21 @@ def choose_action(sentiment, category, segment):
     if s == "negative" and ("สกปรก" in c or "กลิ่นเหม็น" in c or "แมลงสาบ" in c):
         return "apology_cleanliness_escalate"      # ความสะอาด
 
+    if s == "negative" and ("แอร์" in c or "ร้อนมาก" in c or "อุณหภูมิ" in c):
+        return "apology_temperature_escalate"
+
+    if s == "negative" and ("ห้องน้ำ" in c):
+        return "apology_restroom_escalate"
+
+    if s == "negative" and ("บิล" in c and ("ผิด" in c or "ยอดไม่ตรง" in c or "เก็บเงินเกิน" in c)):
+        return "apology_billing_escalate"
+
+    if s == "negative" and ("แอพ" in c or "ระบบ" in c or "เว็บค้าง" in c):
+        return "apology_system_issue"
+
+    if s == "negative" and ("บัตรสมาชิก" in c or "แต้ม" in c):
+        return "apology_membership_issue"
+
     # ---------- 2) จัดส่ง / ออเดอร์ผิดพลาด ----------
     if s == "negative" and ("จัดส่ง" in c or "Delivery" in c or "ช้า" in c or "อาหารไม่ตรง" in c):
         if seg in ["VIP", "At-Risk"]:
@@ -92,6 +107,45 @@ def choose_action(sentiment, category, segment):
     if "ที่จอดรถ" in c or "จอดรถ" in c or "ลานจอด" in c:
         return "parking_info"
 
+    if "คิวรอโต๊ะ" in c:
+        return "waitlist_info"
+
+    if "WiFi" in c or "ไวไฟ" in c:
+        return "wifi_info"
+
+    if "สัตว์เลี้ยง" in c:
+        return "pet_friendly_info"
+
+    if "เด็ก" in c:
+        return "kids_facility_info"
+
+    if "ห้องส่วนตัว" in c or "VIP" in c:
+        return "private_room_info"
+
+    if "Corkage" in c:
+        return "corkage_info"
+
+    if "ปรับระดับความเผ็ด" in c:
+        return "spice_customization_info"
+
+    if "บุฟเฟ่ต์" in c:
+        return "buffet_info"
+
+    if "ข้อเสนอแนะ" in c:
+        return "feedback_thank_you"
+
+    if "เครื่องดื่มแอลกอฮอล์" in c:
+        return "alcohol_menu_info"
+
+    if "ดนตรีสด" in c or "กิจกรรม" in c:
+        return "event_info"
+
+    if "พื้นที่จัดส่ง" in c:
+        return "delivery_area_info"
+
+    if "ยอดสั่งขั้นต่ำ" in c:
+        return "min_order_info"
+
     if "คืนเงิน" in c or "ยกเลิก" in c or "refund" in c:
         if seg in ["VIP", "At-Risk"]:
             return "refund_priority_support"
@@ -103,6 +157,9 @@ def choose_action(sentiment, category, segment):
 
     # ---------- 6) positive ทั่วไป ----------
     if s == "positive":
+        return "thank_you"
+
+    if "ชมบรรยากาศร้าน" in c or "ชมพนักงาน" in c:
         return "thank_you"
 
     return "general_support"
@@ -134,6 +191,24 @@ REPLY_TEMPLATES = {
     "general_support": "ขอบคุณที่ติดต่อมาค่ะ ทางร้านยินดีให้บริการ ต้องการสอบถามข้อมูลเพิ่มเติมเรื่องใดแจ้งได้เลยค่ะ",
     "branch_location_info": "ขอบคุณที่สอบถามค่ะ ทางร้านมีหลายสาขา สามารถดูที่ตั้งและแผนที่แต่ละสาขาได้ทางลิงก์ด้านล่างนี้ค่ะ",
     "parking_info": "ร้านมีที่จอดรถให้บริการค่ะ หากที่จอดเต็มสามารถสอบถามพนักงานหน้าร้านเพื่อแนะนำจุดจอดใกล้เคียงได้เลยค่ะ",
+    "apology_temperature_escalate": "ขออภัยในความไม่สบายค่ะ ทางร้านจะรีบตรวจสอบและปรับอุณหภูมิห้องให้เหมาะสมโดยเร็วที่สุดค่ะ",
+    "apology_restroom_escalate": "ขออภัยค่ะ ทางร้านจะให้ทีมงานตรวจสอบและทำความสะอาดห้องน้ำทันทีค่ะ",
+    "apology_billing_escalate": "ขออภัยค่ะสำหรับความผิดพลาดเรื่องยอดเงิน ทางร้านจะตรวจสอบบิลและแก้ไขให้ถูกต้องโดยเร็วที่สุดค่ะ รบกวนแจ้งเลขที่ออเดอร์ด้วยนะคะ",
+    "apology_system_issue": "ขออภัยในความไม่สะดวกค่ะ ทางทีมงานกำลังเร่งแก้ไขปัญหาระบบ รบกวนลองใหม่อีกครั้งหรือแจ้งเจ้าหน้าที่โดยตรงได้เลยค่ะ",
+    "apology_membership_issue": "ขออภัยค่ะ ทางร้านจะตรวจสอบข้อมูลบัตรสมาชิก/แต้มสะสมให้ รบกวนแจ้งเบอร์โทรหรือรหัสสมาชิกด้วยนะคะ",
+    "waitlist_info": "ตอนนี้คิวประมาณ [ระบุเวลา] นาทีค่ะ ลูกค้าสามารถแจ้งชื่อ-เบอร์โทรไว้ล่วงหน้าเพื่อจองคิวได้เลยค่ะ",
+    "wifi_info": "รหัส WiFi ของร้านคือ [ระบุรหัส] ค่ะ สามารถสอบถามพนักงานหน้าร้านเพิ่มเติมได้เลยค่ะ",
+    "pet_friendly_info": "ร้านอนุญาตให้พาสัตว์เลี้ยงเข้าได้ค่ะ (ตามพื้นที่ที่กำหนด) รบกวนพาน้องๆ อยู่ในสายจูงและดูแลตามมารยาทด้วยนะคะ",
+    "kids_facility_info": "ร้านมีเก้าอี้เด็กและเมนูสำหรับเด็กให้บริการค่ะ สามารถแจ้งพนักงานเมื่อมาถึงร้านได้เลยค่ะ",
+    "private_room_info": "ร้านมีห้องส่วนตัว/ห้อง VIP ให้บริการค่ะ รบกวนแจ้งจำนวนคนและวันเวลาที่สนใจใช้บริการนะคะ",
+    "corkage_info": "ลูกค้าสามารถนำเครื่องดื่ม/เค้กมาเองได้ค่ะ ทางร้านมีค่า Corkage [ระบุราคา] ต่อขวด/ชิ้นค่ะ",
+    "spice_customization_info": "ทางร้านสามารถปรับระดับความเผ็ดหรือรสชาติตามที่ลูกค้าต้องการได้ค่ะ รบกวนแจ้งรายละเอียดตอนสั่งได้เลยค่ะ",
+    "buffet_info": "ร้านมีโปรบุฟเฟ่ต์ให้บริการค่ะ รบกวนแจ้งวันที่สนใจ ทางร้านจะแจ้งราคาและเงื่อนไขให้ค่ะ",
+    "feedback_thank_you": "ขอบคุณมากค่ะสำหรับข้อเสนอแนะ ทางร้านจะนำไปปรับปรุงบริการให้ดียิ่งขึ้นค่ะ",
+    "alcohol_menu_info": "ร้านมีเครื่องดื่มแอลกอฮอล์ให้บริการค่ะ สนใจดูเมนูเครื่องดื่มเพิ่มเติมไหมคะ",
+    "event_info": "ร้านมีกิจกรรม/ดนตรีสดเป็นบางช่วงค่ะ รบกวนแจ้งวันที่สนใจ ทางร้านจะเช็คตารางให้นะคะ",
+    "delivery_area_info": "รบกวนแจ้งที่อยู่หรือพื้นที่ที่ต้องการจัดส่ง ทางร้านจะเช็คว่าอยู่ในพื้นที่บริการหรือไม่ค่ะ",
+    "min_order_info": "ยอดสั่งขั้นต่ำสำหรับบริการเดลิเวอรี่คือ [ระบุยอด] บาทค่ะ",
 }
 
 def make_reply(action):
