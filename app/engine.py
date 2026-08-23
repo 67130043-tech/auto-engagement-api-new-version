@@ -314,11 +314,11 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     sentiment = keyword_sentiment_override(message, sentiment_ml)
     category = keyword_category_override(message, category_ml)
 
-    # ถ้า keyword ทำให้คำตอบเปลี่ยนไปจากโมเดล ถือว่ามั่นใจ 100% (ตรงกับคำที่กำหนดไว้ตรงๆ)
-    if sentiment != sentiment_ml:
-        sentiment_confidence = 100.0
-    if category != category_ml:
-        category_confidence = 100.0
+    # # ถ้า keyword ทำให้คำตอบเปลี่ยนไปจากโมเดล ถือว่ามั่นใจ 100% (ตรงกับคำที่กำหนดไว้ตรงๆ)  มันทำให้ category เป็น 100 เสมอเมื่อเจอ keyword
+    # if sentiment != sentiment_ml:
+    #     sentiment_confidence = 100.0
+    # if category != category_ml:
+    #     category_confidence = 100.0
 
     behavior = get_user_behavior(user_id)
     segment = str(behavior.get("segment", "Regular"))
