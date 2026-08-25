@@ -25,6 +25,14 @@ def predict_with_confidence(model, text: str):
     return pred, round(confidence, 2)
 
 
+# ---------------------------------------------------------------------------
+# FIX #1: เพิ่มการจัดการคำปฏิเสธ (negation) ก่อนหน้านี้ "ไม่อร่อย", "ไม่ชอบ",
+# "ไม่หอม", "ไม่นุ่ม" ฯลฯ จะถูกจับด้วย positive_words แบบ substring match
+# (เพราะ "อร่อย" อยู่ใน "ไม่อร่อย") ทำให้ข้อความบ่น/ร้องเรียน ถูกตัดสินว่าเป็น
+# "positive" และระบบไปตอบแบบขอบคุณ (thank_you) กลับลูกค้าที่กำลังไม่พอใจ
+# ---------------------------------------------------------------------------
+NEGATION_PREFIXES = ["ไม่ค่อย", "ไม่ได้", "ไม่สู้", "ไม่"]  # เรียงจากยาว->สั้น เพื่อจับวลีที่เจาะจงกว่าก่อน
+
 def keyword_sentiment_override(message: str, model_sentiment: str) -> str:
     text = str(message)
     negative_words = ["ช้า", "นาน", "ผิด", "หก", "เสีย", "แย่", "ห่วย", "ไม่ประทับใจ", "รอนาน", "เคลม", "เย็นชืด", 
@@ -32,13 +40,21 @@ def keyword_sentiment_override(message: str, model_sentiment: str) -> str:
                       "เหนียว", "ดิบ", "ไหม้", "จืดชืด", "รสชาติแปลกๆ", "ช้ามาก", "รอนาน", "พนักงานหยาบคาย", 
                       "ไม่สนใจลูกค้า", "บริการแย่", "ทัศนคติแย่", "หน้าบึ้ง", "ไม่ยิ้ม", "พูดจาไม่ดี", "เอาแต่ใจ" , "สกปรก", "เลอะเทอะ", "มีแมลง", 
                       "มีแมลงสาบ", "กลิ่นเหม็น", "โต๊ะสกปรก", "ห้องน้ำสกปรก", "แออัด", "เสียงดัง", "แพงเกินไป", "ไม่คุ้ม", "ราคาไม่สมเหตุสมผล", "ปริมาณน้อย", 
-                      "โกงราคา", "ผิดหวัง", "เสียใจ", "เสียดายเงิน", "ไม่แนะนำ", "ไม่กลับมาอีก", "แย่มาก", "ห่วยแตก", "สยองขวัญ", "หลอกลวง"]
+                      "โกงราคา", "ผิดหวัง", "เสียใจ", "เสียดายเงิน", "ไม่แนะนำ", "ไม่กลับมาอีก", "แย่มาก", "ห่วยแตก", "สยองขวัญ", "หลอกลวง",
+                      "ไม่อร่อย", "ไม่ชอบ"]  # เพิ่มคำที่พบบ่อยแบบตรงๆ ไว้ด้วย กันไว้อีกชั้น
     positive_words = ["อร่อย", "ดีมาก", "ประทับใจ", "ชอบ", "บริการดี", "ขอบคุณ", "อร่อยมาก", "กลมกล่อม", "สดใหม่", "หอม", "รสชาติเข้มข้น", "เข้าเนื้อ", 
                       "กรอบ", "นุ่ม", "พอดี", "ลงตัว", "รสจัดจ้าน", "อร่อยเด็ด", "บริการเร็ว", "ยิ้มแย้ม", "เป็นกันเอง", "ใส่ใจ", "สุภาพ", "ดูแลดี", "พนักงานน่ารัก", "ตอบสนองไว" ,
                       "สะอาด", "บรรยากาศดี", "ตกแต่งสวย", "โปร่งโล่ง", "เงียบสงบ", "น่านั่ง", "สวยงาม", "คุ้มค่า", "ราคาย่อมเยา", "ปริมาณเยอะ", "คุ้มราคา", 
                       "ประทับใจมาก", "จะกลับมาอีก", "แนะนำเลย", "ชอบมาก", "สุดยอด", "เด็ดมาก", "ต้องลอง", "โดนใจ"]
     # คำที่บ่งบอกว่าเป็นคำถามข้อมูลทั่วไป ไม่ใช่การแสดงความรู้สึก
     question_indicators = ["ไหม", "กี่โมง", "เท่าไหร่", "ยังไง", "อย่างไร", "ที่ไหน", "ตรงไหน", "หรือเปล่า", "รึเปล่า", "มั้ย"]
+
+    # 1) เช็คคำปฏิเสธ + คำบวก ก่อนเป็นอันดับแรก เช่น "ไม่อร่อย", "ไม่ชอบ", "ไม่หอม"
+    #    => ถือว่าเป็น negative ทันที ไม่ว่าจะมีคำบวก/ลบอื่นปนอยู่หรือไม่
+    for prefix in NEGATION_PREFIXES:
+        for w in positive_words:
+            if f"{prefix}{w}" in text:
+                return "negative"
 
     if any(w in text for w in negative_words):
         return "negative"
@@ -51,6 +67,12 @@ def keyword_sentiment_override(message: str, model_sentiment: str) -> str:
     
     return model_sentiment
 
+# ---------------------------------------------------------------------------
+# FIX #2: ตัดคำกว้างๆ อย่าง "ช้า" / "นาน" ออกจากหมวด "การจัดส่ง (Delivery)"
+# เพราะทำให้ข้อความร้องเรียนบริการหน้าร้าน เช่น "รอนานมาก พนักงานไม่สนใจ"
+# ถูกจัดเข้าหมวด Delivery ผิดๆ (ชนกับ "ร้องเรียนการบริการ" ที่เช็คทีหลัง)
+# แทนที่ด้วยวลีเจาะจงที่บ่งบอกบริบท delivery จริงๆ เช่น "ส่งช้า", "รอของนาน"
+# ---------------------------------------------------------------------------
 def keyword_category_override(message: str, model_category: str) -> str:
     text = str(message)
 
@@ -58,8 +80,9 @@ def keyword_category_override(message: str, model_category: str) -> str:
     if any(w in text for w in ["โปร", "โปรโมชั่น", "ส่วนลด", "คูปอง", "ลดราคา", "แจกโค้ด"]):
         return "สอบถามโปรโมชั่น"
 
-    # 2. การจัดส่ง (Delivery)
-    if any(w in text for w in ["ส่ง", "ไรเดอร์", "เดลิเวอรี่", "Delivery", "ผิดเมนู", "หก", "กล่อง", "ช้า", "นาน"]):
+    # 2. การจัดส่ง (Delivery) — ใช้วลีเจาะจงแทนคำกว้างเดี่ยวๆ อย่าง "ช้า"/"นาน"
+    if any(w in text for w in ["ส่ง", "ไรเดอร์", "เดลิเวอรี่", "Delivery", "ผิดเมนู", "หก", "กล่อง",
+                                "ส่งช้า", "มาช้า", "รอของนาน", "อาหารมาไม่ครบ", "ส่งผิด"]):
         return "การจัดส่ง (Delivery)"
 
     # 3. สอบถามเมนู
@@ -137,12 +160,8 @@ def keyword_category_override(message: str, model_category: str) -> str:
     # 21. สอบถามสาขา/ทำเล
     if any(w in text for w in ["สาขา", "ทำเล", "ที่ตั้ง", "อยู่ตรงไหน", "ใกล้", "BTS", "MRT", "แผนที่"]):
         return "สอบถามสาขา/ทำเล"
-        
-    # 22. ที่จอดรถ
-    if any(w in text for w in ["ที่จอดรถ", "จอดรถ", "ลานจอด", "จอดที่ไหน"]):
-        return "ที่จอดรถ"
 
-        # 23. คิวรอโต๊ะ / Waitlist
+    # 23. คิวรอโต๊ะ / Waitlist
     if any(w in text for w in ["รอคิว", "คิวยาวไหม", "ต้องรอกี่นาที", "คิวนาน", "รอโต๊ะ"]):
         return "สอบถามคิวรอโต๊ะ"
 
@@ -267,43 +286,6 @@ def get_user_behavior(user_id: str):
         r["segment"] = choose_segment(r.get("total_messages", 0), r.get("negative_count", 0), r.get("complaint_count", 0), r.get("inactive_days", 0))
     return r
 
-# def predict_message(user_id: str, message: str, channel: str = "manual", display_name: str = "", source: str = "api"):
-#     sentiment_model, category_model, _ = load_resources()
-#     text = clean_text(message)
-#     sentiment = str(sentiment_model.predict([text])[0])
-#     category = str(category_model.predict([text])[0])
-#     sentiment = keyword_sentiment_override(message, sentiment)
-#     category = keyword_category_override(message, category)
-#     behavior = get_user_behavior(user_id)
-#     segment = str(behavior.get("segment", "Regular"))
-#     action = choose_action(sentiment, category, segment)
-#     reply = make_reply(action)
-
-#     result = {
-#         "timestamp": datetime.now().isoformat(timespec="seconds"),
-#         "user_id": str(user_id),
-#         "display_name": display_name or "",
-#         "channel": channel,
-#         "source": source,
-#         "message": message,
-#         "clean_text": text,
-#         "sentiment": sentiment,
-#         "category": category,
-#         "segment": segment,
-#         "action": action,
-#         "reply_message": reply,
-#         "behavior": {
-#             "total_messages": int(behavior.get("total_messages", 0) or 0),
-#             "positive_count": int(behavior.get("positive_count", 0) or 0),
-#             "negative_count": int(behavior.get("negative_count", 0) or 0),
-#             "complaint_count": int(behavior.get("complaint_count", 0) or 0),
-#             "inactive_days": int(behavior.get("inactive_days", 0) or 0),
-#             "favorite_hour": None if pd.isna(behavior.get("favorite_hour", None)) else int(behavior.get("favorite_hour")),
-#         }
-#     }
-#     save_log(result)
-#     return result
-
 def predict_message(user_id: str, message: str, channel: str = "manual", display_name: str = "", source: str = "api"):
     sentiment_model, category_model, _ = load_resources()
     text = clean_text(message)
@@ -313,12 +295,6 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
 
     sentiment = keyword_sentiment_override(message, sentiment_ml)
     category = keyword_category_override(message, category_ml)
-
-    # # ถ้า keyword ทำให้คำตอบเปลี่ยนไปจากโมเดล ถือว่ามั่นใจ 100% (ตรงกับคำที่กำหนดไว้ตรงๆ)  มันทำให้ category เป็น 100 เสมอเมื่อเจอ keyword
-    # if sentiment != sentiment_ml:
-    #     sentiment_confidence = 100.0
-    # if category != category_ml:
-    #     category_confidence = 100.0
 
     behavior = get_user_behavior(user_id)
     segment = str(behavior.get("segment", "Regular"))
@@ -336,13 +312,13 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
         "message": message,
         "clean_text": text,
         "sentiment": sentiment,
-        "sentiment_confidence": sentiment_confidence,   # <-- ใหม่
+        "sentiment_confidence": sentiment_confidence,
         "category": category,
-        "category_confidence": category_confidence,     # <-- ใหม่
+        "category_confidence": category_confidence,
         "segment": segment,
         "action": action,
         "reply_message": reply,
-        "reply_confidence": reply_confidence,            # <-- ใหม่
+        "reply_confidence": reply_confidence,
         "behavior": {
              "total_messages": int(behavior.get("total_messages", 0) or 0),
             "positive_count": int(behavior.get("positive_count", 0) or 0),
