@@ -19,43 +19,50 @@ def choose_segment(total_messages=0, negative_count=0, complaint_count=0, inacti
         return "Active"
     return "Regular"
 
-def choose_action(sentiment, category, segment):
+# ---------------------------------------------------------------------------
+# FIX: เดิม choose_action เช็คคำอย่าง "มีแมลง", "สกปรก", "พนักงานหยาบคาย" กับตัวแปร
+# `category` ซึ่งเป็นแค่ "ป้ายชื่อหมวด" (เช่น "ร้องเรียนคุณภาพอาหาร") ที่ไม่เคยมีคำพวกนี้
+# อยู่ในป้ายชื่อเลย ทำให้ branch escalate พิเศษหลายจุดเป็น dead code ไม่ทำงานจริง
+# ตอนนี้แก้ให้เช็คกับ `message` (ข้อความจริงของลูกค้า) แทน
+# ---------------------------------------------------------------------------
+def choose_action(sentiment, category, segment, message=""):
     s = normalize_label(sentiment)
     c = str(category or "")
     seg = str(segment or "")
+    m = str(message or "")
 
-    # ---------- 1) เคสร้ายแรง/ร้องเรียนหนัก (ตรวจก่อนเสมอ) ----------
-    if s == "negative" and ("มีแมลง" in c or "เจอสิ่งแปลกปลอม" in c or "อาหารเป็นพิษ" in c or "บูด" in c or "เสีย" in c):
+    # ---------- 1) เคสร้ายแรง/ร้องเรียนหนัก (ตรวจก่อนเสมอ, เช็คกับข้อความจริง) ----------
+    if s == "negative" and any(w in m for w in ["แมลง", "สิ่งแปลกปลอม", "อาหารเป็นพิษ", "บูด", "เสียแล้ว", "หมดสภาพ"]):
         return "apology_quality_escalate"          # คุณภาพอาหาร - ร้องเรียนหนัก, escalate ทุกเซกเมนต์
 
-    if s == "negative" and ("พนักงานหยาบคาย" in c or "บริการแย่" in c or "ไม่สุภาพ" in c):
+    if s == "negative" and (any(w in m for w in ["พนักงานหยาบคาย", "บริการแย่", "ไม่สุภาพ", "ไม่ให้เกียรติ"]) or "ร้องเรียนการบริการ" in c):
         return "apology_staff_escalate"            # ร้องเรียนพนักงาน
 
-    if s == "negative" and ("สกปรก" in c or "กลิ่นเหม็น" in c or "แมลงสาบ" in c):
+    if s == "negative" and (any(w in m for w in ["สกปรก", "กลิ่นเหม็น", "แมลงสาบ", "เลอะเทอะ"]) or "ความสะอาด" in c):
         return "apology_cleanliness_escalate"      # ความสะอาด
 
-    if s == "negative" and ("แอร์" in c or "ร้อนมาก" in c or "อุณหภูมิ" in c):
+    if s == "negative" and (any(w in m for w in ["แอร์", "ร้อนมาก", "เย็นเกินไป", "ร้อนอบอ้าว"]) or "อุณหภูมิ" in c or "แอร์" in c):
         return "apology_temperature_escalate"
 
-    if s == "negative" and ("ห้องน้ำ" in c):
+    if s == "negative" and ("ห้องน้ำ" in m or "ห้องน้ำ" in c):
         return "apology_restroom_escalate"
 
-    if s == "negative" and ("บิล" in c and ("ผิด" in c or "ยอดไม่ตรง" in c or "เก็บเงินเกิน" in c)):
+    if s == "negative" and (("บิล" in m or "ยอดเงิน" in m or "ยอดไม่ตรง" in m) and ("ผิด" in m or "ไม่ตรง" in m or "เกิน" in m)):
         return "apology_billing_escalate"
 
-    if s == "negative" and ("แอพ" in c or "ระบบ" in c or "เว็บค้าง" in c):
+    if s == "negative" and (any(w in m for w in ["แอพ", "ระบบ", "เว็บค้าง"]) or "ระบบ" in c):
         return "apology_system_issue"
 
-    if s == "negative" and ("บัตรสมาชิก" in c or "แต้ม" in c):
+    if s == "negative" and (any(w in m for w in ["บัตรสมาชิก", "แต้ม"]) or "บัตรสมาชิก" in c):
         return "apology_membership_issue"
 
     # ---------- 2) จัดส่ง / ออเดอร์ผิดพลาด ----------
-    if s == "negative" and ("จัดส่ง" in c or "Delivery" in c or "ช้า" in c or "อาหารไม่ตรง" in c):
+    if s == "negative" and (any(w in m for w in ["ส่งช้า", "มาช้า", "รอของนาน", "อาหารมาไม่ครบ"]) or "การจัดส่ง" in c or "Delivery" in c):
         if seg in ["VIP", "At-Risk"]:
             return "apology_coupon_escalate"
         return "apology_check_order"
 
-    if s == "negative" and ("ไม่ครบ" in c or "ขาด" in c or "ผิดออเดอร์" in c or "สั่งผิด" in c):
+    if s == "negative" and any(w in m for w in ["ไม่ครบ", "ขาด", "ผิดออเดอร์", "สั่งผิด", "ส่งผิด"]):
         if seg in ["VIP", "At-Risk"]:
             return "apology_coupon_escalate"
         return "apology_wrong_order"
@@ -77,16 +84,16 @@ def choose_action(sentiment, category, segment):
     if "เวลาเปิด" in c or "เวลาทำการ" in c:
         return "send_hours"
 
-    if "แผนที่" in c or "สถานที่" in c or "location" in c:
+    if "แผนที่" in c or "สถานที่" in c or "location" in c or "ที่ตั้ง" in c:
         return "send_location"
 
-    if "ราคา" in c or "บิล" in c:
+    if "ราคา" in c:
         return "send_price_info"
 
     if "ชำระเงิน" in c or "payment" in c:
         return "send_payment_info"
 
-    if "แพ้" in c or "มังสวิรัติ" in c or "ฮาลาล" in c:
+    if "แพ้" in c or "มังสวิรัติ" in c or "ฮาลาล" in c or "ข้อจำกัดด้านอาหาร" in c:
         return "allergy_info_caution"
 
     if "ใบกำกับภาษี" in c or "ออกบิล" in c:
@@ -152,7 +159,7 @@ def choose_action(sentiment, category, segment):
         return "refund_cancel_support"
 
     # ---------- 5) รสชาติ (แยกตาม sentiment เพราะอาจเป็นได้ทั้งบวก/ลบ) ----------
-    if "รสชาติ" in c:
+    if "รสชาติ" in c or "คุณภาพอาหาร" in c:
         return "thank_you" if s == "positive" else "apology_escalate"
 
     # ---------- 6) positive ทั่วไป ----------
