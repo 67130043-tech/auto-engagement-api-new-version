@@ -8,7 +8,8 @@ import joblib
 from app.preprocess import clean_text
 from app.decision_engine import choose_segment, choose_action, make_reply
 from app.keywords_data import (
-    NEGATIVE_WORDS, POSITIVE_WORDS, NEGATION_PREFIXES, QUESTION_INDICATORS, CATEGORY_KEYWORDS
+    NEGATIVE_WORDS, POSITIVE_WORDS, NEGATION_PREFIXES, QUESTION_INDICATORS, CATEGORY_KEYWORDS,
+    keyword_category_and_match,
 )
 
 # เพิ่มใหม่สำหรับคำนวณความแม่นยำ
@@ -28,9 +29,21 @@ def predict_with_confidence(model, text: str):
     return pred, round(confidence, 2)
 
 
+# ---------------------------------------------------------------------------
+# FIX: keyword_sentiment_override / keyword_category_override เดิมถูกเรียกด้วย
+# "message" (ข้อความดิบ) ไม่ใช่ "text" (ข้อความหลังผ่าน clean_text) ทำให้การ
+# normalize คำถามท้ายประโยค (มั้ย/ปะ/ป่าว -> ไหม) ที่เพิ่งเพิ่มเข้าไปใน
+# clean_text() ไม่มีผลต่อการ match keyword เลย เพราะฟังก์ชันนี้ไม่เคยเห็นข้อความ
+# ที่ normalize แล้ว — จุดเรียกใช้จริงถูกย้ายไปแก้ที่ predict_message() ด้านล่าง
+# ให้ส่ง "text" (clean แล้ว) เข้ามาแทน "message" ดิบ
+#
+# นอกจากนี้ยังเปลี่ยนการเทียบ keyword ให้ไม่สนตัวพิมพ์เล็ก-ใหญ่ (case-insensitive)
+# เพราะหลาย category มี keyword ภาษาอังกฤษปนอยู่ (wifi, VIP, BTS, corkage, ...)
+# ลูกค้าอาจพิมพ์ตัวพิมพ์ต่างไปจากที่เขียนไว้ในโค้ด เช่น "WIFI", "Vip", "Corkage"
+# ---------------------------------------------------------------------------
 def keyword_sentiment_override(message: str, model_sentiment: str) -> str:
     """
-    ใช้ NEGATIVE_WORDS / POSITIVE_WORDS (~986 คำ รวมกัน) จาก keywords_data.py
+    ใช้ NEGATIVE_WORDS / POSITIVE_WORDS จาก keywords_data.py
     1) เช็ค negation ("ไม่"+คำบวก เช่น "ไม่อร่อย","ไม่ชอบ","ไม่ค่อยสะอาด") ก่อนเป็นอันดับแรก -> negative
     2) เช็ค negative_words ตรงๆ
     3) เช็ค positive_words ตรงๆ (ครอบคลุมคำชม/คำน่ากินที่ ML มักเดาผิด เช่น "หิวเลย","น่ากิน")
@@ -38,17 +51,18 @@ def keyword_sentiment_override(message: str, model_sentiment: str) -> str:
     5) ไม่งั้นเชื่อผล ML เดิม
     """
     text = str(message)
+    text_lower = text.lower()
 
     for prefix in NEGATION_PREFIXES:
         for w in POSITIVE_WORDS:
-            if f"{prefix}{w}" in text:
+            if f"{prefix}{w}".lower() in text_lower:
                 return "negative"
 
-    if any(w in text for w in NEGATIVE_WORDS):
+    if any(w.lower() in text_lower for w in NEGATIVE_WORDS):
         return "negative"
-    if any(w in text for w in POSITIVE_WORDS):
+    if any(w.lower() in text_lower for w in POSITIVE_WORDS):
         return "positive"
-    if any(w in text for w in QUESTION_INDICATORS):
+    if any(w.lower() in text_lower for w in QUESTION_INDICATORS):
         return "neutral"
 
     return model_sentiment
@@ -61,8 +75,16 @@ def keyword_category_override(message: str, model_category: str) -> str:
     หมวดทั่วไปกว่า (เช่น สอบถามสาขา/ทำเล) ไว้ท้ายๆ เพื่อลดการชนกัน
     """
     text = str(message)
+
+    # เช็คกติกาแบบ AND ก่อน (สำหรับกรณีคำสำคัญถูกพิมพ์แยกกัน ไม่ติดกันเป็นวลีเดียว
+    # เช่น "เอาเค้กวันเกิดไปเองได้ไหม" ดู CATEGORY_AND_KEYWORDS ใน keywords_data.py)
+    and_match = keyword_category_and_match(text)
+    if and_match:
+        return and_match
+
+    text_lower = text.lower()
     for category, keywords in CATEGORY_KEYWORDS.items():
-        if any(w in text for w in keywords):
+        if any(w.lower() in text_lower for w in keywords):
             return category
     return model_category
 
@@ -116,13 +138,20 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     sentiment_ml, sentiment_confidence = predict_with_confidence(sentiment_model, text)
     category_ml, category_confidence = predict_with_confidence(category_model, text)
 
-    sentiment = keyword_sentiment_override(message, sentiment_ml)
-    category = keyword_category_override(message, category_ml)
+    # ---------------------------------------------------------------------
+    # FIX: เดิมส่ง "message" (ดิบ ไม่ผ่าน clean_text/normalize) เข้าฟังก์ชัน
+    # keyword ทั้งสองตัว ทำให้การ normalize คำถามภาษาพูด (มั้ย/ปะ/ป่าว -> ไหม)
+    # ที่ทำไว้ใน clean_text ไม่มีผลกับการ match keyword เลย ตอนนี้เปลี่ยนมาส่ง
+    # "text" (ผ่าน clean_text แล้ว) แทน เพื่อให้ normalize มีผลจริง
+    # ---------------------------------------------------------------------
+    sentiment = keyword_sentiment_override(text, sentiment_ml)
+    category = keyword_category_override(text, category_ml)
 
     behavior = get_user_behavior(user_id)
     segment = str(behavior.get("segment", "Regular"))
-    # ส่ง message ดิบเข้าไปด้วย เพื่อให้ choose_action เช็ค escalate เคสหนักๆ กับข้อความจริง
-    action = choose_action(sentiment, category, segment, message)
+    # ส่ง text (ข้อความที่ clean + normalize แล้ว) เข้าไปด้วย เพื่อให้ choose_action
+    # เช็ค escalate เคสหนักๆ ได้แม่นยำขึ้นเช่นกัน (เดิมส่ง message ดิบ)
+    action = choose_action(sentiment, category, segment, text)
     reply = make_reply(action)
 
     reply_confidence = round((sentiment_confidence + category_confidence) / 2, 2)
