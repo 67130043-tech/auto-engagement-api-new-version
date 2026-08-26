@@ -110,3 +110,26 @@ def debug_sheet():
         return info
     except Exception as e:
         return {"error": str(e)}
+
+
+# ---------------------------------------------------------------------------
+# DEBUG (ชั่วคราว): เอาไว้เช็คว่าไฟล์ keywords_data.py / engine.py ที่รันอยู่จริง
+# บนเซิร์ฟเวอร์นี้ ตรงกับเวอร์ชันที่แก้ไปหรือยัง ลบทิ้งได้เมื่อเช็คเสร็จแล้ว
+# ---------------------------------------------------------------------------
+@app.get("/debug-keywords")
+def debug_keywords():
+    from app.keywords_data import NEGATIVE_WORDS, CATEGORY_KEYWORDS
+    from app.engine import keyword_sentiment_override, keyword_category_override
+    from app.preprocess import clean_text
+
+    test_msg = "ผัดไทยเผ็ดไปหน่อยนะครับ"
+    text = clean_text(test_msg)
+
+    return {
+        "negative_words_count": len(NEGATIVE_WORDS),
+        "category_keywords_count": len(CATEGORY_KEYWORDS),
+        "has_target_keyword": "เผ็ดไปหน่อย" in NEGATIVE_WORDS,
+        "clean_text_output": text,
+        "sentiment_override_result": keyword_sentiment_override(text, "neutral"),
+        "category_override_result": keyword_category_override(text, "ML_FALLBACK_LABEL"),
+    }
