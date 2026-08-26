@@ -108,6 +108,15 @@ def choose_action(sentiment, category, segment, message=""):
     if "สมัครงาน" in c or "รับสมัคร" in c:
         return "job_application_info"
 
+    if "แฟรนไชส์" in c or "franchise" in c:
+        return "franchise_info"
+
+    if "ช่องทางติดต่อ" in c:
+        return "contact_info"
+
+    if "ซื้อกลับบ้าน" in c or "Takeaway" in c:
+        return "takeaway_info"
+
     if "สาขา" in c or "ทำเล" in c or "อยู่ตรงไหน" in c or "BTS" in c or "MRT" in c:
         return "branch_location_info"
 
@@ -216,6 +225,9 @@ REPLY_TEMPLATES = {
     "event_info": "ร้านมีกิจกรรม/ดนตรีสดเป็นบางช่วงค่ะ รบกวนแจ้งวันที่สนใจ ทางร้านจะเช็คตารางให้นะคะ",
     "delivery_area_info": "รบกวนแจ้งที่อยู่หรือพื้นที่ที่ต้องการจัดส่ง ทางร้านจะเช็คว่าอยู่ในพื้นที่บริการหรือไม่ค่ะ",
     "min_order_info": "ยอดสั่งขั้นต่ำสำหรับบริการเดลิเวอรี่คือ 100 บาทค่ะ",
+    "franchise_info": "ขอบคุณที่สนใจแฟรนไชส์ของเราค่ะ รบกวนแจ้งชื่อ-เบอร์ติดต่อ ทางร้านจะให้ทีมงานส่งรายละเอียดการลงทุนให้ค่ะ",
+    "contact_info": "ติดต่อร้านได้ทางเบอร์โทร/LINE/เพจ Facebook ของร้านได้เลยค่ะ ทางร้านยินดีให้บริการค่ะ",
+    "takeaway_info": "สามารถห่อกลับได้ค่ะ แจ้งพนักงานหน้าร้านหรือระบุตอนสั่งได้เลยค่ะ",
 }
 
 def make_reply(action):
