@@ -138,23 +138,53 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     sentiment_ml, sentiment_confidence = predict_with_confidence(sentiment_model, text)
     category_ml, category_confidence = predict_with_confidence(category_model, text)
 
-    # ---------------------------------------------------------------------
-    # FIX: เดิมส่ง "message" (ดิบ ไม่ผ่าน clean_text/normalize) เข้าฟังก์ชัน
-    # keyword ทั้งสองตัว ทำให้การ normalize คำถามภาษาพูด (มั้ย/ปะ/ป่าว -> ไหม)
-    # ที่ทำไว้ใน clean_text ไม่มีผลกับการ match keyword เลย ตอนนี้เปลี่ยนมาส่ง
-    # "text" (ผ่าน clean_text แล้ว) แทน เพื่อให้ normalize มีผลจริง
-    # ---------------------------------------------------------------------
+    # # ---------------------------------------------------------------------
+    # # FIX: เดิมส่ง "message" (ดิบ ไม่ผ่าน clean_text/normalize) เข้าฟังก์ชัน
+    # # keyword ทั้งสองตัว ทำให้การ normalize คำถามภาษาพูด (มั้ย/ปะ/ป่าว -> ไหม)
+    # # ที่ทำไว้ใน clean_text ไม่มีผลกับการ match keyword เลย ตอนนี้เปลี่ยนมาส่ง
+    # # "text" (ผ่าน clean_text แล้ว) แทน เพื่อให้ normalize มีผลจริง
+    # # ---------------------------------------------------------------------
+    # sentiment = keyword_sentiment_override(text, sentiment_ml)
+    # category = keyword_category_override(text, category_ml)
+
+    # behavior = get_user_behavior(user_id)
+    # segment = str(behavior.get("segment", "Regular"))
+    # # ส่ง text (ข้อความที่ clean + normalize แล้ว) เข้าไปด้วย เพื่อให้ choose_action
+    # # เช็ค escalate เคสหนักๆ ได้แม่นยำขึ้นเช่นกัน (เดิมส่ง message ดิบ)
+    # action = choose_action(sentiment, category, segment, text)
+    # reply = make_reply(action)
+
+    # reply_confidence = round((sentiment_confidence + category_confidence) / 2, 2)
+
     sentiment = keyword_sentiment_override(text, sentiment_ml)
-    category = keyword_category_override(text, category_ml)
+category = keyword_category_override(text, category_ml)
 
-    behavior = get_user_behavior(user_id)
-    segment = str(behavior.get("segment", "Regular"))
-    # ส่ง text (ข้อความที่ clean + normalize แล้ว) เข้าไปด้วย เพื่อให้ choose_action
-    # เช็ค escalate เคสหนักๆ ได้แม่นยำขึ้นเช่นกัน (เดิมส่ง message ดิบ)
-    action = choose_action(sentiment, category, segment, text)
-    reply = make_reply(action)
+# ---------------------------------------------------------------------
+# FIX: ถ้า keyword rule เปลี่ยน label ไปจากที่ ML เดามา แปลว่าคำตอบสุดท้าย
+# มาจากการ match คำแบบตรงๆ (deterministic) ไม่ใช่ ML เดา จึงไม่ควรใช้ค่า
+# sentiment_confidence / category_confidence เดิม (ซึ่งเป็นความมั่นใจของ
+# label ที่ถูกทิ้งไปแล้ว) มาคำนวณ reply_confidence ต่อ
+# ให้ตั้งเป็นค่าคงที่สูง (keyword match = เชื่อถือได้) แทน
+# ---------------------------------------------------------------------
+KEYWORD_MATCH_CONFIDENCE = 95.0
 
-    reply_confidence = round((sentiment_confidence + category_confidence) / 2, 2)
+sentiment_source = "model"
+category_source = "model"
+
+if sentiment != sentiment_ml:
+    sentiment_confidence = KEYWORD_MATCH_CONFIDENCE
+    sentiment_source = "keyword"
+
+if category != category_ml:
+    category_confidence = KEYWORD_MATCH_CONFIDENCE
+    category_source = "keyword"
+
+behavior = get_user_behavior(user_id)
+segment = str(behavior.get("segment", "Regular"))
+action = choose_action(sentiment, category, segment, text)
+reply = make_reply(action)
+
+reply_confidence = round((sentiment_confidence + category_confidence) / 2, 2)
 
     result = {
         "timestamp": datetime.now().isoformat(timespec="seconds"),
@@ -169,6 +199,8 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
         "category": category,
         "category_confidence": category_confidence,
         "segment": segment,
+        "sentiment_source": sentiment_source,
+        "category_source": category_source,
         "action": action,
         "reply_message": reply,
         "reply_confidence": reply_confidence,
