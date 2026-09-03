@@ -390,17 +390,87 @@ CATEGORY_AND_KEYWORDS = {
 }
 
 
-def keyword_category_and_match(text: str):
+# ---------------------------------------------------------------------------
+# FIX (คำชม "น้ำแข็งเย็นทุกก้อน" ถูกตอบเป็น apology_escalate) + (category ชนกัน
+# ระหว่าง "ร้องเรียนคุณภาพอาหาร" กับ "สอบถาม/ร้องเรียนห้องน้ำ" ตอนมีคำว่า "เหม็น"):
+#
+# 1) เดิม keyword_sentiment_override/keyword_category_override เช็คแบบ
+#    substring ดิบ ("keyword" in text) ทำให้ "แข็ง" (อาหารแข็งไป = negative)
+#    ไป match ซ้อนอยู่ใน "น้ำแข็ง" (ice) โดยไม่ตั้งใจ เพราะภาษาไทยไม่มีช่องว่างคั่นคำ
+#    ตอนนี้เปลี่ยนมาตัดคำด้วย PyThaiNLP ก่อน (ดู preprocess.tokenize_boundary)
+#    แล้วเช็คแบบ "ต้องตรงกับคำที่ตัดแล้วทั้งคำ" (word-boundary) แทน
+#    -> precompute boundary-form ของทุก keyword ไว้ล่วงหน้าตอน import โมดูลนี้
+#    ครั้งเดียว (ไม่ต้อง tokenize keyword ซ้ำทุก request) แล้วให้ engine.py
+#    tokenize แค่ข้อความลูกค้า 1 ครั้งต่อ request มาเทียบกับ set นี้
+#
+# 2) เดิม CATEGORY_KEYWORDS เช็คแบบ "หมวดแรกที่เจอใน dict ชนะ" (first-match-wins
+#    ตามลำดับที่ประกาศไว้ในไฟล์) ทำให้ "ห้องน้ำสกปรก มีกลิ่นเหม็น" ถูกจัดเป็น
+#    "ร้องเรียนคุณภาพอาหาร" (เพราะ TASTE_NEG มีคำว่า "เหม็น" อยู่ และถูกประกาศไว้
+#    ก่อนหมวดห้องน้ำมาก) ทั้งที่หมวด "สอบถาม/ร้องเรียนห้องน้ำ" ก็มี keyword
+#    "ห้องน้ำสกปรก" ตรงกว่าอยู่แล้ว แค่ถูกเช็คทีหลัง เปลี่ยนมาใช้กติกา
+#    "keyword ที่ยาว/เจาะจงกว่าชนะ" (longest-match-wins) แทน first-match-wins
+#    เพื่อไม่ต้องพึ่งลำดับการประกาศหมวดในไฟล์นี้ (แก้ปัญหาทั้งคลาส ไม่ใช่แค่เคสเดียว)
+# ---------------------------------------------------------------------------
+from app.preprocess import tokenize_boundary as _tok_b
+
+
+def _boundary_map(words):
+    """{boundary_form: คำเดิม} ของ keyword แต่ละคำ เตรียมไว้ล่วงหน้าครั้งเดียว"""
+    return {_tok_b(w): w for w in words}
+
+
+_NEGATIVE_BOUNDARY = _boundary_map(NEGATIVE_WORDS)
+_POSITIVE_BOUNDARY = _boundary_map(POSITIVE_WORDS)
+_QUESTION_BOUNDARY_MAP = _boundary_map(QUESTION_INDICATORS)
+# ไม่ + คำบวก เช่น "ไม่อร่อย" ต้อง precompute คู่ prefix+word ไว้ล่วงหน้าเช่นกัน
+_NEGATION_COMBO_BOUNDARY = _boundary_map(
+    f"{prefix}{w}" for prefix in NEGATION_PREFIXES for w in POSITIVE_WORDS
+)
+# {category: {boundary_form: original_keyword}}
+_CATEGORY_BOUNDARY = {cat: _boundary_map(words) for cat, words in CATEGORY_KEYWORDS.items()}
+# {category: [{boundary_form: original_keyword}, ...]}  (แต่ละ group ของกติกา AND)
+_CATEGORY_AND_BOUNDARY = {
+    cat: [_boundary_map(group) for group in groups] for cat, groups in CATEGORY_AND_KEYWORDS.items()
+}
+
+
+def has_negation_positive(text_boundary: str) -> bool:
+    """เช็ค "ไม่"+คำบวก (เช่น "ไม่อร่อย") แบบ word-boundary จาก text ที่ tokenize_boundary() แล้ว"""
+    return any(kw_b in text_boundary for kw_b in _NEGATION_COMBO_BOUNDARY)
+
+
+def match_boundary_words(text_boundary: str, boundary_map: dict) -> bool:
+    """เช็คว่ามี keyword คำใดคำหนึ่งใน boundary_map match กับ text_boundary แบบทั้งคำหรือไม่"""
+    return any(kw_b in text_boundary for kw_b in boundary_map)
+
+
+def keyword_category_and_match(text_boundary: str):
     """
-    เช็คกติกาแบบ AND (ดู CATEGORY_AND_KEYWORDS ด้านบน) แบบไม่สนตัวพิมพ์เล็ก-ใหญ่
+    เช็คกติกาแบบ AND (ดู CATEGORY_AND_KEYWORDS ด้านบน) แบบ word-boundary
     คืนชื่อหมวดแรกที่ตรงเงื่อนไขครบทุกกลุ่ม หรือ None ถ้าไม่มีหมวดไหนตรงเลย
     เรียกจาก keyword_category_override() ก่อนเช็ค CATEGORY_KEYWORDS แบบ OR ปกติ
+    รับพารามิเตอร์เป็น text ที่ผ่าน preprocess.tokenize_boundary() มาแล้ว
     """
-    text_lower = str(text).lower()
-    for category, groups in CATEGORY_AND_KEYWORDS.items():
-        if all(any(w.lower() in text_lower for w in group) for group in groups):
+    for category, groups in _CATEGORY_AND_BOUNDARY.items():
+        if all(match_boundary_words(text_boundary, group) for group in groups):
             return category
     return None
+
+
+def keyword_category_best_match(text_boundary: str):
+    """
+    ไล่เช็คทุกหมวดใน CATEGORY_KEYWORDS (ไม่หยุดที่หมวดแรกที่เจอ) แล้วเลือกหมวดที่มี
+    keyword ที่ "ยาว/เจาะจงที่สุด" (longest-match-wins) แทนการใช้หมวดแรกตามลำดับ
+    การประกาศในไฟล์ (first-match-wins) เพื่อลดโอกาสที่คำทั่วไป (เช่น "เหม็น" ซึ่งอยู่
+    ในหมวดอาหารด้วย) จะบังคำที่เจาะจงกว่าของอีกหมวด (เช่น "ห้องน้ำสกปรก")
+    คืน None ถ้าไม่มีหมวดไหน match เลย
+    """
+    best_category, best_len = None, 0
+    for category, boundary_map in _CATEGORY_BOUNDARY.items():
+        for kw_b, original in boundary_map.items():
+            if len(original) > best_len and kw_b in text_boundary:
+                best_category, best_len = category, len(original)
+    return best_category
 
 
 if __name__ == "__main__":
