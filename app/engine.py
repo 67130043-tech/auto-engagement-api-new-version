@@ -14,6 +14,12 @@ from app.keywords_data import (
     match_boundary_words, count_nonoverlapping_matches,
     keyword_category_and_match, keyword_category_best_match,
 )
+from app.openai_verifier import verify_sentiment
+
+# เกณฑ์เรียก OpenAI เป็นความเห็นที่สอง: เฉพาะตอนไม่มี keyword ไหน match เลย (ต้อง
+# เชื่อผล ML เดาเอง) แล้ว sentiment_confidence (ที่ calibrate แล้ว) ต่ำกว่านี้เท่านั้น
+# (ตกลงกับผู้ใช้ไว้ที่ 60% — ดู comment ใน predict_message() จุดที่เรียกใช้จริง)
+SENTIMENT_VERIFY_THRESHOLD = 60.0
 
 # ---------------------------------------------------------------------------
 # FIX (พัฒนาความแม่นยำของ sentiment_confidence/category_confidence): เดิมฟังก์ชัน
@@ -320,6 +326,26 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     if category != category_ml:
         category_confidence = KEYWORD_MATCH_CONFIDENCE
         category_source = "keyword"
+
+    # ---------------------------------------------------------------------
+    # FIX (ขั้นที่ 3 ตามแผนพัฒนา confidence — ตกลงกับผู้ใช้ไว้ว่าเช็คเฉพาะ sentiment
+    # เพราะ category แม่นยำ/calibrate ดีอยู่แล้วที่ ~100%): เคสที่ไม่มี keyword ไหน
+    # match เลย (sentiment_source ยังเป็น "model" คือเชื่อ ML ล้วนๆ) แล้ว ML ยังไม่ค่อย
+    # มั่นใจ (sentiment_confidence < 60% ตามที่ตกลงกันไว้) ให้ถาม OpenAI เป็นความเห็น
+    # ที่สอง แทนที่จะปล่อยให้ใช้คำตอบของ ML ที่ตัวมันเองก็ไม่มั่นใจไปตรงๆ — เรียกเฉพาะ
+    # เคสนี้เท่านั้น (ไม่ใช่ทุกข้อความ) เพื่อคุมค่าใช้จ่าย API
+    #
+    # **ไม่กระทบ Make.com HTTP module เดิมเลย** — เกิดขึ้นข้างในนี้ทั้งหมด ก่อนจะคืนค่า
+    # result dict ที่มี field ชุดเดิมทุกอย่าง (เพิ่มแค่ sentiment_source บอกที่มา)
+    # ถ้าเรียก OpenAI ไม่สำเร็จ (ยังไม่ได้ตั้ง OPENAI_API_KEY, network error, ฯลฯ)
+    # verify_sentiment() คืน (None, None) แล้วโค้ดจะข้ามไปใช้ผล ML เดิมทันที ไม่พัง
+    # ---------------------------------------------------------------------
+    if sentiment_source == "model" and sentiment_confidence < SENTIMENT_VERIFY_THRESHOLD:
+        verified_sentiment, verified_confidence = verify_sentiment(text)
+        if verified_sentiment is not None:
+            sentiment = verified_sentiment
+            sentiment_confidence = verified_confidence
+            sentiment_source = "openai"
 
     behavior = get_user_behavior(user_id)
     segment = str(behavior.get("segment", "Regular"))
