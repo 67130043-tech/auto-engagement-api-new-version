@@ -10,7 +10,7 @@ from app.decision_engine import choose_segment, choose_action, make_reply
 from app.keywords_data import (
     _NEGATIVE_BOUNDARY, _POSITIVE_BOUNDARY, _QUESTION_BOUNDARY_MAP,
     _NEGATIVE_TOKENS, _POSITIVE_TOKENS,
-    has_negation_positive, has_negation_of_negative,
+    has_negation_positive, has_negation_of_negative, has_wait_hours_complaint,
     match_boundary_words, count_nonoverlapping_matches,
     keyword_category_and_match, keyword_category_best_match,
 )
@@ -20,6 +20,33 @@ from app.openai_verifier import verify_sentiment
 # เชื่อผล ML เดาเอง) แล้ว sentiment_confidence (ที่ calibrate แล้ว) ต่ำกว่านี้เท่านั้น
 # (ตกลงกับผู้ใช้ไว้ที่ 60% — ดู comment ใน predict_message() จุดที่เรียกใช้จริง)
 SENTIMENT_VERIFY_THRESHOLD = 60.0
+
+# ---------------------------------------------------------------------------
+# FIX (คุมค่าใช้จ่าย OpenAI API — ผู้ใช้ขอ "แผนที่ไม่เพิ่ม API มาก" แทนการเช็คทุก
+# ข้อความที่ keyword ตัดสิน positive): เพิ่มเงื่อนไข "ข้อความต้องยาว/มีหลายประโยค
+# พอสมควร" ก่อนจะยอมเรียก OpenAI ซ้ำ เพราะการประชด/แดกดันด้วยคำชมมักต้องมีอย่างน้อย
+# 2 ส่วน (คำชม + สิ่งที่บ่นจริงๆ) ปนกันในประโยคเดียว คำชมสั้นๆ คำเดียวโดดๆ เช่น
+# "อร่อยมาก", "เก่งมาก", "ขอบคุณค่ะ" (มักมีแค่ 2-3 token หลังตัดคำ) แทบไม่มีความเสี่ยง
+# เป็นการประชดเลย จึงไม่คุ้มที่จะเสียค่า API เช็คซ้ำ — ตั้งเกณฑ์ไว้ที่ 6 token ขึ้นไป
+# (นับจาก tokenize_words ตัวเดียวกับที่ใช้นับ keyword vote) จากการสุ่มดูตัวอย่างจริง
+# คำชมสั้นล้วนๆ อยู่ที่ 2-4 token ส่วนประโยคที่มีการประชดจริง (มี 2 ประโยคย่อยขึ้นไป)
+# อยู่ที่ 6 token ขึ้นไปเสมอ
+# ---------------------------------------------------------------------------
+MIN_TOKENS_FOR_SARCASM_CHECK = 6
+
+
+def count_sentiment_votes(customer_tokens: list):
+    """
+    นับ pos_hits/neg_hits จาก token list เดียว (ไม่ต้อง tokenize ซ้ำ) รวมสัญญาณ
+    "รอ...เป็นชั่วโมง" (has_wait_hours_complaint) เข้าไปในฝั่งคำลบด้วย — แยกออกมาเป็น
+    ฟังก์ชันกลางเพื่อให้ keyword_sentiment_override() กับจุดเช็คเงื่อนไขเรียก OpenAI ซ้ำ
+    ใน predict_message() ใช้ตรรกะการนับคะแนนชุดเดียวกันเป๊ะๆ ไม่เพี้ยนไม่ตรงกัน
+    """
+    neg_hits = count_nonoverlapping_matches(customer_tokens, _NEGATIVE_TOKENS)
+    pos_hits = count_nonoverlapping_matches(customer_tokens, _POSITIVE_TOKENS)
+    if has_wait_hours_complaint(customer_tokens):
+        neg_hits += 1
+    return pos_hits, neg_hits
 
 # ---------------------------------------------------------------------------
 # FIX (พัฒนาความแม่นยำของ sentiment_confidence/category_confidence): เดิมฟังก์ชัน
@@ -107,8 +134,7 @@ def keyword_sentiment_override(message: str, model_sentiment: str) -> str:
     # จุดเดียวกัน ซึ่งจะทำให้ voting ระหว่างคำบวก/คำลบเพี้ยน (ดู comment เหนือ
     # count_nonoverlapping_matches ใน keywords_data.py)
     customer_tokens = tokenize_words(str(message))
-    neg_hits = count_nonoverlapping_matches(customer_tokens, _NEGATIVE_TOKENS)
-    pos_hits = count_nonoverlapping_matches(customer_tokens, _POSITIVE_TOKENS)
+    pos_hits, neg_hits = count_sentiment_votes(customer_tokens)
 
     if has_negation_of_negative(text_boundary) and neg_hits > 0:
         neg_hits -= 1
@@ -329,16 +355,42 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
 
     # ---------------------------------------------------------------------
     # FIX (ขั้นที่ 3 ตามแผนพัฒนา confidence — ตกลงกับผู้ใช้ไว้ว่าเช็คเฉพาะ sentiment
-    # เพราะ category แม่นยำ/calibrate ดีอยู่แล้วที่ ~100%): เคสที่ไม่มี keyword ไหน
-    # match เลย (sentiment_source ยังเป็น "model" คือเชื่อ ML ล้วนๆ) แล้ว ML ยังไม่ค่อย
-    # มั่นใจ (sentiment_confidence < 60% ตามที่ตกลงกันไว้) ให้ถาม OpenAI เป็นความเห็น
-    # ที่สอง แทนที่จะปล่อยให้ใช้คำตอบของ ML ที่ตัวมันเองก็ไม่มั่นใจไปตรงๆ — เรียกเฉพาะ
-    # เคสนี้เท่านั้น (ไม่ใช่ทุกข้อความ) เพื่อคุมค่าใช้จ่าย API
+    # เพราะ category แม่นยำ/calibrate ดีอยู่แล้วที่ ~100%): เรียก OpenAI เป็นความเห็น
+    # ที่สอง 2 กรณี (ไม่เรียกทุกข้อความ เพื่อคุมค่าใช้จ่าย API):
     #
-    # **ไม่กระทบ Make.com HTTP module เดิมเลย** — เกิดขึ้นข้างในนี้ทั้งหมด ก่อนจะคืนค่า
-    # result dict ที่มี field ชุดเดิมทุกอย่าง (เพิ่มแค่ sentiment_source บอกที่มา)
-    # ถ้าเรียก OpenAI ไม่สำเร็จ (ยังไม่ได้ตั้ง OPENAI_API_KEY, network error, ฯลฯ)
-    # verify_sentiment() คืน (None, None) แล้วโค้ดจะข้ามไปใช้ผล ML เดิมทันที ไม่พัง
+    # กรณี 1 - ML ล้วนๆ ไม่มั่นใจ: ไม่มี keyword ไหน match เลย (sentiment_source ยังเป็น
+    # "model") แล้ว sentiment_confidence (ที่ calibrate แล้ว) ต่ำกว่า 60% ตามที่ตกลงกัน
+    #
+    # กรณี 2 (เพิ่มเข้ามาทีหลัง จากปัญหาจริงที่เจอตอนทดสอบ: ข้อความประชด/แดกดัน เช่น
+    # "อร่อยมากมายกับการรอสองชั่วโมงนะคะ", "ดีมากเลยค่ะ ได้กินตอนเย็นชืดพอดี",
+    # "ประทับใจจัง พนักงานไม่สนใจเราเลยแม้แต่น้อย" — คำชม เช่น "อร่อยมาก"/"ดีมาก"/
+    # "ประทับใจ" ทำให้ keyword_sentiment_override ตัดสินเป็น "positive" ทันที
+    #
+    # ตอนแรกลองเช็คแค่ตอน sentiment_source=="keyword" (คือ label สุดท้ายต่างจาก ML)
+    # แต่พบว่าไม่พอ: debug จริงแล้วพบว่า 2 ใน 4 ตัวอย่างข้างต้น ML เองก็เดา "positive"
+    # ผิดไปด้วยเหมือนกัน (ถูกคำชมหลอกเหมือนกัน) ทำให้ label สุดท้าย "เท่ากับ" ที่ ML
+    # เดา (sentiment_source เลยกลายเป็น "model" ไม่ใช่ "keyword" ทั้งที่จริงๆ keyword
+    # ก็เป็นคนตัดสินใจเหมือนกัน) แล้ว confidence ของ ML เองก็สูงเกิน 60% ในเคสเหล่านั้น
+    # (81%, 76%) ทำให้หลุดกรณี 1 ไปด้วย — สุดท้ายไม่มีเงื่อนไขไหนจับได้เลย
+    #
+    # แก้โดยเช็คตรงๆ ว่า "มี positive keyword ที่ match จริงหรือไม่" (pos_hits > 0)
+    # แทนการเทียบกับ label ของ ML — ถ้า sentiment สุดท้ายเป็น "positive" และมาจากการ
+    # เจอ positive keyword จริง (ไม่ใช่จากการที่ไม่มี keyword ไหนเลยแล้ว fallback ไป
+    # เชื่อ ML เฉยๆ) ให้ถือว่าเข้าข่ายเสี่ยงประชด ต้องเช็คซ้ำเสมอ ไม่ว่า ML จะเห็นด้วย
+    # กับ keyword หรือไม่ก็ตาม — ครอบคลุมทั้ง 3 ใน 4 ตัวอย่างที่ทดสอบจริง (เคสที่ 4
+    # ผลลัพธ์เป็น "neutral" อยู่แล้วจาก majority-vote tie ไม่ใช่ "positive" จึงไม่เข้า
+    # เงื่อนไขนี้ แต่ "neutral" ปลอดภัยกว่า "positive" อยู่แล้วในแง่ไม่ส่งคำขอบคุณไป
+    # หาลูกค้าที่จริงๆ กำลังโกรธ)
+    #
+    # สังเกตว่าการประชดแบบนี้เกิดจาก "ใช้คำชมบ่นเรื่องแย่ๆ" แทบทั้งหมด (ตรงข้ามน้อยกว่า
+    # มาก คือใช้คำต่อว่าเพื่อชมจริงๆ) จึงเช็คเฉพาะทิศทาง positive เท่านั้น (ไม่เช็คตอน
+    # ตัดสินเป็น negative) — คุ้มกับค่า API ที่เพิ่มขึ้น เพราะโฟกัสเฉพาะทิศทางที่เสี่ยง
+    # เข้าใจผิดจริงๆ ไม่ใช่ทุกคอมเมนต์
+    #
+    # **ไม่กระทบ Make.com HTTP module เดิมเลย** ทั้งสองกรณี — เกิดขึ้นข้างในนี้ทั้งหมด
+    # ก่อนจะคืนค่า result dict ที่มี field ชุดเดิมทุกอย่าง (เพิ่มแค่ sentiment_source
+    # บอกที่มา) ถ้าเรียก OpenAI ไม่สำเร็จ (ยังไม่ได้ตั้ง OPENAI_API_KEY, network error,
+    # ฯลฯ) verify_sentiment() คืน (None, None) แล้วโค้ดจะข้ามไปใช้ผลเดิมทันที ไม่พัง
     # ---------------------------------------------------------------------
     if sentiment_source == "model" and sentiment_confidence < SENTIMENT_VERIFY_THRESHOLD:
         verified_sentiment, verified_confidence = verify_sentiment(text)
@@ -346,6 +398,39 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
             sentiment = verified_sentiment
             sentiment_confidence = verified_confidence
             sentiment_source = "openai"
+    elif sentiment == "positive":
+        # ---------------------------------------------------------------
+        # FIX (คุมค่าใช้จ่าย API — ตกลงกับผู้ใช้ไว้ว่า "รวมข้อ 1+2+3+4"):
+        # เดิมเช็คแค่ pos_hits_check > 0 (มี positive keyword จริง) ซึ่งเรียก OpenAI
+        # ซ้ำแทบทุกคอมเมนต์ชมร้าน ทำให้ค่า API พุ่งเกินจำเป็น เพิ่มเงื่อนไขอีก 2 ข้อ
+        # ก่อนยอมเรียกซ้ำ (ต้องผ่านครบทุกข้อ):
+        #   - neg_hits_check > 0: ต้องมี "สัญญาณคำลบ" ปนอยู่ด้วย (mixed signal) เช่น
+        #     คำบ่น/ร้องเรียนที่ซ่อนอยู่ข้างในคำชม — คอมเมนต์ชมล้วนๆ ไม่มีคำลบปนเลย
+        #     แทบไม่มีทางเป็นการประชด จึงตัดออกจากการเช็คซ้ำได้เลยโดยไม่เสี่ยงตกหล่น
+        #   - len(customer_tokens_check) >= MIN_TOKENS_FOR_SARCASM_CHECK: ข้อความ
+        #     ต้องยาว/มีหลายส่วนพอที่จะ "แฝง" การประชดได้ (ดู comment เหนือค่าคงที่
+        #     ด้านบน) คำชมสั้นๆ คำเดียวไม่เข้าเงื่อนไขนี้อยู่แล้ว
+        # ส่วนกรณีจริงที่เจอทั้ง 4 ตัวอย่าง ("รอสองชั่วโมง", "เย็นชืด", "ไม่สนใจ",
+        # "คิดเงินผิด...ทุกรอบ") ตอนนี้ keyword_sentiment_override() (รวม tokenizer
+        # ที่แก้ "ทุกรอบ" และ has_wait_hours_complaint ที่เพิ่งเพิ่ม) จับได้เองจน
+        # sentiment ไม่ใช่ "positive" อยู่แล้วตั้งแต่ต้น (กลายเป็น "neutral"/"negative"
+        # โดยไม่ต้องเรียก OpenAI เลยแม้แต่ครั้งเดียว) เงื่อนไขนี้จึงเหลือไว้เป็น
+        # "ตาข่ายนิรภัย" สำรองสำหรับรูปแบบการประชดอื่นที่ keyword ยังจับไม่ได้เท่านั้น
+        # ---------------------------------------------------------------
+        customer_tokens_check = tokenize_words(text)
+        pos_hits_check, neg_hits_check = count_sentiment_votes(customer_tokens_check)
+        if (
+            pos_hits_check > 0
+            and neg_hits_check > 0
+            and len(customer_tokens_check) >= MIN_TOKENS_FOR_SARCASM_CHECK
+        ):
+            verified_sentiment, verified_confidence = verify_sentiment(text)
+            if verified_sentiment is not None and verified_sentiment != sentiment:
+                # OpenAI ไม่เห็นด้วยกับคำตัดสิน "positive" (สงสัยเป็นการประชด/แดกดัน)
+                # -> เชื่อ OpenAI แทน ถ้า OpenAI เห็นด้วย (หรือเรียกไม่สำเร็จ) ใช้ผลเดิมต่อไป
+                sentiment = verified_sentiment
+                sentiment_confidence = verified_confidence
+                sentiment_source = "openai"
 
     behavior = get_user_behavior(user_id)
     segment = str(behavior.get("segment", "Regular"))

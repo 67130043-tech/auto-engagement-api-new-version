@@ -18,7 +18,7 @@ predict_message() เท่านั้น ฝั่ง Make ไม่รู้�
 import os
 import json
 
-OPENAI_MODEL = os.environ.get("OPENAI_VERIFIER_MODEL", "gpt-4o-mini")
+OPENAI_MODEL = os.environ.get("OPENAI_VERIFIER_MODEL", "gpt-5-nano")
 OPENAI_TIMEOUT_SECONDS = 8
 VALID_SENTIMENTS = {"positive", "negative", "neutral"}
 
@@ -75,7 +75,10 @@ def verify_sentiment(text: str):
             ],
             response_format={"type": "json_object"},
             max_tokens=30,
-            temperature=0,
+            # หมายเหตุ: โมเดลตระกูล gpt-5 (รวม gpt-5-nano) ไม่รองรับพารามิเตอร์
+            # temperature ค่าอื่นนอกจากค่า default (1) — ถ้าใส่ temperature=0 แบบเดิม
+            # จะโดน API ตอบ 400 error ทุกครั้ง (ถูก try/except ด้านล่างจับเงียบๆ กลาย
+            # เป็นไม่ได้ผลอะไรเลยโดยไม่มี error ให้เห็น) จึงตัดพารามิเตอร์นี้ออกไปเลย
         )
         raw = resp.choices[0].message.content
         data = json.loads(raw)
