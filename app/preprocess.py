@@ -21,6 +21,17 @@ from pythainlp.tokenize import word_tokenize
 _BOUNDARY_SEP = "\x1f"
 
 
+def tokenize_words(text: str) -> list:
+    """ตัดคำ (PyThaiNLP, engine=newmm) คืนเป็น list ของคำ (ตัวพิมพ์เล็กทั้งหมด) เช่น
+    "น้ำแข็งเย็นทุกก้อน" -> ["น้ำแข็ง", "เย็น", "ทุก", "ก้อน"]
+    ใช้ตอนต้องรู้ตำแหน่ง/ลำดับคำจริงๆ (เช่นนับจำนวน keyword ที่ match แบบไม่นับซ้อนกัน
+    ใน keywords_data.count_nonoverlapping_matches) ต่างจาก tokenize_boundary() ที่คืน
+    สตริงเดียวไว้เช็คแบบ substring/any() เร็วๆ"""
+    if not text:
+        return []
+    return [t.lower() for t in word_tokenize(str(text), engine="newmm") if t and t.strip()]
+
+
 def tokenize_boundary(text: str) -> str:
     """
     ตัดคำ (PyThaiNLP, engine=newmm) แล้วคืนสตริงคั่นด้วยตัวคั่นพิเศษรอบทุกคำ เช่น
@@ -30,7 +41,7 @@ def tokenize_boundary(text: str) -> str:
     """
     if not text:
         return _BOUNDARY_SEP
-    tokens = [t.lower() for t in word_tokenize(str(text), engine="newmm") if t and t.strip()]
+    tokens = tokenize_words(text)
     return _BOUNDARY_SEP + _BOUNDARY_SEP.join(tokens) + _BOUNDARY_SEP
 
 THAI_NORMALIZE_MAP = {

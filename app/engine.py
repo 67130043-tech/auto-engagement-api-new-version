@@ -5,11 +5,13 @@ import numpy as np
 import pandas as pd
 import joblib
 
-from app.preprocess import clean_text, tokenize_boundary
+from app.preprocess import clean_text, tokenize_boundary, tokenize_words
 from app.decision_engine import choose_segment, choose_action, make_reply
 from app.keywords_data import (
     _NEGATIVE_BOUNDARY, _POSITIVE_BOUNDARY, _QUESTION_BOUNDARY_MAP,
-    has_negation_positive, match_boundary_words,
+    _NEGATIVE_TOKENS, _POSITIVE_TOKENS,
+    has_negation_positive, has_negation_of_negative,
+    match_boundary_words, count_nonoverlapping_matches,
     keyword_category_and_match, keyword_category_best_match,
 )
 
@@ -51,24 +53,50 @@ def predict_with_confidence(model, text: str):
 def keyword_sentiment_override(message: str, model_sentiment: str) -> str:
     """
     ใช้ NEGATIVE_WORDS / POSITIVE_WORDS จาก keywords_data.py (เทียบแบบ word-boundary)
-    1) เช็ค negation ("ไม่"+คำบวก เช่น "ไม่อร่อย","ไม่ชอบ","ไม่ค่อยสะอาด") ก่อนเป็นอันดับแรก -> negative
-    2) เช็ค negative_words ตรงๆ
-    3) เช็ค positive_words ตรงๆ (ครอบคลุมคำชม/คำน่ากินที่ ML มักเดาผิด เช่น "หิวเลย","น่ากิน")
-    4) ถ้าไม่มี keyword แต่มีลักษณะเป็นคำถาม -> neutral
-    5) ไม่งั้นเชื่อผล ML เดิม
+
+    1) เช็ค negation ("ไม่"+คำบวก เช่น "ไม่อร่อย","ไม่ชอบ","ไม่ค่อยสะอาด") ก่อนเป็นอันดับแรก
+       -> negative เสมอ (สัญญาณชัดเจนที่สุด ไม่ต้องนับคะแนน)
+    2) นับจำนวนคำลบ (neg_hits) และคำบวก (pos_hits) ที่ match ทั้งหมดในข้อความ (ไม่ใช่แค่
+       เช็คว่ามีคำใดคำหนึ่งไหมแบบเดิม) แล้วหักคะแนน neg_hits ลง 1 ถ้าเจอ "ไม่"+คำลบ
+       (เช่น "ไม่แย่") เพราะความหมายถูกปฏิเสธไปแล้ว
+    3) ถ้าไม่มีทั้งคำลบและคำบวกเลย -> เช็คว่าเป็นคำถามไหม (neutral) ไม่งั้นเชื่อผล ML เดิม
+    4) ถ้ามีแค่ฝั่งเดียว (neg_hits>0 หรือ pos_hits>0 อย่างใดอย่างหนึ่ง) -> เชื่อฝั่งนั้น
+       (พฤติกรรมเหมือนเดิมทุกประการสำหรับคอมเมนต์สั้นประเด็นเดียว)
+    5) ถ้ามีทั้งสองฝั่ง (ข้อความ/รีวิวยาวที่มีทั้งคำชมและคำติปนกัน) -> ใช้เสียงส่วนใหญ่
+       ฝั่งที่เยอะกว่าอย่างน้อย 2 เท่าชนะ ถ้าก้ำกึ่งกันให้ตอบ "neutral" แทน (ความเห็นแบบ
+       ผสม ไม่ใช่ชมล้วนหรือติล้วน) — เดิมกติกาคือ "เจอคำลบคำเดียวที่ไหนก็ตาม -> negative
+       ทันที" ซึ่งทำให้รีวิวยาวที่ชมเป็นหลักแต่ติเล็กน้อยกลายเป็น negative ผิดๆ เกือบทุกครั้ง
+       (ดู comment เหนือ _NEGATION_COMBO_NEG_BOUNDARY ใน keywords_data.py สำหรับหลักฐาน)
     """
     text_boundary = tokenize_boundary(str(message))
 
     if has_negation_positive(text_boundary):
         return "negative"
-    if match_boundary_words(text_boundary, _NEGATIVE_BOUNDARY):
-        return "negative"
-    if match_boundary_words(text_boundary, _POSITIVE_BOUNDARY):
-        return "positive"
-    if match_boundary_words(text_boundary, _QUESTION_BOUNDARY_MAP):
+
+    # ใช้ token list จริง (ไม่ใช่แค่สตริงรวม) เพื่อนับ hit แบบไม่ซ้อนทับกัน — ป้องกัน
+    # คำรากกับคำผสมของมันเอง (เช่น "หวาน" กับ "หวานไปนิด") ถูกนับเป็น 2 คะแนนจาก
+    # จุดเดียวกัน ซึ่งจะทำให้ voting ระหว่างคำบวก/คำลบเพี้ยน (ดู comment เหนือ
+    # count_nonoverlapping_matches ใน keywords_data.py)
+    customer_tokens = tokenize_words(str(message))
+    neg_hits = count_nonoverlapping_matches(customer_tokens, _NEGATIVE_TOKENS)
+    pos_hits = count_nonoverlapping_matches(customer_tokens, _POSITIVE_TOKENS)
+
+    if has_negation_of_negative(text_boundary) and neg_hits > 0:
+        neg_hits -= 1
+
+    if neg_hits == 0 and pos_hits == 0:
+        if match_boundary_words(text_boundary, _QUESTION_BOUNDARY_MAP):
+            return "neutral"
+        return model_sentiment
+
+    if neg_hits > 0 and pos_hits > 0:
+        if neg_hits >= pos_hits * 2:
+            return "negative"
+        if pos_hits >= neg_hits * 2:
+            return "positive"
         return "neutral"
 
-    return model_sentiment
+    return "negative" if neg_hits > 0 else "positive"
 
 
 def keyword_category_override(message: str, model_category: str) -> str:
@@ -77,6 +105,11 @@ def keyword_category_override(message: str, model_category: str) -> str:
     keyword ยาว/เจาะจงที่สุดที่ match (longest-match-wins) แทนการใช้หมวดแรกตามลำดับ
     การประกาศในไฟล์ เพื่อไม่ให้คำทั่วไป (เช่น "เหม็น" ที่อยู่ในหมวดอาหารด้วย) บัง
     คำที่เจาะจงกว่าของอีกหมวด (เช่น "ห้องน้ำสกปรก")
+
+    คืนค่าเป็น category "แบบละเอียด" (~35 หมวด ตาม CATEGORY_KEYWORDS) ใช้สำหรับเลือก
+    reply template ใน decision_engine.choose_action() เท่านั้น — ไม่ใช่ label เดียวกับ
+    ที่ category_model (ML) ถูกเทรนมา (ดู map_to_ml_category() ด้านล่างสำหรับค่าที่ใช้
+    รายงาน/วัดความแม่นยำเทียบกับ ground truth)
     """
     text_boundary = tokenize_boundary(str(message))
 
@@ -88,6 +121,108 @@ def keyword_category_override(message: str, model_category: str) -> str:
 
     best_match = keyword_category_best_match(text_boundary)
     return best_match or model_category
+
+
+# ---------------------------------------------------------------------------
+# FIX (พบจากการ evaluate baseline อย่างเป็นระบบครั้งแรก 10 ก.ย.):
+# category_model (ML) ถูกเทรนมาให้รู้จักแค่ 10 คลาสจาก Dataset_Restaurant_CRM
+# (ML_CATEGORY_CLASSES ด้านล่าง) แต่ keyword_category_override() ข้างบนคืนค่าจาก
+# CATEGORY_KEYWORDS ซึ่งมีถึง ~35 หมวด (ละเอียดกว่า เพื่อเลือก reply template ที่ตรง
+# เป๊ะ เช่น "สอบถามที่จอดรถ", "สอบถาม WiFi") พอเอา category ละเอียดนี้ไปเทียบกับ
+# ground truth ของ ML (ซึ่งไม่มีหมวดพวกนี้อยู่เลย) ผลคือ "ผิดเสมอ" ทุกครั้งที่ keyword
+# ยิงหมวดที่ ML ไม่รู้จัก ทำให้ full-system accuracy ที่วัดได้จริงตกจาก ~66-100%
+# (ML ล้วนๆ) เหลือแค่ ~32-34% ทั้งที่ในทางความหมาย keyword อาจตอบถูกกว่า ML ด้วยซ้ำ
+#
+# แก้โดยแยก 2 ระดับให้ชัดเจน:
+#   - category_detail = ผลจาก keyword_category_override() (ละเอียด ~35 หมวด)
+#     ใช้ส่งให้ choose_action() เลือก reply template เท่านั้น ไม่เปลี่ยนพฤติกรรมเดิม
+#   - category (ที่ log/รายงาน/วัด accuracy) = map_to_ml_category(category_detail, ...)
+#     บังคับให้อยู่ในกรอบ 10 คลาสเดียวกับที่ ML เทรนมาเสมอ โดย map หมวดละเอียดที่ไม่มี
+#     คู่ตรงมาสู่คลาสที่ใกล้เคียงที่สุด (ดูคอมเมนต์รายบรรทัดในตาราง) ถ้าหมวดไหนไม่มีคลาส
+#     ใกล้เคียงที่สมเหตุสมผลเลย จะ fallback กลับไปเชื่อค่าที่ ML เดาเอง (ไม่เดามั่ว)
+#
+# หมายเหตุสำคัญสำหรับวิทยานิพนธ์: การ map นี้เป็นการประมาณ (approximation) เพื่อให้
+# วัดผลเทียบ ground truth ได้อย่างยุติธรรมในตอนนี้ ทางที่ถูกต้องกว่าในระยะยาวคือ
+# re-label training dataset ด้วย taxonomy ละเอียด ~35 หมวดนี้ตรงๆ แล้วเทรนโมเดลใหม่
+# ---------------------------------------------------------------------------
+ML_CATEGORY_CLASSES = {
+    "การจัดส่ง (Delivery)",
+    "ชมสถานที่/บรรยากาศ",
+    "ชมรสชาติอาหาร",
+    "ชมการบริการ",
+    "บริการไม่ดี",
+    "ติชมอาหารและบริการ",
+    "อาหารได้ไม่ตรง/ช้า",
+    "สอบถามข้อมูลร้าน",
+    "สอบถามโปรโมชั่น",
+    "สอบถามเมนูอาหาร",
+}
+
+KEYWORD_CATEGORY_TO_ML_CATEGORY = {
+    # ตรงตัว/ใกล้เคียงมาก
+    "สอบถามโปรโมชั่น": "สอบถามโปรโมชั่น",
+    "การจัดส่ง (Delivery)": "การจัดส่ง (Delivery)",
+    "สอบถามเมนู": "สอบถามเมนูอาหาร",
+    "ชมบรรยากาศร้าน": "ชมสถานที่/บรรยากาศ",
+    "ชมความสะอาด": "ชมสถานที่/บรรยากาศ",
+    "ชมพนักงาน": "ชมการบริการ",
+    "ร้องเรียนการบริการ": "บริการไม่ดี",
+    # คำถามข้อมูลทั่วไปเกี่ยวกับร้าน (ไม่มีคลาสเฉพาะใน ML) -> รวมเป็น "สอบถามข้อมูลร้าน"
+    "จองโต๊ะ (Reservation)": "สอบถามข้อมูลร้าน",
+    "เวลาเปิด-ปิดร้าน": "สอบถามข้อมูลร้าน",
+    "ที่ตั้งร้าน (Location)": "สอบถามข้อมูลร้าน",
+    "สอบถามที่จอดรถ": "สอบถามข้อมูลร้าน",
+    "ช่องทางการชำระเงิน": "สอบถามข้อมูลร้าน",
+    "สอบถามราคา": "สอบถามข้อมูลร้าน",
+    "สอบถามแฟรนไชส์": "สอบถามข้อมูลร้าน",
+    "สมัครงาน": "สอบถามข้อมูลร้าน",
+    "จัดเลี้ยง/อีเวนต์": "สอบถามข้อมูลร้าน",
+    "สอบถามช่องทางติดต่อ": "สอบถามข้อมูลร้าน",
+    "สมาชิก/สะสมแต้ม": "สอบถามข้อมูลร้าน",
+    "ซื้อกลับบ้าน (Takeaway)": "สอบถามข้อมูลร้าน",
+    "สอบถามสาขา/ทำเล": "สอบถามข้อมูลร้าน",
+    "สอบถามคิวรอโต๊ะ": "สอบถามข้อมูลร้าน",
+    "สอบถาม WiFi": "สอบถามข้อมูลร้าน",
+    "สอบถามพาสัตว์เลี้ยงเข้าร้าน": "สอบถามข้อมูลร้าน",
+    "สอบถามสิ่งอำนวยความสะดวกสำหรับเด็ก": "สอบถามข้อมูลร้าน",
+    "สอบถามห้องส่วนตัว/VIP": "สอบถามข้อมูลร้าน",
+    "สอบถาม Corkage": "สอบถามข้อมูลร้าน",
+    "สอบถามดนตรีสด/กิจกรรม": "สอบถามข้อมูลร้าน",
+    # เกี่ยวกับเมนู/อาหาร -> "สอบถามเมนูอาหาร"
+    "สอบถามข้อจำกัดด้านอาหาร": "สอบถามเมนูอาหาร",
+    "สอบถามปรับระดับความเผ็ด/รส": "สอบถามเมนูอาหาร",
+    "สอบถามบุฟเฟ่ต์": "สอบถามเมนูอาหาร",
+    "สอบถามเครื่องดื่มแอลกอฮอล์": "สอบถามเมนูอาหาร",
+    # ร้องเรียน/ปัญหาที่ไม่มีคลาสเฉพาะ -> "บริการไม่ดี"
+    "ร้องเรียนความสะอาด": "บริการไม่ดี",
+    "ร้องเรียนอุณหภูมิ/แอร์": "บริการไม่ดี",
+    "สอบถาม/ร้องเรียนห้องน้ำ": "บริการไม่ดี",
+    "ร้องเรียนบรรยากาศ": "บริการไม่ดี",
+    "ปัญหาบัตรสมาชิก/แต้ม": "บริการไม่ดี",
+    "ร้องเรียนบิล/ยอดเงินผิด": "บริการไม่ดี",
+    "ปัญหาแอพ/ระบบสั่งอาหาร": "บริการไม่ดี",
+    # ผลกระทบด้านอาหาร/บริการโดยรวม -> "ติชมอาหารและบริการ"
+    "ร้องเรียนคุณภาพอาหาร": "ติชมอาหารและบริการ",
+    "รีวิว/ให้คะแนน": "ติชมอาหารและบริการ",
+    "ข้อเสนอแนะทั่วไป": "ติชมอาหารและบริการ",
+    # เกี่ยวกับออเดอร์ผิด/ล่าช้า -> "อาหารได้ไม่ตรง/ช้า"
+    "ยกเลิก/คืนเงิน": "อาหารได้ไม่ตรง/ช้า",
+    # เกี่ยวกับพื้นที่/เงื่อนไขการจัดส่ง -> "การจัดส่ง (Delivery)"
+    "สอบถามพื้นที่จัดส่ง": "การจัดส่ง (Delivery)",
+    "สอบถามยอดสั่งขั้นต่ำ": "การจัดส่ง (Delivery)",
+}
+
+
+def map_to_ml_category(category_detail: str, model_category: str) -> str:
+    """
+    บังคับ category ที่จะ log/รายงาน/วัด accuracy ให้อยู่ในกรอบ 10 คลาสเดียวกับที่
+    category_model (ML) เทรนมาเสมอ (ดูคอมเมนต์ด้านบน) — ใช้ category_detail ที่ได้จาก
+    keyword_category_override() เป็นหลัก ถ้า map ไม่ได้ (ไม่ควรเกิดขึ้นถ้าตารางครบ)
+    ให้ fallback กลับไปเชื่อค่าที่ ML เดาเอง (model_category) แทนการเดามั่ว
+    """
+    if category_detail in ML_CATEGORY_CLASSES:
+        return category_detail
+    return KEYWORD_CATEGORY_TO_ML_CATEGORY.get(category_detail, model_category)
 
 
 BASE = Path(__file__).resolve().parents[1]
@@ -140,7 +275,8 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     category_ml, category_confidence = predict_with_confidence(category_model, text)
 
     sentiment = keyword_sentiment_override(text, sentiment_ml)
-    category = keyword_category_override(text, category_ml)
+    category_detail = keyword_category_override(text, category_ml)
+    category = map_to_ml_category(category_detail, category_ml)
 
     # ---------------------------------------------------------------------
     # FIX: ถ้า keyword rule เปลี่ยน label ไปจากที่ ML เดามา แปลว่าคำตอบสุดท้าย
@@ -164,7 +300,10 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
 
     behavior = get_user_behavior(user_id)
     segment = str(behavior.get("segment", "Regular"))
-    action = choose_action(sentiment, category, segment, text)
+    # ส่ง category_detail (ละเอียด ~35 หมวด) เข้า choose_action() เพื่อเลือก reply
+    # template ที่ตรงเป๊ะเหมือนเดิม (เช่น แยก "สอบถามที่จอดรถ" ออกจาก "สอบถาม WiFi" ได้)
+    # ส่วน category (ตัวแปรบรรทัดบน) ที่ map เข้ากรอบ 10 คลาสแล้ว มีไว้ log/รายงานเท่านั้น
+    action = choose_action(sentiment, category_detail, segment, text)
     reply = make_reply(action)
 
     reply_confidence = round((sentiment_confidence + category_confidence) / 2, 2)
@@ -180,6 +319,7 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
         "sentiment": sentiment,
         "sentiment_confidence": sentiment_confidence,
         "category": category,
+        "category_detail": category_detail,
         "category_confidence": category_confidence,
         "segment": segment,
         "sentiment_source": sentiment_source,

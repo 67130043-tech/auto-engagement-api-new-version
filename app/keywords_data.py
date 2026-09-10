@@ -411,7 +411,7 @@ CATEGORY_AND_KEYWORDS = {
 #    "keyword ที่ยาว/เจาะจงกว่าชนะ" (longest-match-wins) แทน first-match-wins
 #    เพื่อไม่ต้องพึ่งลำดับการประกาศหมวดในไฟล์นี้ (แก้ปัญหาทั้งคลาส ไม่ใช่แค่เคสเดียว)
 # ---------------------------------------------------------------------------
-from app.preprocess import tokenize_boundary as _tok_b
+from app.preprocess import tokenize_boundary as _tok_b, tokenize_words as _tok_w
 
 
 def _boundary_map(words):
@@ -422,9 +422,50 @@ def _boundary_map(words):
 _NEGATIVE_BOUNDARY = _boundary_map(NEGATIVE_WORDS)
 _POSITIVE_BOUNDARY = _boundary_map(POSITIVE_WORDS)
 _QUESTION_BOUNDARY_MAP = _boundary_map(QUESTION_INDICATORS)
+
+
+def _token_tuple_map(words):
+    """{tuple ของ token ที่ตัดคำแล้ว: คำเดิม} ของ keyword แต่ละคำ เตรียมไว้ล่วงหน้า
+    ครั้งเดียว ใช้กับ count_nonoverlapping_matches (ต่างจาก _boundary_map ที่เก็บเป็น
+    สตริงรวมไว้เช็คแบบ substring/any() เร็วๆ — อันนี้ต้องรู้ตำแหน่ง/ความยาวจริง)"""
+    out = {}
+    for w in words:
+        toks = tuple(_tok_w(w))
+        if toks:
+            out[toks] = w
+    return out
+
+
+_NEGATIVE_TOKENS = _token_tuple_map(NEGATIVE_WORDS)
+_POSITIVE_TOKENS = _token_tuple_map(POSITIVE_WORDS)
 # ไม่ + คำบวก เช่น "ไม่อร่อย" ต้อง precompute คู่ prefix+word ไว้ล่วงหน้าเช่นกัน
 _NEGATION_COMBO_BOUNDARY = _boundary_map(
     f"{prefix}{w}" for prefix in NEGATION_PREFIXES for w in POSITIVE_WORDS
+)
+# ---------------------------------------------------------------------------
+# FIX (พบจากการ evaluate baseline sentiment เต็มระบบ: precision negative เหลือ
+# แค่ 18%, recall neutral เหลือแค่ 7% เทียบกับ wongnai.csv): เดิม keyword_sentiment_
+# override ใช้กติกา "เจอคำลบคำเดียวที่ไหนก็ตามในข้อความ -> negative ทันที" (first-
+# match-wins แบบไบนารี) ซึ่งใช้ได้ดีกับคอมเมนต์สั้นๆ ประเด็นเดียว (เคสจริงที่ใช้งาน
+# บน Facebook) แต่พังกับข้อความ/รีวิวยาวที่มักมีทั้งคำชมและคำติปนกันในย่อหน้าเดียว
+# (เช่นรีวิวร้านอาหารที่ชมรสชาติแต่ติเรื่องที่จอดรถ) เพราะแค่มีคำลบโผล่มาคำเดียว
+# ทั้งข้อความก็โดนตราหน้าว่า negative ทันที ทั้งที่ภาพรวมเป็นคำชม และไม่มีทางเลย
+# ที่จะได้ label "neutral" ออกมาจากเนื้อความ (มีแค่ทางเดียวคือเป็นประโยคคำถามล้วนๆ)
+#
+# แก้โดยเปลี่ยนมา "นับคะแนนเสียง" ของคำลบ/คำบวกที่ match ทั้งหมด (ดู
+# count_boundary_words ด้านล่าง) แล้วเทียบสัดส่วน: ถ้าฝั่งใดฝั่งหนึ่งเยอะกว่าชัดเจน
+# (>= 2 เท่า) ให้เชื่อฝั่งนั้น แต่ถ้าก้ำกึ่งกัน (มีทั้งคำชมและคำติปริมาณใกล้เคียงกัน)
+# ให้ตอบ "neutral" แทน (สื่อถึงความเห็นแบบผสม ไม่ใช่ชมล้วนหรือติล้วน) — วิธีนี้ไม่
+# กระทบคอมเมนต์สั้นประเด็นเดียว (มี hit แค่ฝั่งเดียวอยู่แล้ว ผลลัพธ์เหมือนเดิมทุก
+# ประการ) แต่แก้ปัญหาข้อความ/รีวิวยาวที่มีหลายประเด็นปนกันได้ตรงจุด
+#
+# นอกจากนี้ยังพบว่าคำลบทั่วไปเดี่ยวๆ บางคำใน GENERAL_NEG (เช่น "แย่", "ห่วย", "ผิด",
+# "เสีย") เสี่ยงโดน "ไม่" นำหน้ากลายเป็นความหมายตรงข้าม (เช่น "ไม่แย่" = ไม่ได้แย่)
+# แต่ตัวคำ ("แย่") ก็ยังถูกนับเป็น hit อยู่ดีเพราะเช็คแบบ substring ของคำเดี่ยวๆ จึง
+# เพิ่มการเช็ค "ไม่"+คำลบ เพื่อหักคะแนนคำลบที่โดนปฏิเสธความหมายแบบนี้ออกไป 1 จุด
+# ---------------------------------------------------------------------------
+_NEGATION_COMBO_NEG_BOUNDARY = _boundary_map(
+    f"{prefix}{w}" for prefix in NEGATION_PREFIXES for w in NEGATIVE_WORDS
 )
 # {category: {boundary_form: original_keyword}}
 _CATEGORY_BOUNDARY = {cat: _boundary_map(words) for cat, words in CATEGORY_KEYWORDS.items()}
@@ -439,9 +480,63 @@ def has_negation_positive(text_boundary: str) -> bool:
     return any(kw_b in text_boundary for kw_b in _NEGATION_COMBO_BOUNDARY)
 
 
+def has_negation_of_negative(text_boundary: str) -> bool:
+    """เช็ค "ไม่"+คำลบ (เช่น "ไม่แย่", "ไม่ห่วย") แบบ word-boundary — ใช้หักคะแนนคำลบที่
+    ความหมายจริงถูกปฏิเสธไปแล้ว ไม่ใช่ตัวชี้ขาดเดี่ยวๆ เหมือน has_negation_positive
+    (เพราะ "ไม่แย่" แปลว่า "เฉยๆ/พอใช้ได้" ไม่ได้แปลว่า positive ชัดเจนขนาดนั้น)"""
+    return any(kw_b in text_boundary for kw_b in _NEGATION_COMBO_NEG_BOUNDARY)
+
+
 def match_boundary_words(text_boundary: str, boundary_map: dict) -> bool:
     """เช็คว่ามี keyword คำใดคำหนึ่งใน boundary_map match กับ text_boundary แบบทั้งคำหรือไม่"""
     return any(kw_b in text_boundary for kw_b in boundary_map)
+
+
+def count_boundary_words(text_boundary: str, boundary_map: dict) -> int:
+    """นับจำนวน keyword ที่ต่างกัน (distinct) ใน boundary_map ที่ match กับ text_boundary
+    แบบทั้งคำ — ใช้ได้กับกรณีทั่วไป แต่ **ระวัง**: ถ้าใน boundary_map มีทั้งคำราก
+    (เช่น "หวาน") และคำผสมที่ยาวกว่าซึ่งครอบคำรากนั้นอยู่ (เช่น "หวานไปนิด") การ match
+    1 จุดในข้อความจะถูกนับซ้ำเป็น 2 คะแนน ทำให้ voting เพี้ยน สำหรับ NEGATIVE_WORDS/
+    POSITIVE_WORDS (ซึ่งสร้างจาก combine() แบบราก+ต่อท้ายเสมอ จึงมีปัญหานี้แน่นอน)
+    ให้ใช้ count_nonoverlapping_matches() แทน ฟังก์ชันนี้เก็บไว้ให้ backward-compatible
+    เฉยๆ (เช่น เผื่อใช้กับ boundary_map ที่ไม่มีคำซ้อนกันจริงๆ)"""
+    return sum(1 for kw_b in boundary_map if kw_b in text_boundary)
+
+
+def _find_token_matches(customer_tokens: list, token_map: dict):
+    """หาตำแหน่ง match ทั้งหมดของ keyword ใน token_map (key เป็น tuple ของ token)
+    ที่ปรากฏเป็น contiguous subsequence ใน customer_tokens คืน list ของ
+    (start_index, end_index_exclusive, length)"""
+    n = len(customer_tokens)
+    matches = []
+    for kw_tokens in token_map:
+        L = len(kw_tokens)
+        if L == 0 or L > n:
+            continue
+        for i in range(n - L + 1):
+            if tuple(customer_tokens[i:i + L]) == kw_tokens:
+                matches.append((i, i + L, L))
+    return matches
+
+
+def count_nonoverlapping_matches(customer_tokens: list, token_map: dict) -> int:
+    """นับจำนวนจุด (position) ที่มี keyword match กับ customer_tokens จริงๆ โดยไม่นับ
+    ซ้ำซ้อน: ถ้าหลาย keyword ทับตำแหน่งเดียวกัน (เช่น "หวาน" กับ "หวานไปนิด" ที่ต่างก็
+    match ที่ตำแหน่งเดียวกันในข้อความ "หวานไปนิดแต่โดยรวมโอเค") ให้เลือก keyword ที่
+    ยาว/เจาะจงที่สุดตรงนั้นแล้วนับเป็น 1 จุดเท่านั้น (แนวทางเดียวกับ longest-match-wins
+    ที่ใช้ใน keyword_category_best_match) เพื่อไม่ให้คะแนนเสียงฝั่งใดฝั่งหนึ่งพองจาก
+    การนับคำรากกับคำผสมของมันเองซ้ำ ทำให้ voting ระหว่างคำบวก/คำลบใน
+    keyword_sentiment_override ยุติธรรมจริงๆ"""
+    matches = _find_token_matches(customer_tokens, token_map)
+    matches.sort(key=lambda m: -m[2])
+    covered = [False] * len(customer_tokens)
+    count = 0
+    for start, end, _length in matches:
+        if not any(covered[start:end]):
+            count += 1
+            for i in range(start, end):
+                covered[i] = True
+    return count
 
 
 def keyword_category_and_match(text_boundary: str):
