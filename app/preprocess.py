@@ -2,7 +2,35 @@
 import re
 import unicodedata
 import pandas as pd
-from pythainlp.tokenize import word_tokenize
+from pythainlp.tokenize import Tokenizer
+from pythainlp.corpus import thai_words
+from pythainlp.util import dict_trie
+
+# ---------------------------------------------------------------------------
+# FIX (พบจากเคสประชด/แดกดันจริง "เก่งมากค่ะที่คิดเงินผิดได้ทุกรอบ"): ตัวตัดคำ newmm
+# เริ่มต้น (ไม่มี custom dict) ตัด "ทุกรอบ" ผิดเป็น "ทุ" + "กรอบ" สองคำแยกกัน (เห็นได้
+# จาก word_tokenize('...ทุกรอบ') ตรงๆ) ทำให้ "กรอบ" (แปลว่า "กรอบ" ของอาหาร เช่น
+# เฟรนช์ฟรายส์กรอบ = คำชม อยู่ใน TASTE_POS_ROOTS) ไป match เป็นคำบวกปลอมๆ โดยไม่ตั้งใจ
+# ดึงคะแนนเสียงบวกขึ้นมาแข่งกับคำลบจริง ("คิดเงินผิด") จนกลายเป็นเสมอกัน (แทนที่จะเป็น
+# negative ชัดเจน) เป็นบั๊กจากการตัดคำผิดของ dictionary เริ่มต้น ไม่ใช่ปัญหา logic ของเรา
+#
+# แก้โดยเสริม dictionary ของ PyThaiNLP ด้วยคำเพิ่มเติมที่รู้ว่าเสี่ยงโดนตัดผิด (แทนที่
+# จะ patch เฉพาะเคสนี้เคสเดียว เผื่อเจอคำอื่นที่มีปัญหาแบบเดียวกันในอนาคตก็เพิ่มเข้า
+# _EXTRA_DICT_WORDS ได้เลย) — ใช้ thai_words() (dictionary เริ่มต้นของ PyThaiNLP) รวม
+# กับคำเพิ่มเติม แล้วสร้าง Tokenizer ตัวเดียวไว้ใช้ซ้ำทั้งโมดูล (สร้างครั้งเดียวตอน
+# import เพราะการสร้าง trie จากคำหลายหมื่นคำมีต้นทุน ไม่ควรสร้างใหม่ทุก request)
+# ---------------------------------------------------------------------------
+_EXTRA_DICT_WORDS = {"ทุกรอบ", "ทุกครั้ง"}
+_TOKENIZER = Tokenizer(
+    custom_dict=dict_trie(dict_source=set(thai_words()) | _EXTRA_DICT_WORDS),
+    engine="newmm",
+)
+
+
+def word_tokenize(text: str, engine: str = "newmm") -> list:
+    """wrapper แทน pythainlp.tokenize.word_tokenize เดิม แต่ใช้ _TOKENIZER (dictionary
+    เสริมแล้ว) ตัวเดียวกันเสมอ ไม่ว่าจะเรียกจากที่ไหนในไฟล์นี้ก็ตาม"""
+    return _TOKENIZER.word_tokenize(str(text))
 
 # ---------------------------------------------------------------------------
 # FIX (ข้อความจริง): "ขอชมว่าน้ำแข็งเย็นทุกก้อน" (คำชม เรื่องน้ำแข็ง) ถูกตอบกลับเป็น
