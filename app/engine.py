@@ -15,10 +15,33 @@ from app.keywords_data import (
     keyword_category_and_match, keyword_category_best_match,
 )
 
-# เพิ่มใหม่สำหรับคำนวณความแม่นยำ
+# ---------------------------------------------------------------------------
+# FIX (พัฒนาความแม่นยำของ sentiment_confidence/category_confidence): เดิมฟังก์ชัน
+# นี้คำนวณ confidence เองด้วยสูตร sigmoid (2 คลาส) หรือ softmax (หลายคลาส) ทับ
+# model.decision_function() เพราะ LinearSVC ไม่มี predict_proba() ในตัว — สูตรนี้
+# ให้ค่าที่ "หน้าตาเหมือน" ความน่าจะเป็น (อยู่ในช่วง 0-100%) แต่ไม่เคยถูกสอบเทียบ
+# (calibrate) กับข้อมูลจริงเลยว่าตอนโมเดลบอกมั่นใจ 90% แม่นจริง ~90% ของเวลาไหม
+# ค่าที่ได้จึงเชื่อถือไม่ได้ในเชิงสถิติ (ดูปัญหานี้ชัดๆ ตอน full-system sentiment
+# accuracy ตกฮวบทั้งที่ confidence ที่รายงานออกมายังดูสูงอยู่)
+#
+# ตอนนี้ 02_train_models.py ห่อโมเดลด้วย CalibratedClassifierCV (Platt scaling)
+# แล้ว ทำให้มี predict_proba() ที่สอบเทียบแล้วจริงๆ ใช้งานได้ ฟังก์ชันนี้เลยเปลี่ยน
+# มาเรียก predict_proba() โดยตรงเป็นค่าเริ่มต้น — เก็บสูตร sigmoid/softmax เดิมไว้
+# เป็น fallback เฉยๆ เผื่อกรณีโหลด model.joblib รุ่นเก่าที่ยังไม่ได้ calibrate
+# (ไม่มี predict_proba) เพื่อไม่ให้ระบบพังถ้า deploy ไม่ครบ/ไม่พร้อมกัน
+# ---------------------------------------------------------------------------
 def predict_with_confidence(model, text: str):
 
     pred = str(model.predict([text])[0])
+
+    if hasattr(model, "predict_proba"):
+        probs = model.predict_proba([text])[0]
+        classes = list(model.classes_)
+        idx = classes.index(pred)
+        confidence = float(probs[idx]) * 100
+        return pred, round(confidence, 2)
+
+    # Fallback แบบเดิม (uncalibrated) — ใช้เฉพาะกับโมเดลรุ่นเก่าที่ไม่มี predict_proba
     scores = model.decision_function([text])[0]
     scores = np.atleast_1d(scores)
     if scores.shape[0] == 1:
