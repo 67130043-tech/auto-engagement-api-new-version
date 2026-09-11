@@ -182,9 +182,26 @@ def choose_action(sentiment, category, segment, message=""):
             return "refund_priority_support"
         return "refund_cancel_support"
 
-    # ---------- 5) รสชาติ (แยกตาม sentiment เพราะอาจเป็นได้ทั้งบวก/ลบ) ----------
+    # ---------------------------------------------------------------------
+    # FIX (พบจากคอมเมนต์จริงบน Facebook: "สนุกดีจัง จริงป่ะ" ถูกตอบเป็น
+    # "ขออภัยอย่างสูงค่ะ ทางร้านรับทราบปัญหาแล้ว..." ทั้งที่เป็นแค่คำถามกึ่งประชด
+    # ไม่ใช่การร้องเรียน): เดิม branch นี้เช็คแค่ "thank_you ถ้า positive ไม่งั้น
+    # apology_escalate เสมอ" เป็น ternary 2 ทาง ซึ่งไม่ได้คำนึงว่า sentiment มี 3
+    # ค่า (positive/negative/neutral) ทำให้ "neutral" (เช่น ข้อความคำถามล้วนๆ ที่
+    # keyword_sentiment_override ตัดสินไว้แล้วว่าไม่ใช่ทั้งคำชมและคำต่อว่า) ถูกเหมา
+    # รวมไปกับ "negative" กลายเป็นขอโทษ/escalate ทั้งที่ไม่มีอะไรต้องขอโทษเลย
+    # (เคสนี้ category_detail ตกไปที่ "ชมรสชาติอาหาร" เพราะ keyword ไม่ match อะไร
+    # เลยทั้งประโยค เลย fallback ไปเชื่อ category ที่ ML เดามาแบบไม่มั่นใจ)
+    #
+    # แก้โดยแยกกรณี neutral ออกมาต่างหาก ให้ตอบแบบเป็นกลาง (general_support) แทน
+    # การขอโทษที่ไม่มีมูล — ไม่กระทบพฤติกรรมเดิมตอน positive/negative เลย
+    # ---------- 5) รสชาติ (แยกตาม sentiment เพราะอาจเป็นได้ทั้งบวก/ลบ/กลาง) ----------
     if "รสชาติ" in c or "คุณภาพอาหาร" in c:
-        return "thank_you" if s == "positive" else "apology_escalate"
+        if s == "positive":
+            return "thank_you"
+        if s == "negative":
+            return "apology_escalate"
+        return "general_support"  # neutral: ไม่ใช่คำชมหรือคำติที่ชัดเจน ไม่ควรขอโทษเกินจำเป็น
 
     # ---------- 6) positive ทั่วไป ----------
     if s == "positive":
