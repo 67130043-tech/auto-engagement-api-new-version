@@ -36,19 +36,37 @@ def compute_summary(df: pd.DataFrame, threshold: float = 70.0):
     incorrect = total - correct
     accuracy_pct = round(correct / total * 100, 2)
 
-    by_sentiment = (
-        real.groupby("sentiment")["reply_confidence"]
-        .apply(lambda s: round((s >= threshold).mean() * 100, 2))
-        .reset_index()
-    )
-    by_sentiment.columns = ["label", "accuracy_percent"]
+    # ---------------------------------------------------------------------
+    # FIX (พบจากหน้าตา dashboard จริงที่ดู "ตลกๆ": แทบทุกหมวดขึ้น 100% เป๊ะยกเว้น
+    # หมวดเดียว): สาเหตุจริงมี 2 ชั้น
+    #   1) ตัวชี้วัดเดิมคือ "% ของคอมเมนต์ในหมวดนั้นที่ confidence >= threshold" —
+    #      เป็นค่า binary ต่อคอมเมนต์ (ผ่าน/ไม่ผ่าน) พอมาเฉลี่ยกับกลุ่มที่มีแค่
+    #      1 คอมเมนต์ ผลจึงกระโดดสุดโต่งได้แค่ 0% หรือ 100% เท่านั้น ไม่มีค่ากลาง
+    #      เลย (ผู้ใช้ท้วงตรงจุดนี้พอดี: "มันไม่ควร 100% มันควรเป็นค่าเฉลี่ยของ
+    #      แต่ละ Category") แก้โดยเปลี่ยนไปโชว์ "ค่าเฉลี่ย confidence จริง" ของ
+    #      แต่ละกลุ่มแทน (ต่อเนื่อง ไม่ใช่ binary) เช่น ถ้าหมวดนั้นมีคอมเมนต์เดียว
+    #      มั่นใจ 88% กราฟจะขึ้น 88% ตรงๆ ไม่ใช่ปัดเป็น 100%
+    #   2) ต่อให้เฉลี่ยแล้ว กลุ่มที่มีตัวอย่างแค่ 1-2 ข้อความก็ยังไม่นิ่งพอจะเชื่อ
+    #      ถือได้ 100% จึงยังเก็บ count ไว้คู่กัน ให้ dashboard แสดงจำนวนตัวอย่าง
+    #      กำกับทุกแท่ง และลดน้ำหนักภาพ (สีจาง) ให้หมวดที่ตัวอย่างยังน้อยเกินไป
+    #      (ดูการใช้งานคู่กันใน render_dashboard_html())
+    # ---------------------------------------------------------------------
+    def _group_stats(s):
+        s = s.astype(float)
+        return pd.Series({
+            "avg_confidence": round(s.mean(), 2),
+            "count": int(s.shape[0]),
+        })
 
-    by_category = (
-        real.groupby("category")["reply_confidence"]
-        .apply(lambda s: round((s >= threshold).mean() * 100, 2))
-        .reset_index()
-    )
-    by_category.columns = ["label", "accuracy_percent"]
+    by_sentiment = real.groupby("sentiment")["reply_confidence"].apply(_group_stats).unstack()
+    by_sentiment = by_sentiment.reset_index()
+    by_sentiment.columns = ["label", "avg_confidence", "count"]
+    by_sentiment["count"] = by_sentiment["count"].astype(int)
+
+    by_category = real.groupby("category")["reply_confidence"].apply(_group_stats).unstack()
+    by_category = by_category.reset_index()
+    by_category.columns = ["label", "avg_confidence", "count"]
+    by_category["count"] = by_category["count"].astype(int)
 
     return {
         "total": total,
@@ -65,15 +83,44 @@ def compute_summary(df: pd.DataFrame, threshold: float = 70.0):
 
 
 def render_dashboard_html(summary: dict) -> str:
-    sentiment_labels = summary["by_sentiment"]["label"].tolist()
-    sentiment_values = summary["by_sentiment"]["accuracy_percent"].tolist()
+    # ---------------------------------------------------------------------
+    # เกณฑ์ "ตัวอย่างน้อยเกินไปจะเชื่อถือได้" — หมวด/กลุ่มที่มีคอมเมนต์จริงน้อยกว่านี้
+    # จะถูกแสดงเป็นแท่งสีจาง (muted) แทนสีเข้มปกติ เพื่อไม่ให้ตัวเลข 100%/0% ที่มาจาก
+    # ตัวอย่างแค่ 1-2 ข้อความดูน่าเชื่อถือเกินจริง (ดู comment ใน compute_summary())
+    # ป้ายกำกับแต่ละแท่งจะต่อท้ายด้วย "(n=จำนวนตัวอย่าง)" เสมอ ให้เห็นชัดเจนไม่ต้อง
+    # เดา ไม่ได้ซ่อนข้อมูลหมวดไหนออกไปเลย แค่ลดน้ำหนักภาพของหมวดที่ยังสรุปไม่ได้จริง
+    # ---------------------------------------------------------------------
+    MIN_RELIABLE_N = 3
+    MUTED_BLUE = "#c7cdf7"
+    MUTED_GREEN = "#bfe8cf"
+
+    # หมายเหตุ: ใช้ .to_dict("records") แทน .itertuples()/.iterrows() ตรงๆ เพราะ
+    # itertuples() คืน namedtuple ซึ่งชื่อคอลัมน์ "count" ชนกับเมธอด .count() ที่
+    # tuple มีอยู่แล้วในตัว (เข้าถึงด้วย row["count"] แบบ string key ไม่ได้เลย จะ
+    # error ทันที ส่วน row.count ก็เสี่ยงกำกวม) แปลงเป็น dict ก่อนจะชัดเจนและปลอดภัยกว่า
+    def _labels_with_n(df):
+        return [f"{row['label']} (n={row['count']})" for row in df.to_dict("records")]
+
+    def _bar_colors(df, solid_color, muted_color):
+        return [solid_color if row["count"] >= MIN_RELIABLE_N else muted_color for row in df.to_dict("records")]
+
+    sentiment_labels = _labels_with_n(summary["by_sentiment"])
+    sentiment_values = summary["by_sentiment"]["avg_confidence"].tolist()
+    sentiment_colors = _bar_colors(summary["by_sentiment"], "#4f5fe8", MUTED_BLUE)
 
     # เรียง category จากน้อยไปมากก่อนส่งเข้ากราฟแนวนอน — Chart.js วาดแถวแรกของ labels
-    # ไว้บนสุดเสมอ ดังนั้นเรียงน้อยไปมากแบบนี้จะทำให้หมวดที่ความมั่นใจต่ำสุด (จุดที่
-    # ควรตรวจสอบก่อน) ลอยขึ้นไปอยู่บนสุดของกราฟ เห็นได้ทันทีโดยไม่ต้องเลื่อนดู
-    by_category_sorted = summary["by_category"].sort_values("accuracy_percent", ascending=True)
-    category_labels = by_category_sorted["label"].tolist()
-    category_values = by_category_sorted["accuracy_percent"].tolist()
+    # ไว้บนสุดเสมอ ดังนั้นเรียงน้อยไปมากแบบนี้จะทำให้หมวดที่ความมั่นใจเฉลี่ยต่ำสุด
+    # (จุดที่ควรตรวจสอบก่อน) ลอยขึ้นไปอยู่บนสุดของกราฟ เห็นได้ทันทีโดยไม่ต้องเลื่อนดู
+    by_category_sorted = summary["by_category"].sort_values("avg_confidence", ascending=True)
+    category_labels = _labels_with_n(by_category_sorted)
+    category_values = by_category_sorted["avg_confidence"].tolist()
+    category_colors = _bar_colors(by_category_sorted, "#16a34a", MUTED_GREEN)
+
+    low_n_categories = int((summary["by_category"]["count"] < MIN_RELIABLE_N).sum())
+    low_n_note = (
+        f" หมวดที่มีคอมเมนต์น้อยกว่า {MIN_RELIABLE_N} รายการ ({low_n_categories} หมวด) แสดงเป็นแท่งสีจาง เพราะตัวเลข % ยังไม่น่าเชื่อถือพอ"
+        if low_n_categories > 0 else ""
+    )
 
     generated_at = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
@@ -324,13 +371,13 @@ def render_dashboard_html(summary: dict) -> str:
 
     <div class="charts-grid">
       <div class="chart-card">
-        <h2>% ความมั่นใจสูง แยกตาม Sentiment</h2>
-        <p class="chart-sub">สัดส่วนคอมเมนต์ที่ตอบด้วยความมั่นใจ ≥ {summary["threshold"]:g}% ในแต่ละกลุ่มความรู้สึก</p>
+        <h2>ความมั่นใจเฉลี่ย แยกตาม Sentiment</h2>
+        <p class="chart-sub">ค่าเฉลี่ยคะแนนความมั่นใจของโมเดล (ไม่ใช่สัดส่วนที่ผ่านเกณฑ์ {summary["threshold"]:g}%) ในแต่ละกลุ่มความรู้สึก</p>
         <canvas id="sentimentChart"></canvas>
       </div>
       <div class="chart-card">
-        <h2>% ความมั่นใจสูง แยกตาม Category</h2>
-        <p class="chart-sub">เรียงจากค่าต่ำสุดไปสูงสุด เพื่อให้เห็นจุดที่ควรตรวจสอบก่อน</p>
+        <h2>ความมั่นใจเฉลี่ย แยกตาม Category</h2>
+        <p class="chart-sub">เรียงจากค่าต่ำสุดไปสูงสุด เพื่อให้เห็นจุดที่ควรตรวจสอบก่อน{low_n_note}</p>
         <canvas id="categoryChart"></canvas>
       </div>
     </div>
@@ -359,9 +406,9 @@ new Chart(document.getElementById('sentimentChart'), {{
   data: {{
     labels: {json.dumps(sentiment_labels, ensure_ascii=False)},
     datasets: [{{
-      label: 'High-Confidence Rate (%)',
+      label: 'ความมั่นใจเฉลี่ย (%)',
       data: {json.dumps(sentiment_values)},
-      backgroundColor: '#4f5fe8',
+      backgroundColor: {json.dumps(sentiment_colors)},
       borderRadius: 8,
       maxBarThickness: 56,
     }}]
@@ -381,9 +428,9 @@ new Chart(document.getElementById('categoryChart'), {{
   data: {{
     labels: {json.dumps(category_labels, ensure_ascii=False)},
     datasets: [{{
-      label: 'High-Confidence Rate (%)',
+      label: 'ความมั่นใจเฉลี่ย (%)',
       data: {json.dumps(category_values)},
-      backgroundColor: '#16a34a',
+      backgroundColor: {json.dumps(category_colors)},
       borderRadius: 6,
       maxBarThickness: 22,
     }}]
