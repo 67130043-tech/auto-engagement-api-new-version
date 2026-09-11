@@ -5,6 +5,7 @@
 2) เรียกผ่าน endpoint บนเว็บ (/dashboard) - เหมาะกับ Render หรือ deploy แบบอื่นที่ไม่มี shell ให้รัน python เอง
 """
 import json
+from datetime import datetime
 import pandas as pd
 
 
@@ -66,69 +67,336 @@ def compute_summary(df: pd.DataFrame, threshold: float = 70.0):
 def render_dashboard_html(summary: dict) -> str:
     sentiment_labels = summary["by_sentiment"]["label"].tolist()
     sentiment_values = summary["by_sentiment"]["accuracy_percent"].tolist()
-    category_labels = summary["by_category"]["label"].tolist()
-    category_values = summary["by_category"]["accuracy_percent"].tolist()
+
+    # เรียง category จากน้อยไปมากก่อนส่งเข้ากราฟแนวนอน — Chart.js วาดแถวแรกของ labels
+    # ไว้บนสุดเสมอ ดังนั้นเรียงน้อยไปมากแบบนี้จะทำให้หมวดที่ความมั่นใจต่ำสุด (จุดที่
+    # ควรตรวจสอบก่อน) ลอยขึ้นไปอยู่บนสุดของกราฟ เห็นได้ทันทีโดยไม่ต้องเลื่อนดู
+    by_category_sorted = summary["by_category"].sort_values("accuracy_percent", ascending=True)
+    category_labels = by_category_sorted["label"].tolist()
+    category_values = by_category_sorted["accuracy_percent"].tolist()
+
+    generated_at = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
     return f"""<!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>Auto Engagement System - Live Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auto Engagement System — Live Dashboard</title>
 <meta http-equiv="refresh" content="120">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
-  body {{ font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f6f8; margin: 0; padding: 24px; color: #1f2937; }}
-  h1 {{ font-size: 22px; margin-bottom: 4px; }}
-  .subtitle {{ color: #6b7280; margin-bottom: 24px; font-size: 14px; }}
-  .cards {{ display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }}
-  .card {{ background: white; border-radius: 12px; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); flex: 1; min-width: 160px; }}
-  .card .label {{ font-size: 13px; color: #6b7280; margin-bottom: 6px; }}
-  .card .value {{ font-size: 30px; font-weight: 700; }}
-  .accuracy .value {{ color: #16a34a; }}
-  .correct .value {{ color: #2563eb; }}
-  .incorrect .value {{ color: #dc2626; }}
-  .charts {{ display: flex; gap: 20px; flex-wrap: wrap; }}
-  .chart-box {{ background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); flex: 1; min-width: 340px; }}
-  .chart-box h2 {{ font-size: 15px; margin-top: 0; }}
-  canvas {{ max-height: 320px; }}
-  .note {{ font-size: 12px; color: #9ca3af; margin-top: 24px; }}
+  :root {{
+    --bg: #f3f5f9;
+    --surface: #ffffff;
+    --border: #e6e9f0;
+    --text: #16192b;
+    --text-muted: #6b7186;
+    --text-faint: #9aa0b4;
+    --accent: #4f5fe8;
+    --accent-soft: #eef0fd;
+    --green: #16a34a;
+    --green-soft: #eafaf0;
+    --red: #dc2626;
+    --red-soft: #fdecec;
+    --amber: #d97706;
+    --shadow: 0 1px 2px rgba(16,24,64,0.04), 0 8px 24px -12px rgba(16,24,64,0.10);
+  }}
+  * {{ box-sizing: border-box; }}
+  body {{
+    font-family: 'Inter', 'IBM Plex Sans Thai', 'Segoe UI', Tahoma, sans-serif;
+    background: var(--bg);
+    margin: 0;
+    padding: 0;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+  }}
+  .wrap {{ max-width: 1180px; margin: 0 auto; padding: 32px 28px 48px; }}
+
+  .topbar {{
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }}
+  .topbar h1 {{
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0 0 4px;
+  }}
+  .topbar .subtitle {{ color: var(--text-muted); font-size: 14px; margin: 0; }}
+  .live-badge {{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }}
+  .live-dot {{
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 0 rgba(22,163,74, 0.55);
+    animation: pulse 2s infinite;
+  }}
+  @keyframes pulse {{
+    0%   {{ box-shadow: 0 0 0 0 rgba(22,163,74, 0.55); }}
+    70%  {{ box-shadow: 0 0 0 7px rgba(22,163,74, 0); }}
+    100% {{ box-shadow: 0 0 0 0 rgba(22,163,74, 0); }}
+  }}
+
+  .kpi-grid {{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }}
+  @media (max-width: 900px) {{ .kpi-grid {{ grid-template-columns: repeat(2, 1fr); }} }}
+  @media (max-width: 520px) {{ .kpi-grid {{ grid-template-columns: 1fr; }} }}
+
+  .kpi-card {{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }}
+  .kpi-card::before {{
+    content: "";
+    position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    background: var(--bar-color, var(--accent));
+  }}
+  .kpi-top {{ display: flex; align-items: center; justify-content: space-between; }}
+  .kpi-icon {{
+    width: 34px; height: 34px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--icon-bg, var(--accent-soft));
+    color: var(--icon-color, var(--accent));
+    flex-shrink: 0;
+  }}
+  .kpi-icon svg {{ width: 18px; height: 18px; }}
+  .kpi-label {{ font-size: 12.5px; color: var(--text-muted); font-weight: 600; line-height: 1.4; }}
+  .kpi-value {{ font-size: 28px; font-weight: 800; letter-spacing: -0.01em; line-height: 1; color: var(--value-color, var(--text)); }}
+
+  .highlight-card {{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 20px 24px;
+    margin: 16px 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }}
+  .highlight-text {{ min-width: 220px; }}
+  .highlight-label {{ font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }}
+  .highlight-value {{ font-size: 34px; font-weight: 800; color: var(--accent); letter-spacing: -0.02em; }}
+  .progress-track {{
+    flex: 1;
+    min-width: 220px;
+    height: 10px;
+    background: #eceefb;
+    border-radius: 999px;
+    overflow: hidden;
+  }}
+  .progress-fill {{
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #6c7bf5, var(--accent));
+  }}
+
+  .charts-grid {{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }}
+  @media (max-width: 900px) {{ .charts-grid {{ grid-template-columns: 1fr; }} }}
+
+  .chart-card {{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 20px 22px 8px;
+  }}
+  .chart-card h2 {{
+    font-size: 14.5px;
+    font-weight: 700;
+    margin: 0 0 2px;
+    color: var(--text);
+  }}
+  .chart-card .chart-sub {{ font-size: 12px; color: var(--text-faint); margin: 0 0 14px; }}
+  .chart-card canvas {{ max-height: 300px; }}
+  #categoryChart {{ min-height: 340px; }}
+
+  .footer-note {{
+    font-size: 12.5px;
+    color: var(--text-faint);
+    line-height: 1.6;
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }}
 </style>
 </head>
 <body>
-  <h1>Auto Engagement System — Live Dashboard</h1>
-  <div class="subtitle">คำนวณจากคอมเมนต์จริงที่เข้ามาผ่าน Make + Facebook หน้านี้รีเฟรชอัตโนมัติทุก 2 นาที</div>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1>Auto Engagement System</h1>
+        <p class="subtitle">Live Dashboard · คำนวณจากคอมเมนต์จริงที่เข้ามาผ่าน Make + Facebook</p>
+      </div>
+      <div class="live-badge"><span class="live-dot"></span>รีเฟรชอัตโนมัติทุก 2 นาที</div>
+    </div>
 
-  <div class="cards">
-    <div class="card"><div class="label">จำนวนคอมเมนต์จริงที่ตอบแล้ว</div><div class="value">{summary["total"]}</div></div>
-    <div class="card correct"><div class="label">ตอบด้วยความมั่นใจสูง (&ge;{summary["threshold"]}%)</div><div class="value">{summary["correct"]}</div></div>
-    <div class="card incorrect"><div class="label">ความมั่นใจต่ำ</div><div class="value">{summary["incorrect"]}</div></div>
-    <div class="card accuracy"><div class="label">% ตอบด้วยความมั่นใจสูง</div><div class="value">{summary["accuracy_pct"]}%</div></div>
-  </div>
+    <div class="kpi-grid">
+      <div class="kpi-card" style="--bar-color:#4f5fe8;">
+        <div class="kpi-top">
+          <div class="kpi-icon" style="--icon-bg:#eef0fd; --icon-color:#4f5fe8;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </div>
+        </div>
+        <div class="kpi-label">จำนวนคอมเมนต์จริงที่ตอบแล้ว</div>
+        <div class="kpi-value">{summary["total"]:,}</div>
+      </div>
 
-  <div class="cards">
-    <div class="card"><div class="label">ค่าเฉลี่ยความมั่นใจรวม</div><div class="value">{summary["avg_reply_conf"]}%</div></div>
-  </div>
+      <div class="kpi-card" style="--bar-color:#16a34a;">
+        <div class="kpi-top">
+          <div class="kpi-icon" style="--icon-bg:#eafaf0; --icon-color:#16a34a;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+        </div>
+        <div class="kpi-label">ตอบด้วยความมั่นใจสูง (&ge;{summary["threshold"]:g}%)</div>
+        <div class="kpi-value" style="--value-color:#16a34a;">{summary["correct"]:,}</div>
+      </div>
 
-  <div class="charts">
-    <div class="chart-box"><h2>% ความมั่นใจสูง แยกตาม Sentiment</h2><canvas id="sentimentChart"></canvas></div>
-    <div class="chart-box"><h2>% ความมั่นใจสูง แยกตาม Category</h2><canvas id="categoryChart"></canvas></div>
-  </div>
+      <div class="kpi-card" style="--bar-color:#dc2626;">
+        <div class="kpi-top">
+          <div class="kpi-icon" style="--icon-bg:#fdecec; --icon-color:#dc2626;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+        </div>
+        <div class="kpi-label">ความมั่นใจต่ำ</div>
+        <div class="kpi-value" style="--value-color:#dc2626;">{summary["incorrect"]:,}</div>
+      </div>
 
-  <div class="note">
-    "ความมั่นใจสูง" คำนวณจากคะแนน confidence ของโมเดล ณ ขณะตอบคอมเมนต์จริงแต่ละข้อความ
-    ไม่ใช่การเทียบกับคำตอบที่มนุษย์ยืนยันไว้ล่วงหน้า
+      <div class="kpi-card" style="--bar-color:#d97706;">
+        <div class="kpi-top">
+          <div class="kpi-icon" style="--icon-bg:#fef3e2; --icon-color:#d97706;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+          </div>
+        </div>
+        <div class="kpi-label">% ตอบด้วยความมั่นใจสูง</div>
+        <div class="kpi-value" style="--value-color:#d97706;">{summary["accuracy_pct"]:g}%</div>
+      </div>
+    </div>
+
+    <div class="highlight-card">
+      <div class="highlight-text">
+        <div class="highlight-label">ค่าเฉลี่ยความมั่นใจรวม (Reply Confidence)</div>
+        <div class="highlight-value">{summary["avg_reply_conf"]:g}%</div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:{min(summary["avg_reply_conf"], 100):g}%;"></div></div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h2>% ความมั่นใจสูง แยกตาม Sentiment</h2>
+        <p class="chart-sub">สัดส่วนคอมเมนต์ที่ตอบด้วยความมั่นใจ ≥ {summary["threshold"]:g}% ในแต่ละกลุ่มความรู้สึก</p>
+        <canvas id="sentimentChart"></canvas>
+      </div>
+      <div class="chart-card">
+        <h2>% ความมั่นใจสูง แยกตาม Category</h2>
+        <p class="chart-sub">เรียงจากค่าต่ำสุดไปสูงสุด เพื่อให้เห็นจุดที่ควรตรวจสอบก่อน</p>
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      <span>"ความมั่นใจสูง" คำนวณจากคะแนน confidence ของโมเดล ณ ขณะตอบคอมเมนต์จริงแต่ละข้อความ ไม่ใช่การเทียบกับคำตอบที่มนุษย์ยืนยันไว้ล่วงหน้า</span>
+      <span>อัปเดตล่าสุด: {generated_at}</span>
+    </div>
   </div>
 
 <script>
+Chart.defaults.font.family = "'Inter', 'IBM Plex Sans Thai', 'Segoe UI', sans-serif";
+Chart.defaults.color = '#6b7186';
+
+const tooltipStyle = {{
+  backgroundColor: '#16192b',
+  titleFont: {{ weight: '600', size: 12.5 }},
+  bodyFont: {{ size: 12.5 }},
+  padding: 10,
+  cornerRadius: 8,
+  displayColors: false,
+}};
+
 new Chart(document.getElementById('sentimentChart'), {{
   type: 'bar',
-  data: {{ labels: {json.dumps(sentiment_labels, ensure_ascii=False)}, datasets: [{{ label: 'High-Confidence Rate (%)', data: {json.dumps(sentiment_values)}, backgroundColor: '#2563eb' }}] }},
-  options: {{ scales: {{ y: {{ beginAtZero: true, max: 100 }} }}, plugins: {{ legend: {{ display: false }} }} }}
+  data: {{
+    labels: {json.dumps(sentiment_labels, ensure_ascii=False)},
+    datasets: [{{
+      label: 'High-Confidence Rate (%)',
+      data: {json.dumps(sentiment_values)},
+      backgroundColor: '#4f5fe8',
+      borderRadius: 8,
+      maxBarThickness: 56,
+    }}]
+  }},
+  options: {{
+    responsive: true,
+    scales: {{
+      y: {{ beginAtZero: true, max: 100, grid: {{ color: '#eef0f5', drawBorder: false }}, ticks: {{ callback: v => v + '%' }} }},
+      x: {{ grid: {{ display: false }} }},
+    }},
+    plugins: {{ legend: {{ display: false }}, tooltip: tooltipStyle }},
+  }}
 }});
+
 new Chart(document.getElementById('categoryChart'), {{
   type: 'bar',
-  data: {{ labels: {json.dumps(category_labels, ensure_ascii=False)}, datasets: [{{ label: 'High-Confidence Rate (%)', data: {json.dumps(category_values)}, backgroundColor: '#16a34a' }}] }},
-  options: {{ indexAxis: 'y', scales: {{ x: {{ beginAtZero: true, max: 100 }} }}, plugins: {{ legend: {{ display: false }} }} }}
+  data: {{
+    labels: {json.dumps(category_labels, ensure_ascii=False)},
+    datasets: [{{
+      label: 'High-Confidence Rate (%)',
+      data: {json.dumps(category_values)},
+      backgroundColor: '#16a34a',
+      borderRadius: 6,
+      maxBarThickness: 22,
+    }}]
+  }},
+  options: {{
+    indexAxis: 'y',
+    responsive: true,
+    scales: {{
+      x: {{ beginAtZero: true, max: 100, grid: {{ color: '#eef0f5', drawBorder: false }}, ticks: {{ callback: v => v + '%' }} }},
+      y: {{ grid: {{ display: false }}, ticks: {{ font: {{ size: 11.5 }} }} }},
+    }},
+    plugins: {{ legend: {{ display: false }}, tooltip: tooltipStyle }},
+  }}
 }});
 </script>
 </body>
@@ -137,8 +405,48 @@ new Chart(document.getElementById('categoryChart'), {{
 
 def render_no_data_html(reason: str) -> str:
     return f"""<!DOCTYPE html>
-<html lang="th"><head><meta charset="UTF-8"><title>Dashboard</title></head>
-<body style="font-family: sans-serif; padding: 40px; color: #444;">
-  <h2>ยังไม่มีข้อมูลให้แสดงผล</h2>
-  <p>{reason}</p>
-</body></html>"""
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auto Engagement System — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=IBM+Plex+Sans+Thai:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body {{
+    font-family: 'Inter', 'IBM Plex Sans Thai', 'Segoe UI', sans-serif;
+    background: #f3f5f9;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #16192b;
+  }}
+  .card {{
+    background: #fff;
+    border: 1px solid #e6e9f0;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px -12px rgba(16,24,64,0.12);
+    padding: 40px 44px;
+    max-width: 420px;
+    text-align: center;
+  }}
+  .icon {{
+    width: 48px; height: 48px; margin: 0 auto 16px;
+    border-radius: 12px; background: #eef0fd; color: #4f5fe8;
+    display: flex; align-items: center; justify-content: center;
+  }}
+  h2 {{ font-size: 18px; margin: 0 0 8px; }}
+  p {{ font-size: 14px; color: #6b7186; line-height: 1.6; margin: 0; }}
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <h2>ยังไม่มีข้อมูลให้แสดงผล</h2>
+    <p>{reason}</p>
+  </div>
+</body>
+</html>"""
