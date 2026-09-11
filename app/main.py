@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import os
 import io
+from typing import Optional
 import pandas as pd
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from app.engine import predict_message
 from app.dashboard import compute_summary, render_dashboard_html, render_no_data_html
 import requests
@@ -13,10 +14,32 @@ app = FastAPI(title="User Behavior-based Auto Engagement AI Processing API")
 
 class PredictRequest(BaseModel):
     user_id: str
-    message: str
+    # ---------------------------------------------------------------------
+    # FIX (ผู้ใช้ถาม: "ถ้ามีคอมเมนต์รูปภาพอย่างเดียว (ไม่มีข้อความ) ต้องไม่พัง"):
+    # เดิม message: str (บังคับต้องเป็น string เท่านั้น) เจอว่าคอมเมนต์ที่เป็นรูปภาพ
+    # ล้วนๆ (ไม่มีข้อความ) บาง provider/บาง mapping ใน Make จะส่งค่า message มาเป็น
+    # null แทนที่จะเป็น "" (string ว่าง) เช่น Facebook Graph API เองบางครั้งก็ไม่มี
+    # key "message" เลยถ้าคอมเมนต์นั้นมีแต่รูปไม่มีข้อความ พอ Make map field ที่ไม่มีค่า
+    # เข้ามาก็มักจะกลายเป็น null ซึ่ง pydantic เดิมจะปฏิเสธด้วย 422 ทันที (ไม่ถึงขั้น
+    # error 500/พังทั้งระบบ แต่คอมเมนต์รูปภาพนั้นจะถูก Make มองว่าเป็น "request ล้มเหลว"
+    # ซึ่งขึ้นกับการตั้งค่า error-handling ของ module ใน Make ว่าจะข้ามคอมเมนต์นั้นไปเงียบๆ
+    # หรือทำให้ scenario รันทั้งหมดหยุดกลางคัน)
+    #
+    # แก้โดยรับทั้ง None และ string ว่าง แล้วแปลง None -> "" ให้อัตโนมัติก่อนถึง
+    # predict_message() เสมอ (predict_message()/clean_text() รองรับ "" อยู่แล้วอย่าง
+    # ปลอดภัย ทดสอบยืนยันแล้วว่าไม่พัง แค่ตอบกลับด้วย reply_confidence ต่ำเพราะไม่มี
+    # ข้อความให้วิเคราะห์จริงๆ) ทำให้คอมเมนต์รูปภาพล้วนไม่มีทางถูกปฏิเสธที่ชั้น API
+    # อีกต่อไป ไม่ว่า Make จะ map มาเป็น null หรือ "" ก็ผ่านเข้ามาประมวลผลได้เหมือนกัน
+    # ---------------------------------------------------------------------
+    message: Optional[str] = ""
     channel: str = "facebook"
     display_name: str = ""
     source: str = "api"
+
+    @field_validator("message", mode="before")
+    @classmethod
+    def _null_message_to_empty_string(cls, v):
+        return "" if v is None else v
 
 @app.get("/")
 def root():
