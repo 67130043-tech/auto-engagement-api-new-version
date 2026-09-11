@@ -16,7 +16,22 @@ MODELS = BASE / "models"
 MODELS.mkdir(exist_ok=True)
 
 print("STEP 3: Load cleaned datasets")
-crm = pd.read_csv(OUT / "crm_cleaned.csv", encoding="utf-8-sig")
+# ---------------------------------------------------------------------------
+# FIX (พบ 11 ก.ย.: Dataset_Restaurant_CRM_4000_Rows.xlsx เดิม 4,000 แถวมีข้อความ
+# ไม่ซ้ำกันจริงแค่ 85 ประโยค ทำให้ train/test split แบ่งประโยคเดียวกันเข้าทั้งสองฝั่ง
+# category_model จึง "จำ" แทนที่จะ "generalize" — accuracy 100% ที่วัดได้เดิมเป็น
+# ตัวเลขหลอก) เปลี่ยนมาใช้ outputs/category_dataset_v2.csv แทน ซึ่งสร้างจากรีวิว
+# Wongnai จริง (ไม่ซ้ำกัน) ผ่านการติด label ด้วยระบบ keyword ที่ปรับแต่งไว้แล้ว
+# (ดู 09_build_category_dataset_from_wongnai.py สำหรับรายละเอียดวิธีสร้าง) —
+# fallback ไปที่ crm_cleaned.csv เดิมถ้ายังไม่เคยรันสคริปต์สร้าง dataset ใหม่
+# ---------------------------------------------------------------------------
+category_dataset_v2_path = OUT / "category_dataset_v2.csv"
+if category_dataset_v2_path.exists():
+    crm = pd.read_csv(category_dataset_v2_path, encoding="utf-8-sig")
+    print(f"  ใช้ category dataset ใหม่: {category_dataset_v2_path.name} ({len(crm)} แถว, ไม่ซ้ำกัน)")
+else:
+    crm = pd.read_csv(OUT / "crm_cleaned.csv", encoding="utf-8-sig")
+    print(f"  [คำเตือน] ไม่พบ {category_dataset_v2_path.name} — ใช้ crm_cleaned.csv เดิม (มีปัญหาข้อความซ้ำ)")
 wongnai = pd.read_csv(OUT / "wongnai_cleaned.csv", encoding="utf-8-sig")
 
 print("STEP 4: Train Sentiment Model from wongnai.csv")
