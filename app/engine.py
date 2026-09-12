@@ -14,12 +14,18 @@ from app.keywords_data import (
     match_boundary_words, count_nonoverlapping_matches,
     keyword_category_and_match, keyword_category_best_match,
 )
-from app.openai_verifier import verify_sentiment
+from app.openai_verifier import verify_sentiment, verify_category
 
 # เกณฑ์เรียก OpenAI เป็นความเห็นที่สอง: เฉพาะตอนไม่มี keyword ไหน match เลย (ต้อง
 # เชื่อผล ML เดาเอง) แล้ว sentiment_confidence (ที่ calibrate แล้ว) ต่ำกว่านี้เท่านั้น
 # (ตกลงกับผู้ใช้ไว้ที่ 60% — ดู comment ใน predict_message() จุดที่เรียกใช้จริง)
 SENTIMENT_VERIFY_THRESHOLD = 60.0
+
+# เกณฑ์เดียวกัน แต่สำหรับ category (แนวทางที่ 1 — เพิ่มทีหลัง): เดิม category ที่
+# ไม่มี keyword match เลยจะเชื่อ category_model (ML) ตรงๆ ทั้งที่ ML มี bias เอน
+# ไปทางคลาส "ชม..." สูงมากตอนไม่มั่นใจ (ดูเคสจริง "ปิดกี่ทุ่มคะ" ถูกเดาเป็น
+# "ชมรสชาติอาหาร") จึงเพิ่มเรียก OpenAI ซ้ำในกรณีเดียวกับ sentiment
+CATEGORY_VERIFY_THRESHOLD = 60.0
 
 # ---------------------------------------------------------------------------
 # FIX (คุมค่าใช้จ่าย OpenAI API — ผู้ใช้ขอ "แผนที่ไม่เพิ่ม API มาก" แทนการเช็คทุก
@@ -431,6 +437,22 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
                 sentiment = verified_sentiment
                 sentiment_confidence = verified_confidence
                 sentiment_source = "openai"
+
+        # ---------------------------------------------------------------------
+    # FIX (แนวทางที่ 1): เรียก OpenAI เป็นความเห็นที่สองสำหรับ category เช่นเดียวกับ
+    # sentiment ด้านบน — เฉพาะตอน category_source ยังเป็น "model" (ไม่มี keyword ไหน
+    # match เลย ต้องเชื่อ category_model ล้วนๆ) แล้ว category_confidence ต่ำกว่า
+    # threshold เท่านั้น ไม่เรียกทุกข้อความเพื่อคุมค่าใช้จ่าย API เหมือนกับ sentiment
+    # ถ้า verify_category() คืน (None, None) (ยังไม่ตั้ง OPENAI_API_KEY, เรียกไม่สำเร็จ,
+    # หรือ LLM ตอบหมวดที่ไม่รู้จัก) จะข้ามไปใช้ category_detail เดิมทันที ไม่พัง
+    # ---------------------------------------------------------------------
+    if category_source == "model" and category_confidence < CATEGORY_VERIFY_THRESHOLD:
+        verified_category, verified_cat_confidence = verify_category(text)
+        if verified_category is not None:
+            category_detail = verified_category
+            category = map_to_ml_category(category_detail, category_ml)
+            category_confidence = verified_cat_confidence
+            category_source = "openai"
 
     behavior = get_user_behavior(user_id)
     segment = str(behavior.get("segment", "Regular"))
