@@ -97,3 +97,81 @@ def verify_sentiment(text: str):
         # exception type เจาะจง เพราะเป้าหมายคือ "ห้ามทำให้ /make/predict พังเด็ดขาด"
         # ถ้าเรียก OpenAI มีปัญหาอะไรก็ตาม ให้ fallback เงียบๆ ไปใช้ ML เดิมเสมอ
         return None, None
+
+
+# ---------------------------------------------------------------------------
+# verify_category() — เพิ่มเข้ามาคู่กับ verify_sentiment() ด้านบน (แนวทางที่ 1)
+# ใช้ pattern เดียวกันเป๊ะ: เรียกเฉพาะตอน category_source == "model" (keyword ไม่
+# match อะไรเลย ต้องเชื่อผล ML เดาเอง) แล้ว category_confidence ต่ำกว่า threshold
+# เท่านั้น — ดูจุดเรียกจริงใน engine.predict_message()
+#
+# ให้ LLM เลือกจาก 45 หมวดละเอียดชุดเดียวกับ CATEGORY_KEYWORDS ใน keywords_data.py
+# (ไม่ใช่แค่ 10 คลาสของ ML) เพราะ choose_action() ใช้ category_detail (45 หมวด) นี้
+# ตัดสิน reply template แบบเจาะจง (เช่น wifi_info, send_hours) ถ้าให้ LLM ตอบแค่
+# 10 คลาสกว้างๆ จะยังคงตกไปที่ general_support เหมือนเดิม ไม่ได้ช่วยอะไรเพิ่ม
+# ---------------------------------------------------------------------------
+VALID_CATEGORIES = [
+    "การจัดส่ง (Delivery)", "ข้อเสนอแนะทั่วไป", "จองโต๊ะ (Reservation)",
+    "จัดเลี้ยง/อีเวนต์", "ชมความสะอาด", "ชมบรรยากาศร้าน", "ชมพนักงาน",
+    "ชมรสชาติอาหาร", "ช่องทางการชำระเงิน", "ซื้อกลับบ้าน (Takeaway)",
+    "ที่ตั้งร้าน (Location)", "ปัญหาบัตรสมาชิก/แต้ม", "ปัญหาแอพ/ระบบสั่งอาหาร",
+    "ยกเลิก/คืนเงิน", "รีวิว/ให้คะแนน", "ร้องเรียนการบริการ", "ร้องเรียนความสะอาด",
+    "ร้องเรียนคุณภาพอาหาร", "ร้องเรียนบรรยากาศ", "ร้องเรียนบิล/ยอดเงินผิด",
+    "ร้องเรียนอุณหภูมิ/แอร์", "สมัครงาน", "สมาชิก/สะสมแต้ม", "สอบถาม Corkage",
+    "สอบถาม WiFi", "สอบถาม/ร้องเรียนห้องน้ำ", "สอบถามข้อจำกัดด้านอาหาร",
+    "สอบถามคิวรอโต๊ะ", "สอบถามช่องทางติดต่อ", "สอบถามดนตรีสด/กิจกรรม",
+    "สอบถามที่จอดรถ", "สอบถามบุฟเฟ่ต์", "สอบถามปรับระดับความเผ็ด/รส",
+    "สอบถามพาสัตว์เลี้ยงเข้าร้าน", "สอบถามพื้นที่จัดส่ง", "สอบถามยอดสั่งขั้นต่ำ",
+    "สอบถามราคา", "สอบถามสาขา/ทำเล", "สอบถามสิ่งอำนวยความสะดวกสำหรับเด็ก",
+    "สอบถามห้องส่วนตัว/VIP", "สอบถามเครื่องดื่มแอลกอฮอล์", "สอบถามเมนู",
+    "สอบถามแฟรนไชส์", "สอบถามโปรโมชั่น", "เวลาเปิด-ปิดร้าน", "ทั่วไป",
+]
+_VALID_CATEGORY_SET = set(VALID_CATEGORIES)
+
+_CATEGORY_SYSTEM_PROMPT = (
+    "คุณเป็นผู้ช่วยจัดหมวดหมู่ข้อความ/คอมเมนต์ของลูกค้าร้านอาหาร/คาเฟ่ภาษาไทย "
+    "ให้เลือกหมวดที่ตรงที่สุดเพียงหมวดเดียวจากรายการนี้เท่านั้น (พิมพ์ให้ตรงตัวสะกด "
+    "เป๊ะๆ ตามที่ให้มา ห้ามแต่งคำใหม่): " + ", ".join(VALID_CATEGORIES) + ". "
+    "ถ้าไม่มีหมวดไหนตรงเลยจริงๆ ให้ตอบ \"ทั่วไป\" "
+    "ตอบกลับเป็น JSON เท่านั้น ห้ามมีข้อความอื่นนอกเหนือ JSON รูปแบบ: "
+    '{"category": "ชื่อหมวดตามรายการ", "confidence": จำนวนเต็ม 0 ถึง 100}'
+)
+
+
+def verify_category(text: str):
+    """
+    เรียก OpenAI ให้จัด category ของ text อีกรอบ (ใช้เป็นความเห็นที่สอง เมื่อ ML
+    ล้วนๆ มั่นใจต่ำ) คืนค่า (category, confidence) ถ้าเรียกสำเร็จและ parse ได้ตาม
+    รูปแบบที่คาดไว้ (และ category ต้องอยู่ใน VALID_CATEGORIES เท่านั้น ป้องกัน LLM
+    ตอบชื่อหมวดที่ไม่มีจริงมาแล้ว choose_action() หา match ไม่เจอ) หรือคืนค่า
+    (None, None) ถ้าเรียกไม่ได้/ตอบมาไม่ถูกรูปแบบ — ผู้เรียก (engine.predict_message())
+    ต้อง fallback ไปใช้ผล ML เดิมเองเสมอเมื่อได้ (None, None)
+    """
+    client = _get_client()
+    if client is None:
+        return None, None
+
+    try:
+        resp = client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=[
+                {"role": "system", "content": _CATEGORY_SYSTEM_PROMPT},
+                {"role": "user", "content": f'ข้อความ: "{text}"'},
+            ],
+            response_format={"type": "json_object"},
+            max_tokens=30,
+        )
+        raw = resp.choices[0].message.content
+        data = json.loads(raw)
+        category = str(data.get("category", "")).strip()
+        if category not in _VALID_CATEGORY_SET:
+            return None, None
+        try:
+            confidence = float(data.get("confidence", 75.0))
+        except (TypeError, ValueError):
+            confidence = 75.0
+        confidence = max(0.0, min(100.0, confidence))
+        return category, round(confidence, 2)
+    except Exception:
+        # เหตุผลเดียวกับ verify_sentiment() ด้านบน: ห้ามทำให้ /make/predict พังเด็ดขาด
+        return None, None
