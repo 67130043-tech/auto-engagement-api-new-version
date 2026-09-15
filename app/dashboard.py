@@ -37,6 +37,36 @@ def compute_summary(df: pd.DataFrame, threshold: float = 70.0):
     accuracy_pct = round(correct / total * 100, 2)
 
     # ---------------------------------------------------------------------
+    # FIX (ผู้ใช้ขอ: "แดชบอร์ดเพิ่มแยกดีกว่าโดยเพิ่มความมั่นใจกลางมา สูงคือมากกว่า70
+    # ถ้ากลางและต่ำประเมินคิดมาให้เลยก็ได้ระหว่างกี่%ดี"): เดิมมีแค่ 2 กลุ่ม "สูง"
+    # (>= threshold, ปกติ 70%) กับ "ไม่สูง" (ทุกอย่างที่เหลือ ถูกเหมาเรียกว่า "ต่ำ"
+    # ทั้งหมด ทั้งที่จริงๆ มีทั้งกลุ่มที่พอเชื่อได้กับกลุ่มที่น่าเป็นห่วงจริงๆ ปนกันอยู่)
+    # แบ่งเพิ่มเป็น 3 ระดับแทน โดยจุดตัดของ "กลาง" เลือกใช้ 60% เพราะเป็นเลขเดียวกับ
+    # ที่ระบบเองใช้ตัดสินใจอยู่แล้วใน engine.py (SENTIMENT_VERIFY_THRESHOLD /
+    # CATEGORY_VERIFY_THRESHOLD = 60.0 — ถ้า sentiment/category confidence ต่ำกว่านี้
+    # ถือว่าโมเดลเองก็ยังไม่มั่นใจพอ ต้องขอความเห็นที่สองจาก OpenAI) จึงไม่ใช่เลขที่
+    # เดาขึ้นมาลอยๆ แต่เป็นจุดตัดที่มีเหตุผลรองรับอยู่แล้วในระบบ:
+    #   - สูง (high):   reply_confidence >= threshold (ปรับได้ผ่าน ?threshold=)
+    #   - กลาง (medium): med_threshold <= reply_confidence < threshold
+    #   - ต่ำ (low):    reply_confidence < med_threshold
+    # กัน threshold ที่ผู้ใช้ปรับเองผ่าน query string ต่ำกว่า 60% จนช่วง "กลาง"
+    # กลายเป็นค่าติดลบ/ว่างเปล่า ด้วย med_threshold = min(60.0, threshold) เสมอ
+    # (รับประกันว่า med_threshold <= threshold ตลอด ไม่มีทางกลับด้าน)
+    # ---------------------------------------------------------------------
+    MEDIUM_CONF_DEFAULT = 60.0
+    med_threshold = min(MEDIUM_CONF_DEFAULT, threshold)
+
+    high_count = int((real["reply_confidence"] >= threshold).sum())
+    medium_count = int(
+        ((real["reply_confidence"] >= med_threshold) & (real["reply_confidence"] < threshold)).sum()
+    )
+    low_count = total - high_count - medium_count
+
+    high_pct = round(high_count / total * 100, 2)
+    medium_pct = round(medium_count / total * 100, 2)
+    low_pct = round(low_count / total * 100, 2)
+
+    # ---------------------------------------------------------------------
     # FIX (พบจากหน้าตา dashboard จริงที่ดู "ตลกๆ": แทบทุกหมวดขึ้น 100% เป๊ะยกเว้น
     # หมวดเดียว): สาเหตุจริงมี 2 ชั้น
     #   1) ตัวชี้วัดเดิมคือ "% ของคอมเมนต์ในหมวดนั้นที่ confidence >= threshold" —
@@ -82,6 +112,14 @@ def compute_summary(df: pd.DataFrame, threshold: float = 70.0):
         "incorrect": incorrect,
         "accuracy_pct": accuracy_pct,
         "threshold": threshold,
+        # FIX: เพิ่มการแบ่ง 3 ระดับ (สูง/กลาง/ต่ำ) ดู comment เต็มด้านบนตรงจุดคำนวณ
+        "med_threshold": med_threshold,
+        "high_count": high_count,
+        "medium_count": medium_count,
+        "low_count": low_count,
+        "high_pct": high_pct,
+        "medium_pct": medium_pct,
+        "low_pct": low_pct,
         "avg_sentiment_conf": avg_sentiment_conf,
         "avg_category_conf": avg_category_conf,
         "avg_reply_conf": avg_reply_conf,
@@ -383,18 +421,8 @@ def render_dashboard_html(summary: dict) -> str:
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           </div>
         </div>
-        <div class="kpi-label">ตอบด้วยความมั่นใจสูง (&ge;{summary["threshold"]:g}%)</div>
-        <div class="kpi-value" style="--value-color:#16a34a;">{summary["correct"]:,}</div>
-      </div>
-
-      <div class="kpi-card" style="--bar-color:#dc2626;">
-        <div class="kpi-top">
-          <div class="kpi-icon" style="--icon-bg:#fdecec; --icon-color:#dc2626;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          </div>
-        </div>
-        <div class="kpi-label">ความมั่นใจต่ำ</div>
-        <div class="kpi-value" style="--value-color:#dc2626;">{summary["incorrect"]:,}</div>
+        <div class="kpi-label">มั่นใจสูง (&ge;{summary["threshold"]:g}%)</div>
+        <div class="kpi-value" style="--value-color:#16a34a;">{summary["high_count"]:,} <span style="font-size:14px; font-weight:600; color:var(--text-muted);">({summary["high_pct"]:g}%)</span></div>
       </div>
 
       <div class="kpi-card" style="--bar-color:#d97706;">
@@ -403,8 +431,18 @@ def render_dashboard_html(summary: dict) -> str:
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
           </div>
         </div>
-        <div class="kpi-label">% ตอบด้วยความมั่นใจสูง</div>
-        <div class="kpi-value" style="--value-color:#d97706;">{summary["accuracy_pct"]:g}%</div>
+        <div class="kpi-label">มั่นใจปานกลาง (&ge;{summary["med_threshold"]:g}% ถึง &lt;{summary["threshold"]:g}%)</div>
+        <div class="kpi-value" style="--value-color:#d97706;">{summary["medium_count"]:,} <span style="font-size:14px; font-weight:600; color:var(--text-muted);">({summary["medium_pct"]:g}%)</span></div>
+      </div>
+
+      <div class="kpi-card" style="--bar-color:#dc2626;">
+        <div class="kpi-top">
+          <div class="kpi-icon" style="--icon-bg:#fdecec; --icon-color:#dc2626;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+        </div>
+        <div class="kpi-label">มั่นใจต่ำ (&lt;{summary["med_threshold"]:g}%)</div>
+        <div class="kpi-value" style="--value-color:#dc2626;">{summary["low_count"]:,} <span style="font-size:14px; font-weight:600; color:var(--text-muted);">({summary["low_pct"]:g}%)</span></div>
       </div>
     </div>
 
@@ -414,6 +452,29 @@ def render_dashboard_html(summary: dict) -> str:
         <div class="highlight-value">{summary["avg_reply_conf"]:g}%</div>
       </div>
       <div class="progress-track"><div class="progress-fill" style="width:{min(summary["avg_reply_conf"], 100):g}%;"></div></div>
+    </div>
+
+    <!-- ---------------------------------------------------------------------
+         FIX (ผู้ใช้ขอ: "แดชบอร์ดเพิ่มแยกดีกว่าโดยเพิ่มความมั่นใจกลางมา"): แถบสัดส่วน
+         สูง/กลาง/ต่ำ แบบ 3 สีในแท่งเดียว ให้เห็นภาพรวมสัดส่วนทั้งหมดในแวบเดียว แยก
+         จาก KPI card 3 ใบด้านบน (ซึ่งเน้นตัวเลขจำนวน/เปอร์เซ็นต์แต่ละกลุ่มแยกกัน)
+         ค่า width ของแต่ละส่วนคำนวณจาก high_pct/medium_pct/low_pct ตรงๆ (รวมกัน
+         ต้องได้ 100% เสมอเพราะมาจากการหาร total เดียวกัน ไม่มีทางเกิน/ขาดจาก 100%)
+    --------------------------------------------------------------------- -->
+    <div class="highlight-card" style="flex-direction:column; align-items:stretch; gap:12px;">
+      <div class="highlight-text" style="min-width:0;">
+        <div class="highlight-label">สัดส่วนความมั่นใจ (สูง / กลาง / ต่ำ)</div>
+      </div>
+      <div class="progress-track" style="display:flex; height:16px;">
+        <div style="width:{summary["high_pct"]:g}%; background:#16a34a; height:100%;" title="สูง {summary["high_pct"]:g}%"></div>
+        <div style="width:{summary["medium_pct"]:g}%; background:#d97706; height:100%;" title="ปานกลาง {summary["medium_pct"]:g}%"></div>
+        <div style="width:{summary["low_pct"]:g}%; background:#dc2626; height:100%;" title="ต่ำ {summary["low_pct"]:g}%"></div>
+      </div>
+      <div style="display:flex; gap:18px; flex-wrap:wrap; font-size:12.5px; color:var(--text-muted);">
+        <span><span style="display:inline-block; width:9px; height:9px; border-radius:2px; background:#16a34a; margin-right:5px;"></span>สูง {summary["high_pct"]:g}%</span>
+        <span><span style="display:inline-block; width:9px; height:9px; border-radius:2px; background:#d97706; margin-right:5px;"></span>ปานกลาง {summary["medium_pct"]:g}%</span>
+        <span><span style="display:inline-block; width:9px; height:9px; border-radius:2px; background:#dc2626; margin-right:5px;"></span>ต่ำ {summary["low_pct"]:g}%</span>
+      </div>
     </div>
 
     <div class="charts-grid">
