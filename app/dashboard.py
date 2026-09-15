@@ -51,22 +51,30 @@ def compute_summary(df: pd.DataFrame, threshold: float = 70.0):
     #      กำกับทุกแท่ง และลดน้ำหนักภาพ (สีจาง) ให้หมวดที่ตัวอย่างยังน้อยเกินไป
     #      (ดูการใช้งานคู่กันใน render_dashboard_html())
     # ---------------------------------------------------------------------
-    def _group_stats(s):
-        s = s.astype(float)
-        return pd.Series({
-            "avg_confidence": round(s.mean(), 2),
-            "count": int(s.shape[0]),
-        })
+    # หมายเหตุ (เจอระหว่างเช็คเคส "ถ้าไม่มีคอมเมนต์เข้ามาเลยจะบัคไหม"): เดิมใช้
+    # .groupby(col)[...].apply(...).unstack() ซึ่งถ้าทุกแถวใน real มีค่า col นั้น
+    # เป็นค่าว่าง/NaN หมด (เช่น "category" ว่างทุกแถว) groupby จะทิ้งกลุ่ม NaN
+    # ออกจนเหลือ 0 กลุ่ม แล้ว .unstack() จะ error ทันที (ValueError: index must
+    # be a MultiIndex) กลายเป็นหน้าเว็บ error 500 ตรงๆ ไม่ผ่าน render_no_data_html
+    # เลย — เคสนี้ต่างจาก "ทั้งระบบยังไม่มีคอมเมนต์จริงเลย" (ซึ่งจัดการไว้แล้วที่
+    # ด้านบน ผ่าน required_cols/len(real)==0 คืน None ให้ main.py โชว์หน้า
+    # "ยังไม่มีข้อมูล" อย่างปลอดภัย) แต่เป็นเคสที่มีคอมเมนต์แล้วแต่บางคอลัมน์ป้ายกำกับ
+    # ว่างหมด แก้โดยเปลี่ยนไปใช้ .agg() ตรงๆ แทน ซึ่งคืน DataFrame ว่างเปล่าอย่าง
+    # ปลอดภัยเมื่อไม่มีกลุ่มเหลือ ไม่ต้องพึ่ง unstack() เลย
+    def _build_group_table(df, group_col):
+        g = (
+            df.dropna(subset=[group_col])
+            .groupby(group_col)["reply_confidence"]
+            .agg(avg_confidence="mean", count="count")
+            .reset_index()
+            .rename(columns={group_col: "label"})
+        )
+        g["avg_confidence"] = g["avg_confidence"].round(2)
+        g["count"] = g["count"].astype(int)
+        return g
 
-    by_sentiment = real.groupby("sentiment")["reply_confidence"].apply(_group_stats).unstack()
-    by_sentiment = by_sentiment.reset_index()
-    by_sentiment.columns = ["label", "avg_confidence", "count"]
-    by_sentiment["count"] = by_sentiment["count"].astype(int)
-
-    by_category = real.groupby("category")["reply_confidence"].apply(_group_stats).unstack()
-    by_category = by_category.reset_index()
-    by_category.columns = ["label", "avg_confidence", "count"]
-    by_category["count"] = by_category["count"].astype(int)
+    by_sentiment = _build_group_table(real, "sentiment")
+    by_category = _build_group_table(real, "category")
 
     return {
         "total": total,

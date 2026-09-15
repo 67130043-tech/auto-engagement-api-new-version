@@ -11,10 +11,11 @@ from app.keywords_data import (
     _NEGATIVE_BOUNDARY, _POSITIVE_BOUNDARY, _QUESTION_BOUNDARY_MAP,
     _NEGATIVE_TOKENS, _POSITIVE_TOKENS,
     has_negation_positive, has_negation_of_negative, has_wait_hours_complaint,
+    strip_taste_attribute_question_tokens, has_cold_food_serve_complaint,
     match_boundary_words, count_nonoverlapping_matches,
     keyword_category_and_match, keyword_category_best_match,
 )
-from app.openai_verifier import verify_sentiment, verify_category
+from app.openai_verifier import verify_sentiment, verify_category, generate_smart_reply
 
 # เกณฑ์เรียก OpenAI เป็นความเห็นที่สอง: เฉพาะตอนไม่มี keyword ไหน match เลย (ต้อง
 # เชื่อผล ML เดาเอง) แล้ว sentiment_confidence (ที่ calibrate แล้ว) ต่ำกว่านี้เท่านั้น
@@ -47,10 +48,19 @@ def count_sentiment_votes(customer_tokens: list):
     "รอ...เป็นชั่วโมง" (has_wait_hours_complaint) เข้าไปในฝั่งคำลบด้วย — แยกออกมาเป็น
     ฟังก์ชันกลางเพื่อให้ keyword_sentiment_override() กับจุดเช็คเงื่อนไขเรียก OpenAI ซ้ำ
     ใน predict_message() ใช้ตรรกะการนับคะแนนชุดเดียวกันเป๊ะๆ ไม่เพี้ยนไม่ตรงกัน
+
+    FIX: ตัด token คำรากรสชาติที่อยู่ใน "คำถามเกี่ยวกับระดับรส" ออกก่อนนับคะแนนเสมอ
+    (strip_taste_attribute_question_tokens — ดู comment เต็มใน keywords_data.py) เพื่อ
+    ไม่ให้ "เผ็ดมากไหม"/"ปรับความเผ็ดได้ไหม" ถูกนับเป็นคำลบทั้งที่เป็นแค่คำถาม แล้วเพิ่ม
+    สัญญาณ "ข้าวเย็น"+"เสิร์ฟ/ปรับปรุง" (has_cold_food_serve_complaint) เข้าไปฝั่งคำลบ
+    ด้วยแบบเดียวกับ has_wait_hours_complaint (ดู comment เต็มใน keywords_data.py)
     """
+    customer_tokens = strip_taste_attribute_question_tokens(customer_tokens)
     neg_hits = count_nonoverlapping_matches(customer_tokens, _NEGATIVE_TOKENS)
     pos_hits = count_nonoverlapping_matches(customer_tokens, _POSITIVE_TOKENS)
     if has_wait_hours_complaint(customer_tokens):
+        neg_hits += 1
+    if has_cold_food_serve_complaint(customer_tokens):
         neg_hits += 1
     return pos_hits, neg_hits
 
@@ -256,6 +266,7 @@ KEYWORD_CATEGORY_TO_ML_CATEGORY = {
     "สอบถามเครื่องดื่มแอลกอฮอล์": "สอบถามเมนูอาหาร",
     # ร้องเรียน/ปัญหาที่ไม่มีคลาสเฉพาะ -> "บริการไม่ดี"
     "ร้องเรียนความสะอาด": "บริการไม่ดี",
+    "ร้องเรียนราคา": "บริการไม่ดี",
     "ร้องเรียนอุณหภูมิ/แอร์": "บริการไม่ดี",
     "สอบถาม/ร้องเรียนห้องน้ำ": "บริการไม่ดี",
     "ร้องเรียนบรรยากาศ": "บริการไม่ดี",
@@ -460,7 +471,22 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     # template ที่ตรงเป๊ะเหมือนเดิม (เช่น แยก "สอบถามที่จอดรถ" ออกจาก "สอบถาม WiFi" ได้)
     # ส่วน category (ตัวแปรบรรทัดบน) ที่ map เข้ากรอบ 10 คลาสแล้ว มีไว้ log/รายงานเท่านั้น
     action = choose_action(sentiment, category_detail, segment, text)
-    reply = make_reply(action)
+    template_reply = make_reply(action)
+
+    # ---------------------------------------------------------------------
+    # FIX (ผู้ใช้ท้วง: "อยากให้ฉลาดกว่านี้มากๆ ขี้เกียจมานั่งแก้ไขอะไรแบบนี้เยอะแล้ว"):
+    # เดิมคำตอบสุดท้ายคือ REPLY_TEMPLATES ตรงๆ (ตายตัว 100% ต่อ 1 action) ทำให้ทุกครั้ง
+    # ที่เจอคอมเมนต์แปลกใหม่ที่ action ถูกแล้วแต่คำตอบยัง generic เกินไป ต้องมานั่งแก้
+    # keyword/logic เองอยู่ร่ำไป — ตอนนี้ให้ LLM เขียนคำตอบใหม่ให้ตรงกับข้อความลูกค้า
+    # จริงๆ เสมอ (ไม่ใช่แค่ตอน confidence ต่ำเหมือน verify_sentiment/verify_category)
+    # โดยยึด template_reply (ที่ format ค่าจริงจาก shop_config.py แล้ว) เป็นข้อเท็จจริง
+    # ที่ต้องคงไว้ห้ามแต่งเอง — sentiment/category/action ยังตัดสินด้วย keyword+ML
+    # เหมือนเดิมทุกประการ เปลี่ยนแค่ "คำพูด" ตอนตอบเท่านั้น ถ้าเรียก LLM ไม่สำเร็จ/ปิด
+    # ไว้ (ENABLE_SMART_REPLY=false) จะ fallback กลับไปใช้ template_reply เดิมทันที
+    # ---------------------------------------------------------------------
+    smart_reply = generate_smart_reply(message, template_reply)
+    reply = smart_reply if smart_reply else template_reply
+    reply_source = "llm" if smart_reply else "template"
 
     reply_confidence = round((sentiment_confidence + category_confidence) / 2, 2)
 
@@ -482,6 +508,8 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
         "category_source": category_source,
         "action": action,
         "reply_message": reply,
+        "reply_template": template_reply,
+        "reply_source": reply_source,
         "reply_confidence": reply_confidence,
         "behavior": {
              "total_messages": int(behavior.get("total_messages", 0) or 0),
