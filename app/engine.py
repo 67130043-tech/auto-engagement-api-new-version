@@ -14,6 +14,7 @@ from app.keywords_data import (
     strip_taste_attribute_question_tokens, has_cold_food_serve_complaint,
     match_boundary_words, count_nonoverlapping_matches,
     keyword_category_and_match, keyword_category_best_match,
+    has_facebook_tags,
 )
 from app.openai_verifier import verify_sentiment, verify_category, generate_smart_reply
 
@@ -339,7 +340,7 @@ def get_user_behavior(user_id: str):
         r["segment"] = choose_segment(r.get("total_messages", 0), r.get("negative_count", 0), r.get("complaint_count", 0), r.get("inactive_days", 0))
     return r
 
-def predict_message(user_id: str, message: str, channel: str = "manual", display_name: str = "", source: str = "api"):
+def predict_message(user_id: str, message: str, channel: str = "manual", display_name: str = "", source: str = "api", message_tags=None):
     sentiment_model, category_model, _ = load_resources()
     text = clean_text(message)
 
@@ -470,7 +471,17 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     # ส่ง category_detail (ละเอียด ~35 หมวด) เข้า choose_action() เพื่อเลือก reply
     # template ที่ตรงเป๊ะเหมือนเดิม (เช่น แยก "สอบถามที่จอดรถ" ออกจาก "สอบถาม WiFi" ได้)
     # ส่วน category (ตัวแปรบรรทัดบน) ที่ map เข้ากรอบ 10 คลาสแล้ว มีไว้ log/รายงานเท่านั้น
-    action = choose_action(sentiment, category_detail, segment, text)
+    # ---------------------------------------------------------------------
+    # FIX (ผู้ใช้ท้วง: "ไม่ใช่แค่เรื่องชวนเพื่อนนะ ต้องตอบเรื่องอื่นๆได้ด้วยหรือไม่รู้ว่า
+    # นี้คือการแทคคน" — ต่อยอดจาก fix "แท็กเพื่อนชวนมากิน" ก่อนหน้านี้): ส่ง message_tags
+    # (ข้อมูล "คนที่ถูกแท็ก" จริงจาก Facebook Graph API ที่ Make.com ส่งเข้ามาที่
+    # /make/predict ผ่าน main.py) เข้า choose_action() ด้วย เพื่อให้เช็คจากข้อเท็จจริง
+    # ว่ามีการแท็กเกิดขึ้นจริงหรือไม่ แทนการเดาจากคำพูดในข้อความเพียงอย่างเดียว (ดู
+    # has_facebook_tags()/normalize_tag_list() ใน keywords_data.py และ comment เต็มใน
+    # decision_engine.choose_action()) ถ้า Make.com ยังไม่ได้ส่ง field นี้มา (None) จะ
+    # ไม่กระทบพฤติกรรมเดิมเลย เพราะ has_facebook_tags(None) คืน False เสมอ
+    # ---------------------------------------------------------------------
+    action = choose_action(sentiment, category_detail, segment, text, message_tags)
     template_reply = make_reply(action)
 
     # ---------------------------------------------------------------------
@@ -506,6 +517,11 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
         "segment": segment,
         "sentiment_source": sentiment_source,
         "category_source": category_source,
+        # FIX: บันทึกไว้ใน log/Google Sheet ด้วยว่า Make.com ส่ง message_tags มาจริง
+        # หรือไม่ในคอมเมนต์นี้ (True/False) ช่วยให้เจ้าของร้านเช็คได้เองว่าตั้งค่า
+        # Make.com ให้ส่ง field นี้ถูกต้องหรือยัง โดยไม่ต้องเดา (ดู has_facebook_tags
+        # ใน keywords_data.py)
+        "has_message_tags": bool(has_facebook_tags(message_tags)),
         "action": action,
         "reply_message": reply,
         "reply_template": template_reply,

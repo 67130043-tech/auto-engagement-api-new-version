@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import io
-from typing import Optional
+from typing import Optional, Any
 import pandas as pd
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
@@ -35,6 +35,22 @@ class PredictRequest(BaseModel):
     channel: str = "facebook"
     display_name: str = ""
     source: str = "api"
+    # ---------------------------------------------------------------------
+    # FIX (ผู้ใช้ท้วง: "ไม่ใช่แค่เรื่องชวนเพื่อนนะ ต้องตอบเรื่องอื่นๆได้ด้วยหรือไม่รู้ว่า
+    # นี้คือการแทคคน"): เดิม API รับแค่ user_id/message/channel/display_name/source
+    # ไม่มีทางรู้เลยว่าคอมเมนต์มีการ "แท็กคนอื่น" จริงหรือไม่ ต้องเดาจากคำพูดในข้อความ
+    # เพียงอย่างเดียว (มีข้อจำกัดมาก ครอบคลุมได้แค่บาง pattern เช่น "พา...มา...")
+    #
+    # เพิ่ม field message_tags (optional, ไม่บังคับ) ไว้รับข้อมูล "คนที่ถูกแท็ก" จริง
+    # จาก Facebook Graph API (ผู้ใช้ยืนยันแล้วว่ามีข้อมูลนี้จริงจาก Facebook และจะตั้งค่า
+    # Make.com ให้ส่งเข้ามาเพิ่ม) — รับเป็น Any เพราะยังไม่แน่ใจว่า Make.com จะ map
+    # ออกมาเป็นรูปแบบไหน (list ของ object, list ของ string, หรือ string เดี่ยวๆ) ให้
+    # normalize_tag_list()/has_facebook_tags() ใน keywords_data.py เป็นตัวจัดการแปลง
+    # ทุกรูปแบบที่เป็นไปได้แทน ไม่บังคับ schema ตรงนี้เข้มเกินไปจนพังถ้า Make.com ส่ง
+    # มาไม่ตรงที่คาดไว้เป๊ะๆ — ไม่ใส่ค่า/ใส่ null มาก็ยังทำงานได้ปกติเหมือนเดิมทุกประการ
+    # (ไม่กระทบ Make.com scenario เดิมที่ยังไม่ได้ตั้งค่า field นี้เลย)
+    # ---------------------------------------------------------------------
+    message_tags: Optional[Any] = None
 
     @field_validator("message", mode="before")
     @classmethod
@@ -79,7 +95,8 @@ def make_predict(req: PredictRequest):
         message=req.message,
         channel=req.channel,
         display_name=req.display_name,
-        source=req.source
+        source=req.source,
+        message_tags=req.message_tags,
     )
 
 @app.get("/dashboard", response_class=HTMLResponse)
