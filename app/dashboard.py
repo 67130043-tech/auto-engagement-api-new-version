@@ -130,6 +130,30 @@ def render_dashboard_html(summary: dict) -> str:
         if low_n_categories > 0 else ""
     )
 
+    # ---------------------------------------------------------------------
+    # FIX (ต่อจาก comment ใน CSS ด้านบน): คำนวณความสูงกราฟ category จากจำนวน
+    # หมวดจริง (len(category_labels)) แทนค่าตายตัว — ต่อหมวดให้พื้นที่ 26px
+    # (พอสำหรับแท่ง maxBarThickness 22px + ช่องไฟ) บวกพื้นที่ขอบบน-ล่าง 60px
+    # กันขั้นต่ำไว้ 300px (เผื่อกรณีมีแค่ 1-2 หมวดไม่ให้กราฟดูแบนเกินไป)
+    #
+    # ถ้าหมวดเยอะมาก (> 24 หมวด ~ สูงเกิน 700px) จะครอบด้วยกล่อง scroll แนวตั้ง
+    # แทนการปล่อยให้หน้าเว็บยาวไม่จำกัด (ดู category_chart_scroll ด้านล่าง ใช้
+    # ตัดสินใจว่าจะห่อ <canvas> ด้วย <div style="overflow-y:auto"> หรือไม่ตอน
+    # render HTML) — ไม่ว่าจะ scroll หรือไม่ ข้อมูลครบทุกหมวดเสมอ ไม่มีการซ่อน/
+    # ตัดหมวดไหนทิ้งแบบเงียบๆ อีกต่อไป
+    # ---------------------------------------------------------------------
+    CATEGORY_BAR_HEIGHT_PX = 26
+    CATEGORY_CHART_MIN_HEIGHT_PX = 300
+    CATEGORY_CHART_SCROLL_MAX_PX = 700
+    category_chart_height = max(
+        CATEGORY_CHART_MIN_HEIGHT_PX,
+        len(category_labels) * CATEGORY_BAR_HEIGHT_PX + 60,
+    )
+    category_chart_scroll = category_chart_height > CATEGORY_CHART_SCROLL_MAX_PX
+    category_chart_wrapper_height = (
+        CATEGORY_CHART_SCROLL_MAX_PX if category_chart_scroll else category_chart_height
+    )
+
     generated_at = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
     return f"""<!DOCTYPE html>
@@ -300,8 +324,23 @@ def render_dashboard_html(summary: dict) -> str:
     color: var(--text);
   }}
   .chart-card .chart-sub {{ font-size: 12px; color: var(--text-faint); margin: 0 0 14px; }}
-  .chart-card canvas {{ max-height: 300px; }}
-  #categoryChart {{ min-height: 340px; }}
+  #sentimentChart {{ max-height: 300px; }}
+  /* ---------------------------------------------------------------------
+     FIX (ผู้ใช้แจ้ง: "หัวข้อทางซ้ายแสดงไม่ครบ 16 หมวด"): เดิมมี CSS rule เดียว
+     คุมทุก canvas ในหน้านี้ (class chart-card ลูก canvas) ไว้ที่ max-height
+     สูงสุด 300px แบบตายตัว ไม่ว่าจะมีกี่หมวดก็ตาม พอ category ในข้อมูลจริงมีมากกว่า
+     ~12-13 หมวด (เช่น 16 หมวด) Chart.js จะเปิด "autoSkip" (ค่า default ของ
+     y-axis) โดยอัตโนมัติเพื่อไม่ให้ label ทับกันในพื้นที่ที่จำกัดแค่ 300px — ผลคือ
+     บาง label/แท่งกราฟถูกซ่อนไปเงียบๆ โดยไม่มีการแจ้งเตือนใดๆ เลย (เป็นพฤติกรรม
+     เริ่มต้นของ Chart.js ไม่ใช่บั๊กที่ error ให้เห็น) ทำให้ดูเหมือนข้อมูลหาย
+
+     แก้โดยเลิกบังคับความสูงตายตัวสำหรับ #categoryChart โดยเฉพาะ (ให้ #sentimentChart
+     ยังคงที่ 300px ตามเดิม เพราะมีแค่ 3 กลุ่ม sentiment ไม่มีทางล้นอยู่แล้ว) แล้ว
+     คำนวณความสูงจริงจากจำนวนหมวดที่มีอยู่แทน (ดู category_chart_height ด้านล่าง)
+     ใส่เป็น inline style ตรงๆ ที่ตัว <canvas> เพื่อให้ชนะทุก CSS rule ภายนอกแน่นอน
+     พร้อมปิด autoSkip ที่ y-axis ไว้เป็นเซฟตี้เน็ตอีกชั้น (ดู JS ด้านล่าง) รับประกัน
+     ว่าทุกหมวดที่มีข้อมูลจริงจะถูกวาดขึ้นจอเสมอ ไม่มีทางถูกซ่อนไปเงียบๆ อีก
+  --------------------------------------------------------------------- */
 
   .footer-note {{
     font-size: 12.5px;
@@ -386,7 +425,9 @@ def render_dashboard_html(summary: dict) -> str:
       <div class="chart-card">
         <h2>ความมั่นใจเฉลี่ย แยกตาม Category</h2>
         <p class="chart-sub">เรียงจากค่าต่ำสุดไปสูงสุด เพื่อให้เห็นจุดที่ควรตรวจสอบก่อน{low_n_note}</p>
-        <canvas id="categoryChart"></canvas>
+        <div style="height:{category_chart_wrapper_height}px;{' overflow-y:auto;' if category_chart_scroll else ''}">
+          <canvas id="categoryChart" style="max-height:none; height:{category_chart_height}px;"></canvas>
+        </div>
       </div>
     </div>
 
@@ -446,9 +487,18 @@ new Chart(document.getElementById('categoryChart'), {{
   options: {{
     indexAxis: 'y',
     responsive: true,
+    // FIX: maintainAspectRatio: false ให้กราฟยึดความสูงจริงของ canvas (ที่ตั้งไว้
+    // ตาม category_chart_height จากฝั่ง Python ด้านบน) แทนการคำนวณความสูงเองจาก
+    // สัดส่วนความกว้าง (ค่า default ของ Chart.js) ซึ่งเป็นต้นเหตุที่ทำให้พื้นที่ไม่พอ
+    // แสดงทุกหมวดตั้งแต่แรก — ต้องใช้คู่กับการตั้ง height ที่ตัว canvas เสมอ
+    maintainAspectRatio: false,
     scales: {{
       x: {{ beginAtZero: true, max: 100, grid: {{ color: '#eef0f5', drawBorder: false }}, ticks: {{ callback: v => v + '%' }} }},
-      y: {{ grid: {{ display: false }}, ticks: {{ font: {{ size: 11.5 }} }} }},
+      // FIX: autoSkip: false เป็นเซฟตี้เน็ตอีกชั้น กัน Chart.js ซ่อน label/แท่งกราฟ
+      // บางหมวดไปเงียบๆ เวลาพื้นที่ดูเหมือนไม่พอ (พฤติกรรม default คือ autoSkip: true)
+      // แม้จะคำนวณความสูงเผื่อไว้พอแล้วก็ตาม เพื่อรับประกัน 100% ว่าทุกหมวดที่มีข้อมูล
+      // จริงจะถูกวาดขึ้นจอเสมอ ไม่มีทางถูกตัดทิ้งแบบไม่รู้ตัวอีกต่อไป
+      y: {{ grid: {{ display: false }}, ticks: {{ font: {{ size: 11.5 }}, autoSkip: false }} }},
     }},
     plugins: {{ legend: {{ display: false }}, tooltip: tooltipStyle }},
   }}
