@@ -41,19 +41,18 @@ def compute_summary(df: pd.DataFrame, threshold: float = 70.0):
     # ถ้ากลางและต่ำประเมินคิดมาให้เลยก็ได้ระหว่างกี่%ดี"): เดิมมีแค่ 2 กลุ่ม "สูง"
     # (>= threshold, ปกติ 70%) กับ "ไม่สูง" (ทุกอย่างที่เหลือ ถูกเหมาเรียกว่า "ต่ำ"
     # ทั้งหมด ทั้งที่จริงๆ มีทั้งกลุ่มที่พอเชื่อได้กับกลุ่มที่น่าเป็นห่วงจริงๆ ปนกันอยู่)
-    # แบ่งเพิ่มเป็น 3 ระดับแทน โดยจุดตัดของ "กลาง" เลือกใช้ 60% เพราะเป็นเลขเดียวกับ
-    # ที่ระบบเองใช้ตัดสินใจอยู่แล้วใน engine.py (SENTIMENT_VERIFY_THRESHOLD /
-    # CATEGORY_VERIFY_THRESHOLD = 60.0 — ถ้า sentiment/category confidence ต่ำกว่านี้
-    # ถือว่าโมเดลเองก็ยังไม่มั่นใจพอ ต้องขอความเห็นที่สองจาก OpenAI) จึงไม่ใช่เลขที่
-    # เดาขึ้นมาลอยๆ แต่เป็นจุดตัดที่มีเหตุผลรองรับอยู่แล้วในระบบ:
+    # แบ่งเพิ่มเป็น 3 ระดับแทน — จุดตัดแรกที่เสนอไปคือ 60% (อิงจาก
+    # SENTIMENT_VERIFY_THRESHOLD/CATEGORY_VERIFY_THRESHOLD ใน engine.py) แต่ผู้ใช้
+    # ขอปรับเป็น 50% แทน (ให้ช่วง "ปานกลาง" กว้างขึ้นเป็น 50-70% แทน 60-70%) จึงใช้
+    # ตามที่ผู้ใช้กำหนดเองตรงนี้:
     #   - สูง (high):   reply_confidence >= threshold (ปรับได้ผ่าน ?threshold=)
     #   - กลาง (medium): med_threshold <= reply_confidence < threshold
     #   - ต่ำ (low):    reply_confidence < med_threshold
-    # กัน threshold ที่ผู้ใช้ปรับเองผ่าน query string ต่ำกว่า 60% จนช่วง "กลาง"
-    # กลายเป็นค่าติดลบ/ว่างเปล่า ด้วย med_threshold = min(60.0, threshold) เสมอ
+    # กัน threshold ที่ผู้ใช้ปรับเองผ่าน query string ต่ำกว่า 50% จนช่วง "กลาง"
+    # กลายเป็นค่าติดลบ/ว่างเปล่า ด้วย med_threshold = min(50.0, threshold) เสมอ
     # (รับประกันว่า med_threshold <= threshold ตลอด ไม่มีทางกลับด้าน)
     # ---------------------------------------------------------------------
-    MEDIUM_CONF_DEFAULT = 60.0
+    MEDIUM_CONF_DEFAULT = 50.0
     med_threshold = min(MEDIUM_CONF_DEFAULT, threshold)
 
     high_count = int((real["reply_confidence"] >= threshold).sum())
