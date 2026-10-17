@@ -29,6 +29,8 @@ labeled dataset ที่ตรงโดเมนพอ ใช้กันทั
 
   5. หมวด "อาหารได้ไม่ตรง/ช้า" ขาดแคลนหนัก (31 แถว) จึงขุดประโยคจริงจาก Wongnai ด้วย
      pattern เฉพาะเจาะจง (source="wongnai_pattern") ดู is_order_issue() ด้านล่าง
+  6. หมวดอื่นที่ยังไม่ถึง 1,200 (Delivery, ชมการบริการ, สอบถามโปรโมชั่น) เติมด้วยประโยค
+     จริงที่ pattern เฉพาะหมวดจับได้ ดู TOPUP_PATTERNS ด้านล่าง
 
 ผลลัพธ์: outputs/category_dataset_v2.csv (คอลัมน์ clean_text, Category, source)
         และคัดลอกไปที่ data/category_dataset_v2.csv (สำเนาที่ commit ไว้ใน repo)
@@ -98,6 +100,7 @@ def load_wongnai_chunks():
 _ORDER_SLOW = (
     r"(อาหาร|ของ|จาน|เมนู)(ที่สั่ง)?(มา|ออก|ได้|เสิร์ฟ|เสิฟ)(ค่อนข้าง)?(ช้า|นาน)"
     r"|(เสิร์ฟ|เสิฟ)(ช้า|นาน)"
+    r"|อาหาร(ค่อนข้าง)?ช้า|ทำ(อาหาร)?(ค่อนข้าง)?ช้า"
     r"|รอ(อาหาร|ออเดอร์|ของ)(นาน|ประมาณ|เกือบ|ตั้ง|ร่วม|อีก|กว่า)"
     r"|สั่ง(ไป|แล้ว|อาหาร).{0,25}รอ.{0,15}(นาน|ชั่วโมง|ชม|นาที)"
     r"|กว่า(อาหาร|จะได้อาหาร|ของ).{0,10}(จะ)?(มา|ได้|ออก)"
@@ -110,7 +113,7 @@ _ORDER_WRONG = (
 )
 _ORDER_EXCLUDE = (
     r"รอคิว|ต่อคิว|คิวยาว|จองคิว|ที่จอด|ผิดหวัง|ผิดกฎ|ลืมสั่ง|ถ่าย|ไม่ได้ผิด"
-    r"|รอไม่นาน|ไม่ต้องรอ|ไม่ช้า|ไม่นาน|ไม่มีตกหล่น|ไม่ตกหล่น|ไม่เคยผิด|เร็ว|ไวมาก|ไวดี|สั่งผิด"
+    r"|รอไม่นาน|ไม่ต้องรอ|ไม่ช้า|ไม่นาน|ไม่มีตกหล่น|ไม่ตกหล่น|ไม่เคยผิด|เร็ว|ไวมาก|ไวดี|สั่งผิด|ผิดเอง"
 )
 ORDER_ISSUE_PATTERN = re.compile(f"{_ORDER_SLOW}|{_ORDER_WRONG}")
 ORDER_ISSUE_EXCLUDE = re.compile(_ORDER_EXCLUDE)
@@ -123,6 +126,66 @@ def is_order_issue(chunk: str) -> bool:
     if not (8 <= len(chunk) <= ORDER_ISSUE_MAX_LEN):
         return False
     return bool(ORDER_ISSUE_PATTERN.search(chunk)) and not ORDER_ISSUE_EXCLUDE.search(chunk)
+
+
+# ---------------------------------------------------------------------------
+# เติมหมวดที่ยังไม่ถึง MAX_PER_CATEGORY ด้วยประโยคจริง (top-up)
+# ---------------------------------------------------------------------------
+# หลัง keyword labeling หมวดเหล่านี้ยังต่ำกว่า 1,200 (Delivery 559, ชมการบริการ 911,
+# สอบถามโปรโมชั่น 943) ทั้งที่ยังมีประโยคจริงอีก ~40,000 ประโยคที่ keyword ไม่ได้ติด
+# label เลย จึงใช้ pattern เฉพาะหมวด (precision มาก่อน) ขุดเพิ่ม โดย:
+#   1. หยิบจากประโยคที่ยังไม่มี label ก่อน
+#   2. ถ้ายังไม่พอ ค่อยหยิบจากหมวดที่มีเกินมามาก (> 2 เท่าของ cap) ซึ่งยังไงก็ถูก
+#      สุ่มตัดทิ้งอยู่แล้ว — หมวดต้นทางจึงยังเต็ม 1,200 เหมือนเดิม
+#   3. หยุดเมื่อหมวดนั้นถึง cap — เรียงประโยคก่อนเสมอ ผลจึงทำซ้ำได้
+# ประโยคที่ได้ติด source="wongnai_pattern" เหมือนหมวด "อาหารได้ไม่ตรง/ช้า"
+#
+# หมายเหตุ: หมวด "สอบถามโปรโมชั่น" ในรีวิวจริงคือการ "พูดถึง" ดีล/ส่วนลด ไม่ใช่การถาม
+# ตรงๆ — สอดคล้องกับที่ keyword ติด label หมวดนี้ไว้เดิมอยู่แล้ว
+# ---------------------------------------------------------------------------
+TOPUP_PATTERNS = {
+    "การจัดส่ง (Delivery)": (
+        re.compile(
+            r"(?i)เดลิเวอ|เดริเวอ|delivery|grab ?food|แกร็บ|แกรบ|grab|line ?man|ไลน์แมน"
+            r"|foodpanda|food panda|แพนด้า|robinhood|โรบินฮู้ด|ไรเดอร์|rider|ค่าส่ง|ส่งถึงบ้าน"
+            r"|มาส่ง|ส่งมา(ถึง|ที่|ให้)|สั่ง(ผ่าน|ทาง)(แอ|app)|ส่งฟรี|ส่งไว|ส่งเร็ว|ส่งช้า|ส่งนาน"
+            r"|แพ็ค(มา|อย่าง)|แพคเกจจิ้ง|packaging"
+        ),
+        # ป้ายรางวัล/แฮชแท็ก LINEMAN Wongnai Users' Choice และลิงก์ ไม่ใช่เรื่องการจัดส่ง
+        re.compile(r"(?i)users.?ch|choice|รางวัล|https?://|www\."),
+    ),
+    "ชมการบริการ": (
+        re.compile(
+            r"(พนักงาน|น้องๆ?|พี่ๆ?|เจ้าของร้าน|แม่ค้า|พ่อค้า|เด็กเสิร์ฟ|การบริการ|บริการ)"
+            r"(ทุกคน|ที่ร้าน|ในร้าน)?\s?(ก็|ค่อนข้าง)?\s?(บริการ)?"
+            r"(ดีมาก|ดี(?!ไม่|ขึ้น|กว่า)|ดีเยี่ยม|น่ารัก|ยิ้มแย้ม|เป็นกันเอง|อัธยาศัยดี|ใส่ใจ"
+            r"|เอาใจใส่|สุภาพ|รวดเร็ว|ประทับใจ|ดูแลดี|ดูแลอย่างดี|แนะนำเมนู)"
+        ),
+        # ตัดประโยคติ/เสนอแนะ เช่น "บริการไม่ค่อยดี", "น่าจะบริการดีกว่านี้"
+        re.compile(r"ไม่ค่อย|ไม่ได้|ไม่ดี|แย่|ช้า|ห่วย|ไม่ประทับใจ|หน้าบึ้ง|ไม่สนใจ|ไม่ใส่ใจ"
+                   r"|กว่านี้|น่าจะ|ควรจะ|ดีเด่น"),
+    ),
+    "สอบถามโปรโมชั่น": (
+        re.compile(
+            r"(?i)โปรโมชั่น|โปรโมชัน|โปร(?=\s|ลด|วัน|เดือน|บัตร|นี้|ดี)|ส่วนลด|ลด\s?\d+\s?(%|เปอร์|บาท)"
+            r"|คูปอง|voucher|วอเชอร์|บัตรสมาชิก|สมาชิก(ลด|ได้)|ซื้อ\s?\d\s?แถม\s?\d|1\s?แถม\s?1"
+            r"|happy ?hour|ราคาพิเศษ|ดีล(?!ิ)|deal"
+        ),
+        re.compile(r"ไม่มีโปร|ไม่ลด|โปรแกรม|โปรดิว|โปรไฟล์|โปรตีน"),
+    ),
+}
+TOPUP_MAX_LEN = 300
+
+
+def topup_category(chunk: str):
+    """คืนหมวดแรกที่ pattern top-up จับได้ (ตามลำดับใน TOPUP_PATTERNS) หรือ None"""
+    chunk = str(chunk)
+    if not (8 <= len(chunk) <= TOPUP_MAX_LEN):
+        return None
+    for cat, (pattern, exclude) in TOPUP_PATTERNS.items():
+        if pattern.search(chunk) and not exclude.search(chunk):
+            return cat
+    return None
 
 
 def label_chunk(chunk: str):
@@ -233,6 +296,32 @@ def main():
     print(f"  ประโยคที่ติด label ได้จริง: {len(rows)} "
           f"(keyword {len(rows) - n_pattern}, pattern '{ORDER_ISSUE_CATEGORY}' {n_pattern})")
 
+    # --- เติมหมวดที่ยังไม่ถึง cap ด้วยประโยคจริง (ดู TOPUP_PATTERNS) ---
+    MAX_PER_CATEGORY = 1200
+    labeled_by = {r["clean_text"]: r["Category"] for r in rows}
+    counts = pd.Series(list(labeled_by.values())).value_counts()
+    surplus = {c for c, n in counts.items() if n > 2 * MAX_PER_CATEGORY}
+    need = {c: MAX_PER_CATEGORY - int(counts.get(c, 0)) for c in TOPUP_PATTERNS}
+    unlabeled = [ch for ch in chunks if clean_text(ch) not in labeled_by]
+    from_surplus = [ch for ch in chunks if labeled_by.get(clean_text(ch)) in surplus]
+    moved = {}
+    for pool_name, pool in (("unlabeled", unlabeled), ("surplus", from_surplus)):
+        for ch in pool:
+            cat = topup_category(ch)
+            if cat is None or need[cat] <= 0:
+                continue
+            key = clean_text(ch)
+            if key in moved:
+                continue
+            moved[key] = cat
+            need[cat] -= 1
+    if moved:
+        rows = [r for r in rows if r["clean_text"] not in moved]
+        rows.extend({"clean_text": k, "Category": c, "source": "wongnai_pattern"}
+                    for k, c in moved.items())
+    print("  เติมด้วย pattern (top-up):",
+          dict(pd.Series(list(moved.values())).value_counts()) if moved else {})
+
     rows.extend(build_synthetic_rows())
     rows.extend(build_synthetic_complaint_rows())
 
@@ -243,7 +332,6 @@ def main():
     # เกินจริง (เช่น "สอบถามข้อมูลร้าน" ที่กวาดคำทั่วไปหลายกลุ่มมารวมกัน) ครอบงำ
     # การเทรนจนหมวดเล็กๆ แทบไม่มีน้ำหนักเลย — สุ่มตัดแบบ random_state คงที่เพื่อทำซ้ำได้
     # ---------------------------------------------------------------------------
-    MAX_PER_CATEGORY = 1200
     parts = []
     for cat, grp in df.groupby("Category"):
         parts.append(grp.sample(min(len(grp), MAX_PER_CATEGORY), random_state=42))
