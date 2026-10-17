@@ -27,7 +27,11 @@ labeled dataset ที่ตรงโดเมนพอ ใช้กันทั
      หมวดเหล่านี้มีข้อมูลน้อยเกินไปจนโมเดลเรียนรู้ไม่ได้เลย — ระบุ source="synthetic_faq"
      ไว้ชัดเจน แยกจาก source="wongnai_real" เพื่อความโปร่งใสในรายงานวิทยานิพนธ์
 
+  5. หมวด "อาหารได้ไม่ตรง/ช้า" ขาดแคลนหนัก (31 แถว) จึงขุดประโยคจริงจาก Wongnai ด้วย
+     pattern เฉพาะเจาะจง (source="wongnai_pattern") ดู is_order_issue() ด้านล่าง
+
 ผลลัพธ์: outputs/category_dataset_v2.csv (คอลัมน์ clean_text, Category, source)
+        และคัดลอกไปที่ data/category_dataset_v2.csv (สำเนาที่ commit ไว้ใน repo)
 """
 import re
 from pathlib import Path
@@ -66,12 +70,61 @@ def load_wongnai_chunks():
     for review in df["review_body"].astype(str):
         for chunk in split_into_chunks(review):
             all_chunks.add(chunk)
-    return list(all_chunks)
+    # FIX (class imbalance): เดิมคืน list(all_chunks) ตรงๆ — ลำดับของ set เปลี่ยนทุกครั้ง
+    # ที่รัน (Python สุ่ม hash ของ string ใหม่ทุก process) ทำให้ .sample(random_state=42)
+    # ตอน cap หมวดได้แถวคนละชุดทุกรอบ dataset จึงทำซ้ำไม่ได้ เรียงก่อนคืนค่าให้ผลคงที่
+    return sorted(all_chunks)
 
 
 # ---------------------------------------------------------------------------
 # 2) ติด label ด้วยระบบ keyword ที่มีอยู่แล้ว (weak supervision)
 # ---------------------------------------------------------------------------
+# FIX (class imbalance ของ category_dataset_v2.csv): หมวด "อาหารได้ไม่ตรง/ช้า" มีแค่
+# 31 แถว (26 แถวเป็นประโยคที่เขียนเอง มีจาก Wongnai จริงแค่ 5 แถว) เทียบกับหมวดใหญ่
+# 1,200 แถว (~39:1) เพราะ keyword table แม็พมาหมวดนี้แค่ "ยกเลิก/คืนเงิน" ซึ่งแคบมาก
+# — ทั้งที่รีวิว Wongnai จริงมีคนบ่น "รออาหารนาน / เสิร์ฟผิด / ออเดอร์ตกหล่น" อยู่ไม่น้อย
+#
+# แก้ที่ต้นเหตุ (เพิ่มข้อมูลจริง) แทนการ copy แถวซ้ำ: ใช้ pattern เฉพาะเจาะจงขุดประโยค
+# จริงที่พูดถึง "อาหารช้าหลังสั่ง" หรือ "ได้ไม่ตรง/ไม่ครบตามที่สั่ง" — ตั้งใจให้แคบ
+# (precision มาก่อน recall) เพราะผลลัพธ์กลายเป็น label:
+#   - SLOW  : ช้าหลังสั่งเท่านั้น ไม่นับการรอคิวหน้าร้าน (นั่นเป็นเรื่องร้าน/ความนิยม)
+#   - WRONG : เสิร์ฟผิด/ไม่ครบ/ตกหล่น/ไม่ตรงที่สั่ง/ต้องทวง
+#   - EXCLUDE: ตัดรูปปฏิเสธและความหมายอื่นที่ pattern ข้างบนจับผิด (เช่น "ไม่ผิดหวัง",
+#     "ออเดอร์ไม่ตกหล่น", "ทำผิดกฎจราจร", "ถ่ายรูปมาไม่ครบ", "รอคิว", "ถือว่าไวมาก",
+#     "สั่งผิดเมนู" ที่ลูกค้าสั่งผิดเอง)
+# ประโยคที่ match ได้ source="wongnai_pattern" (ยังเป็นรีวิวจริง แยกไว้ให้ตรวจ/รายงานได้)
+# และมีลำดับความสำคัญเหนือ keyword label เพราะ keyword ไม่มีทางติดหมวดนี้ให้อยู่แล้ว
+# ---------------------------------------------------------------------------
+_ORDER_SLOW = (
+    r"(อาหาร|ของ|จาน|เมนู)(ที่สั่ง)?(มา|ออก|ได้|เสิร์ฟ|เสิฟ)(ค่อนข้าง)?(ช้า|นาน)"
+    r"|(เสิร์ฟ|เสิฟ)(ช้า|นาน)"
+    r"|รอ(อาหาร|ออเดอร์|ของ)(นาน|ประมาณ|เกือบ|ตั้ง|ร่วม|อีก|กว่า)"
+    r"|สั่ง(ไป|แล้ว|อาหาร).{0,25}รอ.{0,15}(นาน|ชั่วโมง|ชม|นาที)"
+    r"|กว่า(อาหาร|จะได้อาหาร|ของ).{0,10}(จะ)?(มา|ได้|ออก)"
+)
+_ORDER_WRONG = (
+    r"(เสิร์ฟ|เสิฟ|เสริฟ|เสริพ|ทำ|ได้|จด)(อาหาร|เมนู|ของ)?ผิด(?!หวัง|กฎ)"
+    r"|ผิดออเดอร์|ออเดอร์ผิด|ผิดเมนู|ไม่ตรง(กับ)?(ที่|ตาม)สั่ง|ไม่ได้ตามที่สั่ง|ที่ไม่ได้สั่ง"
+    r"|(มา|ได้|เสิร์ฟ|เสิฟ)(อาหาร|ของ|เมนู)?ไม่ครบ|ลืม(ออเดอร์|เสิร์ฟ|เสิฟ|ทำ)"
+    r"|ตกหล่น|ทวง(อาหาร|ออเดอร์|ถาม|เมนู)|ไม่ได้รับ(อาหาร|ของ|เมนู)|ไม่เข้าระบบ"
+)
+_ORDER_EXCLUDE = (
+    r"รอคิว|ต่อคิว|คิวยาว|จองคิว|ที่จอด|ผิดหวัง|ผิดกฎ|ลืมสั่ง|ถ่าย|ไม่ได้ผิด"
+    r"|รอไม่นาน|ไม่ต้องรอ|ไม่ช้า|ไม่นาน|ไม่มีตกหล่น|ไม่ตกหล่น|ไม่เคยผิด|เร็ว|ไวมาก|ไวดี|สั่งผิด"
+)
+ORDER_ISSUE_PATTERN = re.compile(f"{_ORDER_SLOW}|{_ORDER_WRONG}")
+ORDER_ISSUE_EXCLUDE = re.compile(_ORDER_EXCLUDE)
+ORDER_ISSUE_CATEGORY = "อาหารได้ไม่ตรง/ช้า"
+ORDER_ISSUE_MAX_LEN = 250  # ท่อนยาวมากมักเล่าหลายเรื่องปนกัน label จะเพี้ยน
+
+
+def is_order_issue(chunk: str) -> bool:
+    chunk = str(chunk)
+    if not (8 <= len(chunk) <= ORDER_ISSUE_MAX_LEN):
+        return False
+    return bool(ORDER_ISSUE_PATTERN.search(chunk)) and not ORDER_ISSUE_EXCLUDE.search(chunk)
+
+
 def label_chunk(chunk: str):
     text = clean_text(chunk)
     text_boundary = tokenize_boundary(text)
@@ -167,11 +220,18 @@ def main():
 
     print("กำลังติด label ด้วยระบบ keyword (weak supervision)...")
     rows = []
+    n_pattern = 0
     for chunk in chunks:
+        if is_order_issue(chunk):
+            rows.append({"clean_text": clean_text(chunk), "Category": ORDER_ISSUE_CATEGORY,
+                         "source": "wongnai_pattern"})
+            n_pattern += 1
+            continue
         cat = label_chunk(chunk)
         if cat is not None:
             rows.append({"clean_text": clean_text(chunk), "Category": cat, "source": "wongnai_real"})
-    print(f"  ประโยคที่ keyword ติด label ได้จริง: {len(rows)}")
+    print(f"  ประโยคที่ติด label ได้จริง: {len(rows)} "
+          f"(keyword {len(rows) - n_pattern}, pattern '{ORDER_ISSUE_CATEGORY}' {n_pattern})")
 
     rows.extend(build_synthetic_rows())
     rows.extend(build_synthetic_complaint_rows())
@@ -191,13 +251,19 @@ def main():
 
     print("\nสรุปจำนวนต่อหมวด (หลัง dedupe + cap ที่ {} ต่อหมวด):".format(MAX_PER_CATEGORY))
     print(df["Category"].value_counts())
+    counts = df["Category"].value_counts()
+    print(f"\nอัตราส่วนหมวดใหญ่สุด:เล็กสุด = {counts.max() / counts.min():.1f}:1 "
+          "(ส่วนที่เหลือชดเชยด้วย class_weight ตอนเทรน ดู 02_train_models.py)")
     print("\nสรุปตาม source:")
     print(df["source"].value_counts())
 
     OUT.mkdir(exist_ok=True)
     out_path = OUT / "category_dataset_v2.csv"
     df.to_csv(out_path, index=False, encoding="utf-8-sig")
+    data_copy = BASE / "data" / "category_dataset_v2.csv"
+    df.to_csv(data_copy, index=False, encoding="utf-8-sig")
     print(f"\nบันทึกไว้ที่: {out_path}  (รวม {len(df)} แถว)")
+    print(f"สำเนาที่: {data_copy}")
 
 
 if __name__ == "__main__":
