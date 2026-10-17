@@ -20,12 +20,17 @@ print("STEP 3: Load cleaned datasets")
 # FIX (พบ 11 ก.ย.: Dataset_Restaurant_CRM_4000_Rows.xlsx เดิม 4,000 แถวมีข้อความ
 # ไม่ซ้ำกันจริงแค่ 85 ประโยค ทำให้ train/test split แบ่งประโยคเดียวกันเข้าทั้งสองฝั่ง
 # category_model จึง "จำ" แทนที่จะ "generalize" — accuracy 100% ที่วัดได้เดิมเป็น
-# ตัวเลขหลอก) เปลี่ยนมาใช้ outputs/category_dataset_v2.csv แทน ซึ่งสร้างจากรีวิว
+# ตัวเลขหลอก) เปลี่ยนมาใช้ data/category_dataset_v2.csv แทน ซึ่งสร้างจากรีวิว
 # Wongnai จริง (ไม่ซ้ำกัน) ผ่านการติด label ด้วยระบบ keyword ที่ปรับแต่งไว้แล้ว
 # (ดู 09_build_category_dataset_from_wongnai.py สำหรับรายละเอียดวิธีสร้าง) —
 # fallback ไปที่ crm_cleaned.csv เดิมถ้ายังไม่เคยรันสคริปต์สร้าง dataset ใหม่
+#
+# FIX (ต.ค. 2569): เดิมบรรทัดนี้ชี้ไปที่ outputs/category_dataset_v2.csv ซึ่งไม่ได้
+# commit ไว้ใน repo (มีแค่ data/category_dataset_v2.csv) — clone ใหม่แล้วรันสคริปต์นี้
+# เงื่อนไข .exists() ด้านล่างจะเป็น False แล้ว fallback ไปใช้ crm_cleaned.csv เดิมที่มี
+# ปัญหา data leakage กลับมาแบบเงียบๆ จึงชี้ไปที่ data/ แทน
 # ---------------------------------------------------------------------------
-category_dataset_v2_path = OUT / "category_dataset_v2.csv"
+category_dataset_v2_path = BASE / "data" / "category_dataset_v2.csv"
 if category_dataset_v2_path.exists():
     crm = pd.read_csv(category_dataset_v2_path, encoding="utf-8-sig")
     print(f"  ใช้ category dataset ใหม่: {category_dataset_v2_path.name} ({len(crm)} แถว, ไม่ซ้ำกัน)")
@@ -88,7 +93,10 @@ X = crm["clean_text"].astype(str)
 y = crm["Category"].astype(str)
 # category อาจบางคลาสน้อย ใช้ stratify เฉพาะถ้าทำได้
 stratify = y if y.value_counts().min() >= 2 else None
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42, stratify=stratify)
+# ส่ง source ไปแบ่งพร้อมกันด้วย (ไม่กระทบผลการแบ่ง X/y เพราะใช้ดัชนีสุ่มชุดเดียวกัน)
+src = crm["source"].astype(str) if "source" in crm.columns else pd.Series(["unknown"] * len(crm), index=crm.index)
+X_train, X_test, y_train, y_test, src_train, src_test = train_test_split(
+    X, y, src, test_size=0.20, random_state=42, stratify=stratify)
 
 category_base = Pipeline([
     ("tfidf", TfidfVectorizer(analyzer="char_wb", ngram_range=(2,5), min_df=1, max_features=20000)),
@@ -102,36 +110,46 @@ cat_report = classification_report(y_test, cat_pred, output_dict=True, zero_divi
 
 cat_macro_f1 = f1_score(y_test, cat_pred, average="macro", zero_division=0)
 print("Category accuracy (calibrated):", round(cat_acc, 4))
+print("Category macro-F1:", round(cat_macro_f1, 4))
 
 # ---------------------------------------------------------------------------
-# FIX (class imbalance): accuracy อย่างเดียวซ่อนผลของหมวดเล็กไว้ — หมวด
-# "อาหารได้ไม่ตรง/ช้า" มีแค่ ~1.7% ของข้อมูล ต่อให้โมเดลทายหมวดนี้ผิดทั้งหมด accuracy
-# ก็แทบไม่ขยับ จึงรายงาน macro-F1 (ทุกหมวดมีน้ำหนักเท่ากัน) และผลของหมวดที่เล็กที่สุด
-# ด้วยเสมอ
+# FIX (ต.ค. 2569): รายงานผลบน "แถวที่มาจากรีวิวจริงเท่านั้น" ควบคู่เสมอ
+# category_dataset_v2.csv เติมบางหมวดให้ครบ 1,200 ด้วยประโยคสังเคราะห์จากแม่แบบ
+# (source ขึ้นต้นด้วย synthetic_ ดู synthetic_templates.py) ประโยคจากแม่แบบเดียวกัน
+# คล้ายกันมาก ถ้าตกไปอยู่ทั้งชุดฝึกและชุดทดสอบ โมเดลจะทายถูกง่ายเกินจริง ตัวเลขบนชุด
+# ทดสอบทั้งหมดจึงสูงเกินจริงในหมวดที่มีประโยคสังเคราะห์มาก ตัวเลขที่ควรใช้อ้างอิงคือ
+# ผลบนแถวรีวิวจริง (wongnai_real + wongnai_pattern)
 #
-# ตัววิธีเทรนคงเดิม (class_weight="balanced" + sigmoid calibration) เพราะทดสอบ
-# 5-fold CV บน dataset ใหม่แล้ว ทางเลือกอื่นไม่ได้ดีขึ้นจริง (macro-F1 แทบเท่ากัน):
-#   balanced + sigmoid (ใช้อยู่)       macro-F1 0.816  หมวดเล็กสุด F1 0.613
-#   RandomOverSampler (เฉพาะ train fold) macro-F1 0.815  หมวดเล็กสุด F1 0.625
-#   balanced + isotonic                macro-F1 0.816  หมวดเล็กสุด F1 0.616
-# ที่ได้ผลจริงคือเพิ่มข้อมูลจริงของหมวดเล็ก (ดู 09_build_category_dataset_from_wongnai.py)
+# วิธีจัดการความไม่สมดุลยังคงเดิม (class_weight="balanced" + sigmoid calibration)
+# เพราะทดสอบ 5-fold CV แล้ว oversampling / isotonic ไม่ได้ดีขึ้นจริง (macro-F1 ต่างกัน
+# ไม่เกิน 0.001) ที่ช่วยได้จริงคือการเพิ่มข้อมูลของหมวดที่ขาด
 # ---------------------------------------------------------------------------
-_smallest = y_train.value_counts().idxmin()
-_small_stats = cat_report.get(_smallest, {})
-print("Category macro-F1:", round(cat_macro_f1, 4))
-print(f"Smallest class '{_smallest}' (train n={y_train.value_counts().min()}, "
-      f"test n={int(_small_stats.get('support', 0))}): "
-      f"precision={_small_stats.get('precision', 0):.3f} "
-      f"recall={_small_stats.get('recall', 0):.3f} f1={_small_stats.get('f1-score', 0):.3f}")
-print("Category class distribution (train):")
-print(y_train.value_counts().to_string())
+real_mask = ~src_test.str.startswith("synthetic").values
+y_test_real = y_test[real_mask]
+cat_pred_real = cat_pred[real_mask]
+cat_acc_real = accuracy_score(y_test_real, cat_pred_real)
+cat_macro_f1_real = f1_score(y_test_real, cat_pred_real, average="macro", zero_division=0)
+cat_report_real = classification_report(y_test_real, cat_pred_real, output_dict=True, zero_division=0)
+print(f"Category (real reviews only, n={real_mask.sum()} of {len(y_test)}): "
+      f"accuracy={cat_acc_real:.4f}  macro-F1={cat_macro_f1_real:.4f}")
+print("Per-class F1 (all test rows / real-review rows only):")
+for label in sorted(y_test.unique()):
+    f_all = cat_report.get(label, {}).get("f1-score", 0)
+    real_stats = cat_report_real.get(label, {})
+    print(f"  {label:<24} {f_all:.3f} / {real_stats.get('f1-score', 0):.3f}"
+          f"  (real n={int(real_stats.get('support', 0))})")
 joblib.dump(category_model, MODELS / "category_model.joblib")
 
 metrics = {
     "sentiment_accuracy": float(sent_acc),
     "category_accuracy": float(cat_acc),
     "category_macro_f1": float(cat_macro_f1),
-    "category_smallest_class": _smallest,
+    "category_real_only": {
+        "n_test": int(real_mask.sum()),
+        "accuracy": float(cat_acc_real),
+        "macro_f1": float(cat_macro_f1_real),
+        "report": cat_report_real,
+    },
     "sentiment_report": sent_report,
     "category_report": cat_report,
 }

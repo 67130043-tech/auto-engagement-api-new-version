@@ -78,14 +78,14 @@ results["sentiment"] = {
 # 2) CATEGORY (CRM dataset) — held-out test split เดียวกับตอนเทรน
 # ---------------------------------------------------------------------------
 print("\n" + "=" * 70)
-print("CATEGORY — held-out test set (Dataset_Restaurant_CRM_4000_Rows, เดียวกับตอนเทรน)")
+print("CATEGORY — held-out test set (category_dataset_v2.csv, เดียวกับตอนเทรน)")
 print("=" * 70)
 
 # FIX (11 ก.ย.): ใช้ category_dataset_v2.csv (สร้างจากรีวิว Wongnai จริง ไม่ซ้ำกัน)
 # แทน crm_cleaned.csv เดิม (ซ้ำกันแค่ 85 ประโยคจาก 4,000 แถว — ดูรายละเอียดใน
 # 09_build_category_dataset_from_wongnai.py) เพื่อให้ตัวเลข accuracy ที่วัดได้
 # สะท้อนความสามารถ generalize จริง ไม่ใช่การจำข้อความที่เคยเห็นตอนเทรนซ้ำ
-_category_dataset_path = OUT / "category_dataset_v2.csv"
+_category_dataset_path = BASE / "data" / "category_dataset_v2.csv"  # ให้ตรงกับ 02_train_models.py
 if _category_dataset_path.exists():
     crm = pd.read_csv(_category_dataset_path, encoding="utf-8-sig")
 else:

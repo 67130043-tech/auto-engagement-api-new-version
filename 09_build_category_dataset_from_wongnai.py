@@ -31,6 +31,9 @@ labeled dataset ที่ตรงโดเมนพอ ใช้กันทั
      pattern เฉพาะเจาะจง (source="wongnai_pattern") ดู is_order_issue() ด้านล่าง
   6. หมวดอื่นที่ยังไม่ถึง 1,200 (Delivery, ชมการบริการ, สอบถามโปรโมชั่น) เติมด้วยประโยค
      จริงที่ pattern เฉพาะหมวดจับได้ ดู TOPUP_PATTERNS ด้านล่าง
+  7. ขั้นสุดท้าย หมวดที่ข้อมูลจริงยังไม่พอ เติมด้วยประโยคสังเคราะห์แบบรวมแม่แบบ
+     (Combinatorial Template Augmentation) เฉพาะจำนวนที่ขาด จนทุกหมวดครบ 1,200
+     ดู synthetic_templates.py
 
 ผลลัพธ์: outputs/category_dataset_v2.csv (คอลัมน์ clean_text, Category, source)
         และคัดลอกไปที่ data/category_dataset_v2.csv (สำเนาที่ commit ไว้ใน repo)
@@ -49,6 +52,7 @@ from app.keywords_data import (
     keyword_category_best_match,
 )
 from app.engine import map_to_ml_category, ML_CATEGORY_CLASSES
+import synthetic_templates
 
 OUT = BASE / "outputs"
 
@@ -336,6 +340,25 @@ def main():
     for cat, grp in df.groupby("Category"):
         parts.append(grp.sample(min(len(grp), MAX_PER_CATEGORY), random_state=42))
     df = pd.concat(parts).reset_index(drop=True)
+
+    # -----------------------------------------------------------------------
+    # เติมหมวดที่ยังไม่ถึง cap ด้วยประโยคสังเคราะห์จากแม่แบบ (ขั้นสุดท้าย ใช้เฉพาะ
+    # จำนวนที่ข้อมูลจริงยังขาด) — ทำให้ทุกหมวดมี MAX_PER_CATEGORY แถวเท่ากัน
+    # ดูรายละเอียดวิธีสร้างและข้อควรระวังใน synthetic_templates.py
+    # -----------------------------------------------------------------------
+    counts = df["Category"].value_counts()
+    existing = set(df["clean_text"])
+    synth_rows = []
+    for cat in sorted(ML_CATEGORY_CLASSES):
+        gap = MAX_PER_CATEGORY - int(counts.get(cat, 0))
+        new_rows = synthetic_templates.generate(cat, gap, existing, clean_text)
+        existing.update(r["clean_text"] for r in new_rows)
+        synth_rows.extend(new_rows)
+        if gap > 0:
+            print(f"  เติมด้วยแม่แบบ: {cat} ขาด {gap} เติมได้ {len(new_rows)}")
+    if synth_rows:
+        df = pd.concat([df, pd.DataFrame(synth_rows)]).reset_index(drop=True)
+    df = df.sort_values(["Category", "source", "clean_text"]).reset_index(drop=True)
 
     print("\nสรุปจำนวนต่อหมวด (หลัง dedupe + cap ที่ {} ต่อหมวด):".format(MAX_PER_CATEGORY))
     print(df["Category"].value_counts())
