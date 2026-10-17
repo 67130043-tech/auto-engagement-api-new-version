@@ -8,7 +8,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.calibration import CalibratedClassifierCV
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, classification_report, f1_score
 
 BASE = Path(__file__).resolve().parent
 OUT = BASE / "outputs"
@@ -100,12 +100,38 @@ cat_pred = category_model.predict(X_test)
 cat_acc = accuracy_score(y_test, cat_pred)
 cat_report = classification_report(y_test, cat_pred, output_dict=True, zero_division=0)
 
+cat_macro_f1 = f1_score(y_test, cat_pred, average="macro", zero_division=0)
 print("Category accuracy (calibrated):", round(cat_acc, 4))
+
+# ---------------------------------------------------------------------------
+# FIX (class imbalance): accuracy อย่างเดียวซ่อนผลของหมวดเล็กไว้ — หมวด
+# "อาหารได้ไม่ตรง/ช้า" มีแค่ ~1.7% ของข้อมูล ต่อให้โมเดลทายหมวดนี้ผิดทั้งหมด accuracy
+# ก็แทบไม่ขยับ จึงรายงาน macro-F1 (ทุกหมวดมีน้ำหนักเท่ากัน) และผลของหมวดที่เล็กที่สุด
+# ด้วยเสมอ
+#
+# ตัววิธีเทรนคงเดิม (class_weight="balanced" + sigmoid calibration) เพราะทดสอบ
+# 5-fold CV บน dataset ใหม่แล้ว ทางเลือกอื่นไม่ได้ดีขึ้นจริง (macro-F1 แทบเท่ากัน):
+#   balanced + sigmoid (ใช้อยู่)       macro-F1 0.816  หมวดเล็กสุด F1 0.613
+#   RandomOverSampler (เฉพาะ train fold) macro-F1 0.815  หมวดเล็กสุด F1 0.625
+#   balanced + isotonic                macro-F1 0.816  หมวดเล็กสุด F1 0.616
+# ที่ได้ผลจริงคือเพิ่มข้อมูลจริงของหมวดเล็ก (ดู 09_build_category_dataset_from_wongnai.py)
+# ---------------------------------------------------------------------------
+_smallest = y_train.value_counts().idxmin()
+_small_stats = cat_report.get(_smallest, {})
+print("Category macro-F1:", round(cat_macro_f1, 4))
+print(f"Smallest class '{_smallest}' (train n={y_train.value_counts().min()}, "
+      f"test n={int(_small_stats.get('support', 0))}): "
+      f"precision={_small_stats.get('precision', 0):.3f} "
+      f"recall={_small_stats.get('recall', 0):.3f} f1={_small_stats.get('f1-score', 0):.3f}")
+print("Category class distribution (train):")
+print(y_train.value_counts().to_string())
 joblib.dump(category_model, MODELS / "category_model.joblib")
 
 metrics = {
     "sentiment_accuracy": float(sent_acc),
     "category_accuracy": float(cat_acc),
+    "category_macro_f1": float(cat_macro_f1),
+    "category_smallest_class": _smallest,
     "sentiment_report": sent_report,
     "category_report": cat_report,
 }
