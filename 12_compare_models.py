@@ -93,13 +93,16 @@ def load_eval_sets(task):
     csv = DATA / f"{task}_dataset_v2.csv"
     df = pd.read_csv(csv, encoding="utf-8-sig")
     test = df[df["split"] == "test"]
-    sets["test"] = (test["clean_text"].astype(str).tolist(), test[LABEL_COL[task]].astype(str).tolist())
+    raw = test["text"] if "text" in test.columns else test["clean_text"]
+    sets["test"] = (test["clean_text"].astype(str).tolist(), test[LABEL_COL[task]].astype(str).tolist(),
+                    raw.fillna("").astype(str).tolist())
     gold_path = DATA / "gold_standard.csv"
     if gold_path.exists():
         gold = pd.read_csv(gold_path, encoding="utf-8-sig").dropna(subset=["message", task])
         gold = gold[gold[task].astype(str).str.strip() != ""]
         if len(gold):
-            sets["gold"] = ([clean_text(m) for m in gold["message"]], gold[task].astype(str).str.strip().tolist())
+            sets["gold"] = ([clean_text(m) for m in gold["message"]], gold[task].astype(str).str.strip().tolist(),
+                            gold["message"].astype(str).tolist())
     return sets
 
 
@@ -116,16 +119,16 @@ def main():
         wangchan = load_transformer_model(task)
         if wangchan is None:
             print("  (ยังไม่มี WangchanBERTa สำหรับ task นี้ — ข้าม; รัน 11_finetune_wangchanberta.ipynb ก่อน)")
-        for eval_set, (texts, y_true) in load_eval_sets(task).items():
+        for eval_set, (texts, y_true, raw_texts) in load_eval_sets(task).items():
             pred, conf = proba_pred(tfidf, texts)
             rows.append(score("tfidf_svm", task, eval_set, y_true, pred, conf))
             rows.append(score("tfidf_svm+keyword", task, eval_set, y_true, keyword_pipeline(task, texts, pred)))
             if wangchan is not None:
-                wpred, wconf = proba_pred(wangchan, texts)
+                wpred, wconf = proba_pred(wangchan, raw_texts)  # WangchanBERTa ใช้ข้อความดิบ
                 rows.append(score("wangchanberta", task, eval_set, y_true, wpred, wconf))
             if args.llm:
                 idx = np.random.RandomState(42).permutation(len(texts))[:args.llm_n]
-                sub_t, sub_y = [texts[i] for i in idx], [y_true[i] for i in idx]
+                sub_t, sub_y = [raw_texts[i] for i in idx], [y_true[i] for i in idx]
                 rows.append(score("llm_zero_shot", task, eval_set, sub_y, llm_predict(task, sub_t)))
 
     OUT.mkdir(exist_ok=True)

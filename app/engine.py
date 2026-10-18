@@ -378,8 +378,12 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     sentiment_model, category_model, _ = load_resources()
     text = clean_text(message)
 
-    sentiment_ml, sentiment_confidence = predict_with_confidence(sentiment_model, text)
-    category_ml, category_confidence = predict_with_confidence(category_model, text)
+    # WangchanBERTa รับข้อความดิบ (เก็บอีโมจิ/วรรคตอนไว้ — ดู transformer_model.prepare_text)
+    # ส่วน TF-IDF+SVM รับข้อความที่ผ่าน clean_text แล้ว แบบเดียวกับตอนเทรน
+    sentiment_input = message if _backend["sentiment"] == "wangchanberta" else text
+    category_input = message if _backend["category"] == "wangchanberta" else text
+    sentiment_ml, sentiment_confidence = predict_with_confidence(sentiment_model, sentiment_input)
+    category_ml, category_confidence = predict_with_confidence(category_model, category_input)
 
     sentiment_mode = decision_mode("sentiment")
     category_mode = decision_mode("category")
@@ -421,6 +425,11 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     if category != category_ml:
         category_confidence = KEYWORD_MATCH_CONFIDENCE
         category_source = "keyword"
+
+    # คอมเมนต์ที่ไม่มีข้อความ (เช่น รูปภาพ/สติกเกอร์อย่างเดียว) ไม่มีอะไรให้โมเดลวิเคราะห์
+    # ตอบแบบเป็นกลางเสมอ แทนการปล่อยให้โมเดลเดาจากข้อความว่าง
+    if not str(message or "").strip():
+        sentiment, sentiment_confidence, sentiment_source = "neutral", 0.0, "empty_message"
 
     # กฎความปลอดภัย: สิ่งแปลกปลอม/อาหารเป็นพิษ ต้องเป็นคำร้องเรียนเสมอไม่ว่าโมเดลจะทายอะไร
     # (ผิดพลาดตรงนี้ร้ายแรงเกินกว่าจะปล่อยให้โมเดลตัดสินเอง — ดู decision_engine.py)

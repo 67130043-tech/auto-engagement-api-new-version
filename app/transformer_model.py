@@ -25,12 +25,21 @@ BASE = Path(__file__).resolve().parents[1]
 
 # WangchanBERTa (thai2transformers) แทนช่องว่างด้วย token "<_>" และเป็นโมเดลแบบ uncased
 SPACE_TOKEN = "<_>"
+_URL_RE = re.compile(r"http\S+|www\.\S+|\S+@\S+")
 
 
 def prepare_text(text: str) -> str:
-    """เตรียมข้อความก่อนเข้า WangchanBERTa — ใช้ชุดเดียวกันทั้งตอนเทรนและตอนใช้งาน
-    รับข้อความที่ผ่าน preprocess.clean_text() แล้ว (หรือข้อความดิบก็ได้)"""
-    text = str(text or "").lower()
+    """เตรียมข้อความ "ดิบ" ก่อนเข้า WangchanBERTa — ใช้ชุดเดียวกันทั้งตอนเทรนและตอนใช้งาน
+
+    ต่างจาก preprocess.clean_text() ตรงที่**เก็บอีโมจิและเครื่องหมายวรรคตอนไว้** เพราะ
+    เป็นสัญญาณอารมณ์สำคัญในคอมเมนต์โซเชียล (เช่น 😡 😂 !!! ?) clean_text() ตัดทิ้งหมด
+    ซึ่งเหมาะกับ TF-IDF แต่ทำให้ WangchanBERTa เสียข้อมูล — ทำแค่: NFKC + รวมสระอำ,
+    ลบ URL/อีเมล, ลดตัวอักษรซ้ำ (มากกกก -> มาก), ตัวพิมพ์เล็ก, ช่องว่าง -> <_>"""
+    import unicodedata
+    from app.preprocess import reduce_repeated_thai_chars
+    text = unicodedata.normalize("NFKC", str(text or "")).replace("\u0e4d\u0e32", "\u0e33")
+    text = _URL_RE.sub(" ", text)
+    text = reduce_repeated_thai_chars(text).lower()
     text = re.sub(r"\s+", " ", text).strip()
     return text.replace(" ", SPACE_TOKEN)
 
@@ -49,7 +58,7 @@ class OnnxTextClassifier:
         self.model_dir = model_dir
         self.tokenizer = AutoTokenizer.from_pretrained(str(model_dir))
         opts = ort.SessionOptions()
-        opts.intra_op_num_threads = int(os.environ.get("ONNX_THREADS", "1"))
+        opts.intra_op_num_threads = int(os.environ.get("ONNX_THREADS", str(min(4, os.cpu_count() or 1))))
         self.session = ort.InferenceSession(str(model_dir / "model.onnx"), sess_options=opts,
                                             providers=["CPUExecutionProvider"])
 

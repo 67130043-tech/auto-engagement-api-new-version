@@ -32,7 +32,8 @@ class_weight="balanced" ตอนเทรน (ดู 02_train_models.py) — �
 
 pattern ทุกตัวตั้งใจให้แคบ (precision มาก่อน recall) เพราะผลลัพธ์กลายเป็น label
 
-ผลลัพธ์: data/category_dataset_v2.csv (คอลัมน์ clean_text, Category, source)
+ผลลัพธ์: data/category_dataset_v2.csv (คอลัมน์ clean_text, Category, source, split, text)
+        text = ท่อนข้อความดิบก่อน clean_text (มีอีโมจิ/วรรคตอน) สำหรับ WangchanBERTa
         และสำเนาที่ outputs/category_dataset_v2.csv
 ผลทำซ้ำได้: ทุกขั้นเรียงข้อมูลก่อนสุ่ม รันกี่ครั้งก็ได้ไฟล์เดียวกัน
 """
@@ -224,21 +225,21 @@ def main():
     print(f"  ประโยค/ท่อนที่ไม่ซ้ำกันทั้งหมด: {len(chunks)}")
 
     print("กำลังติดป้ายด้วยกฎ keyword (weak supervision)...")
-    labeled = {}  # clean_text -> (Category, source)
+    labeled = {}  # clean_text -> (Category, source, ข้อความดิบ)
     for chunk in chunks:
         key = clean_text(chunk)
         if not key or key in labeled:
             continue
         if is_order_issue(chunk):
-            labeled[key] = (ORDER_ISSUE_CATEGORY, "wongnai_pattern")
+            labeled[key] = (ORDER_ISSUE_CATEGORY, "wongnai_pattern", chunk)
             continue
         cat = label_chunk(chunk)
         if cat is not None:
-            labeled[key] = (cat, "wongnai_real")
+            labeled[key] = (cat, "wongnai_real", chunk)
     print(f"  ติดป้ายได้: {len(labeled)}")
 
     # --- เติมหมวดที่ยังไม่ถึง cap ด้วยท่อนจริงที่ pattern จับได้ ---
-    counts = pd.Series([c for c, _ in labeled.values()]).value_counts()
+    counts = pd.Series([v[0] for v in labeled.values()]).value_counts()
     need = {c: MAX_PER_CATEGORY - int(counts.get(c, 0)) for c in ML_CATEGORY_CLASSES}
     need = {c: n for c, n in need.items() if n > 0}
     surplus = {c for c, n in counts.items() if n > 2 * MAX_PER_CATEGORY}
@@ -264,15 +265,15 @@ def main():
             key = clean_text(chunk)
             if not key or key in added or labeled.get(key, (None,))[0] == cat:
                 continue
-            added[key] = (cat, source)
+            added[key] = (cat, source, chunk)
             need[cat] -= 1
             if need[cat] == 0:
                 del need[cat]
     labeled.update(added)
-    print("  เติมด้วย pattern:", pd.Series([f"{c} <- {s}" for c, s in added.values()]).value_counts().to_dict())
+    print("  เติมด้วย pattern:", pd.Series([f"{c} <- {s}" for c, s, _ in added.values()]).value_counts().to_dict())
 
     df = pd.DataFrame(
-        [{"clean_text": k, "Category": c, "source": s} for k, (c, s) in labeled.items()]
+        [{"clean_text": k, "Category": c, "source": s, "text": raw} for k, (c, s, raw) in labeled.items()]
     ).sort_values(["Category", "source", "clean_text"]).reset_index(drop=True)
 
     # จำกัดไม่เกิน cap ต่อหมวด — สุ่มแบบ random_state คงที่เพื่อทำซ้ำได้ แถวจาก pattern

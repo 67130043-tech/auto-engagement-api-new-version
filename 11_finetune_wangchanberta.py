@@ -62,6 +62,10 @@ def parse_args():
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--limit", type=int, default=None, help="ใช้แค่ N แถวแรกของ train/test (ไว้ทดสอบโค้ด)")
     p.add_argument("--push-to-hub", default=None, help="repo id บน HuggingFace Hub เช่น user/wangchanberta-category")
+    p.add_argument("--quant", choices=["int8_per_channel", "int8", "none"], default="int8_per_channel",
+                   help="วิธีบีบอัด ONNX: int8_per_channel (ค่าเริ่มต้น แม่นกว่า), int8 (per-tensor), none (fp32 ~420MB)")
+    p.add_argument("--from-pytorch", default=None,
+                   help="ข้ามการเทรน: export ONNX ใหม่จากโมเดล PyTorch ที่บันทึกไว้ (models/wangchanberta_<task>_pytorch)")
     return p.parse_args()
 
 
@@ -128,6 +132,9 @@ def load_splits(task, limit, seed):
     cfg = TASKS[task]
     df = pd.read_csv(BASE / cfg["csv"], encoding="utf-8-sig")
     df["label"] = df[cfg["label"]].astype(str)
+    # WangchanBERTa ใช้ข้อความดิบ (คอลัมน์ text — เก็บอีโมจิ/วรรคตอน) ถ้ามี ไม่งั้นใช้ clean_text
+    raw = df["text"] if "text" in df.columns else df["clean_text"]
+    df["input_text"] = raw.fillna("").astype(str)
     if "source" not in df.columns:
         df["source"] = "unknown"
     train_all = df[df["split"] == "train"].reset_index(drop=True)
@@ -158,10 +165,15 @@ def main():
     print(f"task={args.task} classes={classes}")
     print(f"train={len(train)} val={len(val)} test={len(test)}")
 
+    pt_dir = out_dir.parent / f"{out_dir.name}_pytorch"
+    if args.from_pytorch:
+        reexport(args, Path(args.from_pytorch), out_dir, test, max_len)
+        return
+
     tokenizer = AutoTokenizer.from_pretrained(args.model_name)
 
     def encode(frame):
-        texts = [prepare_text(t) for t in frame["clean_text"].astype(str)]
+        texts = [prepare_text(t) for t in frame["input_text"]]
         return tokenizer(texts, truncation=True, max_length=max_len)
 
     ds_train = TextDataset(encode(train), [label2id[c] for c in train["label"]])
@@ -215,6 +227,10 @@ def main():
     t0 = time.time()
     trainer.train()
     train_seconds = time.time() - t0
+    # เก็บโมเดล PyTorch ไว้ — ถ้าไฟล์บีบอัดเสียความแม่นยำ export ใหม่ได้โดยไม่ต้องเทรนซ้ำ
+    # (python 11_finetune_wangchanberta.py --task <task> --from-pytorch <dir> --quant none)
+    trainer.save_model(str(pt_dir))
+    tokenizer.save_pretrained(pt_dir)
 
     # --- สอบเทียบ + วัดผล ---
     val_logits = trainer.predict(ds_val).predictions
@@ -254,37 +270,20 @@ def main():
     print(json.dumps({k: metrics[k] for k in ("accuracy", "macro_f1", "temperature", "calibration", "by_source")},
                      ensure_ascii=False, indent=2))
 
-    # --- export ONNX (int8) ---
-    export_onnx(trainer.model, tokenizer, out_dir, max_len)
-    tokenizer.save_pretrained(out_dir)
-    (out_dir / "labels.json").write_text(json.dumps({
+    (pt_dir / "labels.json").write_text(json.dumps({
         "classes": classes, "temperature": temperature, "max_length": max_len,
         "base_model": args.model_name, "task": args.task,
     }, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out_dir / "metrics.json").write_text(json.dumps(metrics, ensure_ascii=False, indent=2), encoding="utf-8")
-
-    # --- เช็คว่า ONNX ให้ผลตรงกับ PyTorch ---
-    from app.transformer_model import OnnxTextClassifier
-    onnx_model = OnnxTextClassifier(out_dir)
-    sample = test["clean_text"].astype(str).tolist()[:200]
-    onnx_pred = onnx_model.predict(sample)
-    agree = float(np.mean([a == b for a, b in zip(onnx_pred, pred_labels[:len(sample)])]))
-    print(f"ONNX int8 vs PyTorch agreement on {len(sample)} test rows: {agree:.3f}")
-    metrics["onnx_int8_agreement"] = agree
-    (out_dir / "metrics.json").write_text(json.dumps(metrics, ensure_ascii=False, indent=2), encoding="utf-8")
+    export_and_check(trainer.model, tokenizer, out_dir, pt_dir, args.quant, test, metrics)
 
     import shutil
     shutil.rmtree(out_dir / "checkpoints", ignore_errors=True)
     if args.push_to_hub:
-        from huggingface_hub import HfApi
-        api = HfApi()
-        api.create_repo(args.push_to_hub, exist_ok=True)
-        api.upload_folder(folder_path=str(out_dir), repo_id=args.push_to_hub)
-        print(f"อัปโหลดไปที่ https://huggingface.co/{args.push_to_hub}")
+        push(args.push_to_hub, out_dir)
     print(f"บันทึกไว้ที่: {out_dir}")
 
 
-def export_onnx(model, tokenizer, out_dir: Path, max_len: int):
+def export_onnx(model, tokenizer, out_dir: Path, quant: str):
     from onnxruntime.quantization import QuantType, quantize_dynamic
     model = model.to("cpu").eval()
     dummy = tokenizer(["ทดสอบ"], return_tensors="pt", padding="max_length", max_length=16, truncation=True)
@@ -296,8 +295,65 @@ def export_onnx(model, tokenizer, out_dir: Path, max_len: int):
                       "logits": {0: "batch"}},
         opset_version=17, dynamo=False,
     )
-    quantize_dynamic(str(fp32_path), str(out_dir / "model.onnx"), weight_type=QuantType.QInt8)
+    final = out_dir / "model.onnx"
+    if quant == "none":
+        fp32_path.replace(final)
+        return
+    # per_channel=True: ใช้ scale แยกต่อแถวของ weight — เสียความแม่นยำน้อยกว่า per-tensor มาก
+    # (รอบแรกใช้ per-tensor แล้ว category ตกจาก 0.862 เหลือ 0.831)
+    quantize_dynamic(str(fp32_path), str(final), weight_type=QuantType.QInt8,
+                     per_channel=(quant == "int8_per_channel"))
     fp32_path.unlink()
+
+
+def export_and_check(model, tokenizer, out_dir: Path, pt_dir: Path, quant: str, test, metrics: dict):
+    """export ONNX แล้ววัดผลของไฟล์ ONNX บน test set ทั้งชุด (ตัวที่ API ใช้จริง) เทียบกับ PyTorch"""
+    import shutil
+    export_onnx(model, tokenizer, out_dir, quant)
+    tokenizer.save_pretrained(out_dir)
+    shutil.copy(pt_dir / "labels.json", out_dir / "labels.json")
+
+    from app.transformer_model import OnnxTextClassifier
+    onnx_model = OnnxTextClassifier(out_dir)
+    t0 = time.time()
+    onnx_pred = onnx_model.predict(test["input_text"].tolist())
+    seconds = time.time() - t0
+    y = test["label"].tolist()
+    onnx_metrics = {
+        "quant": quant,
+        "accuracy": float(accuracy_score(y, onnx_pred)),
+        "macro_f1": float(f1_score(y, onnx_pred, average="macro", zero_division=0)),
+        "ms_per_text_cpu": round(1000 * seconds / max(1, len(y)), 1),
+        "size_mb": round((out_dir / "model.onnx").stat().st_size / 1e6, 1),
+    }
+    if "accuracy" in metrics:
+        onnx_metrics["accuracy_drop_vs_pytorch"] = round(metrics["accuracy"] - onnx_metrics["accuracy"], 4)
+    metrics["onnx"] = onnx_metrics
+    print("ONNX (ตัวที่ API ใช้จริง):", json.dumps(onnx_metrics, ensure_ascii=False))
+    if onnx_metrics.get("accuracy_drop_vs_pytorch", 0) > 0.01:
+        print(f"⚠️  ไฟล์ ONNX แม่นน้อยกว่า PyTorch เกิน 1 จุด — ลอง export ใหม่ด้วย "
+              f"--from-pytorch {pt_dir} --quant none")
+    (out_dir / "metrics.json").write_text(json.dumps(metrics, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def reexport(args, pt_dir: Path, out_dir: Path, test, max_len: int):
+    from transformers import AutoModelForSequenceClassification, AutoTokenizer
+    model = AutoModelForSequenceClassification.from_pretrained(str(pt_dir))
+    tokenizer = AutoTokenizer.from_pretrained(str(pt_dir))
+    metrics_path = out_dir / "metrics.json"
+    metrics = json.loads(metrics_path.read_text(encoding="utf-8")) if metrics_path.exists() else {}
+    export_and_check(model, tokenizer, out_dir, pt_dir, args.quant, test, metrics)
+    if args.push_to_hub:
+        push(args.push_to_hub, out_dir)
+    print(f"บันทึกไว้ที่: {out_dir}")
+
+
+def push(repo_id: str, out_dir: Path):
+    from huggingface_hub import HfApi
+    api = HfApi()
+    api.create_repo(repo_id, exist_ok=True)
+    api.upload_folder(folder_path=str(out_dir), repo_id=repo_id)
+    print(f"อัปโหลดไปที่ https://huggingface.co/{repo_id}")
 
 
 if __name__ == "__main__":

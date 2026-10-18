@@ -21,7 +21,7 @@ WangchanBERTa, LLM) วัดผลบนแถวทดสอบชุดเด
 (source, sentiment) ด้วย random_state=42
 
 ผลลัพธ์: data/sentiment_dataset_v2.csv
-        คอลัมน์ clean_text, sentiment, source, orig_label, split
+        คอลัมน์ clean_text, sentiment, source, orig_label, split, text (ข้อความดิบ)
 """
 import sys
 from pathlib import Path
@@ -77,7 +77,9 @@ def main():
     df["split"] = "train"
     df.loc[test_idx, "split"] = "test"
 
-    out = df[["clean_text", "sentiment", "source", "orig_label", "split"]]
+    # text = ข้อความดิบ (มีอีโมจิ/วรรคตอน) สำหรับ WangchanBERTa — TF-IDF ใช้ clean_text
+    df["text"] = df["text"].astype(str).str.replace(r"\s+", " ", regex=True).str.strip()
+    out = df[["clean_text", "sentiment", "source", "orig_label", "split", "text"]]
     out.to_csv(DATA / "sentiment_dataset_v2.csv", index=False, encoding="utf-8-sig")
     print(pd.crosstab([out["source"], out["sentiment"]], out["split"], margins=True, margins_name="รวม").to_string())
     print(f"\nบันทึกไว้ที่: {DATA / 'sentiment_dataset_v2.csv'}  (รวม {len(out)} แถว)")
