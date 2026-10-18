@@ -113,43 +113,37 @@ print("Category accuracy (calibrated):", round(cat_acc, 4))
 print("Category macro-F1:", round(cat_macro_f1, 4))
 
 # ---------------------------------------------------------------------------
-# FIX (ต.ค. 2569): รายงานผลบน "แถวที่มาจากรีวิวจริงเท่านั้น" ควบคู่เสมอ
-# category_dataset_v2.csv เติมบางหมวดให้ครบ 1,200 ด้วยประโยคสังเคราะห์จากแม่แบบ
-# (source ขึ้นต้นด้วย synthetic_ ดู synthetic_templates.py) ประโยคจากแม่แบบเดียวกัน
-# คล้ายกันมาก ถ้าตกไปอยู่ทั้งชุดฝึกและชุดทดสอบ โมเดลจะทายถูกง่ายเกินจริง ตัวเลขบนชุด
-# ทดสอบทั้งหมดจึงสูงเกินจริงในหมวดที่มีประโยคสังเคราะห์มาก ตัวเลขที่ควรใช้อ้างอิงคือ
-# ผลบนแถวรีวิวจริง (wongnai_real + wongnai_pattern)
+# รายงานผลแยกตามที่มาของป้ายกำกับ (คอลัมน์ source ใน category_dataset_v2.csv):
+#   wongnai_real           = ติดป้ายด้วยกฎ keyword ของระบบ
+#   wongnai_pattern        = ติดป้ายด้วย pattern เฉพาะหมวด (data/wongnai.csv)
+#   wongnai_corpus_pattern = ติดป้ายด้วย pattern เฉพาะหมวด (Wongnai corpus ฉบับเต็ม)
+# ทุกแถวเป็นรีวิวจริง ไม่มีประโยคสังเคราะห์ แต่ป้ายกำกับยังมาจากกฎ (weak supervision)
+# ตัวเลขนี้จึงวัด "ความสอดคล้องกับกฎ" ไม่ใช่ความถูกต้องเทียบกับคน — ตัวเลขหลักของงานวิจัย
+# ต้องมาจากชุดทดสอบมาตรฐานที่คนติดป้าย (Gold Standard)
 #
-# วิธีจัดการความไม่สมดุลยังคงเดิม (class_weight="balanced" + sigmoid calibration)
-# เพราะทดสอบ 5-fold CV แล้ว oversampling / isotonic ไม่ได้ดีขึ้นจริง (macro-F1 ต่างกัน
-# ไม่เกิน 0.001) ที่ช่วยได้จริงคือการเพิ่มข้อมูลของหมวดที่ขาด
+# วิธีจัดการความไม่สมดุลที่เหลือ (สัดส่วนหมวดใหญ่สุด:เล็กสุด ~1.5:1) ใช้
+# class_weight="balanced" ตามเดิม เพราะทดสอบ 5-fold CV แล้ว oversampling / isotonic
+# ไม่ได้ดีขึ้นจริง (macro-F1 ต่างกันไม่เกิน 0.001)
 # ---------------------------------------------------------------------------
-real_mask = ~src_test.str.startswith("synthetic").values
-y_test_real = y_test[real_mask]
-cat_pred_real = cat_pred[real_mask]
-cat_acc_real = accuracy_score(y_test_real, cat_pred_real)
-cat_macro_f1_real = f1_score(y_test_real, cat_pred_real, average="macro", zero_division=0)
-cat_report_real = classification_report(y_test_real, cat_pred_real, output_dict=True, zero_division=0)
-print(f"Category (real reviews only, n={real_mask.sum()} of {len(y_test)}): "
-      f"accuracy={cat_acc_real:.4f}  macro-F1={cat_macro_f1_real:.4f}")
-print("Per-class F1 (all test rows / real-review rows only):")
+print("Per-class F1:")
 for label in sorted(y_test.unique()):
-    f_all = cat_report.get(label, {}).get("f1-score", 0)
-    real_stats = cat_report_real.get(label, {})
-    print(f"  {label:<24} {f_all:.3f} / {real_stats.get('f1-score', 0):.3f}"
-          f"  (real n={int(real_stats.get('support', 0))})")
+    st = cat_report.get(label, {})
+    print(f"  {label:<24} f1={st.get('f1-score', 0):.3f}  (test n={int(st.get('support', 0))})")
+cat_by_source = {}
+for source in sorted(src_test.unique()):
+    m = (src_test == source).values
+    cat_by_source[source] = {
+        "n_test": int(m.sum()),
+        "accuracy": float(accuracy_score(y_test[m], cat_pred[m])),
+    }
+    print(f"  source={source:<24} n={m.sum():5d}  accuracy={cat_by_source[source]['accuracy']:.4f}")
 joblib.dump(category_model, MODELS / "category_model.joblib")
 
 metrics = {
     "sentiment_accuracy": float(sent_acc),
     "category_accuracy": float(cat_acc),
     "category_macro_f1": float(cat_macro_f1),
-    "category_real_only": {
-        "n_test": int(real_mask.sum()),
-        "accuracy": float(cat_acc_real),
-        "macro_f1": float(cat_macro_f1_real),
-        "report": cat_report_real,
-    },
+    "category_accuracy_by_source": cat_by_source,
     "sentiment_report": sent_report,
     "category_report": cat_report,
 }

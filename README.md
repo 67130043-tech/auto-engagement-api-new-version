@@ -7,7 +7,11 @@ Dataset → Preprocessing → Train Sentiment Model → Train Category Model →
 ## ไฟล์ข้อมูล
 
 - `data/wongnai.csv` ใช้ฝึก Sentiment Model จาก `review_body` และ `stars`
-- `data/Dataset_Restaurant_CRM_4000_Rows.xlsx` ใช้ฝึก Category Model และสร้าง User Behavior
+- `data/category_dataset_v2.csv` ใช้ฝึก Category Model — สร้างด้วย `09_build_category_dataset_from_wongnai.py`
+  จากรีวิวจริงล้วน (ไม่มีประโยคสังเคราะห์) ติดป้ายด้วยกฎ keyword/pattern ของระบบ (คอลัมน์ `source` บอกที่มา)
+- `data/external/wongnai-corpus/` Wongnai corpus ฉบับเต็ม (LGPL-3) ใช้เติมหมวดที่ `wongnai.csv` มีไม่พอ
+- `data/Dataset_Restaurant_CRM_4000_Rows.xlsx` ใช้สร้าง User Behavior (ไม่ใช้ฝึก Category Model แล้ว
+  เพราะมีข้อความไม่ซ้ำกันแค่ 85 ประโยค)
 
 ## ลำดับรันใน Google Colab
 
