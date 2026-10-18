@@ -37,23 +37,32 @@ if category_dataset_v2_path.exists():
 else:
     crm = pd.read_csv(OUT / "crm_cleaned.csv", encoding="utf-8-sig")
     print(f"  [คำเตือน] ไม่พบ {category_dataset_v2_path.name} — ใช้ crm_cleaned.csv เดิม (มีปัญหาข้อความซ้ำ)")
-wongnai = pd.read_csv(OUT / "wongnai_cleaned.csv", encoding="utf-8-sig")
 
-print("STEP 4: Train Sentiment Model from wongnai.csv")
-# ใช้ sample แบบ stratified เพื่อให้รันเร็วใน Colab และยังรักษาสัดส่วน label
-#
-# FIX (พบระหว่างทำ 07_evaluate_baseline.py): บรรทัดเดิม
-#   wongnai.groupby("sentiment", group_keys=False).apply(lambda x: x.sample(...))
-# ใน pandas เวอร์ชันที่ใช้รันจริงตอนนี้ (2.x) การ apply คืนค่าที่ "column ที่ใช้
-# groupby" (sentiment) หายไปจาก DataFrame ผลลัพธ์ ทำให้บรรทัดถัดไปที่อ้าง
-# wongnai["sentiment"] พัง (KeyError) ถ้ารันสคริปต์นี้ซ้ำในเครื่องนี้/เวอร์ชัน
-# pandas นี้ แก้โดย sample ทีละกลุ่มเองแทน (ได้ผลลัพธ์เทียบเท่ากันทุกประการ เพราะ
-# ใช้ random_state=42 เดียวกัน แค่เปลี่ยนวิธีเขียนโค้ดให้ไม่พึ่ง behavior ที่เปลี่ยนไป)
-_parts = [grp.sample(min(len(grp), 2500), random_state=42) for _, grp in wongnai.groupby("sentiment")]
-wongnai = pd.concat(_parts)
-X = wongnai["clean_text"].astype(str)
-y = wongnai["sentiment"].astype(str)
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42, stratify=y)
+print("STEP 4: Train Sentiment Model")
+# ---------------------------------------------------------------------------
+# FIX (ต.ค. 2569): ใช้ data/sentiment_dataset_v2.csv (Wisesight ที่คนติดป้าย + รีวิว
+# Wongnai ป้ายจากดาว — ดู 10_build_sentiment_dataset.py) แทนการสุ่มจาก Wongnai อย่าง
+# เดียว และใช้คอลัมน์ split ในไฟล์ ทุกโมเดล (TF-IDF+SVM, WangchanBERTa ใน
+# 11_finetune_wangchanberta.ipynb) จึงวัดผลบนแถวทดสอบชุดเดียวกัน
+# ถ้ายังไม่มีไฟล์ จะ fallback ไปใช้วิธีเดิม (สุ่ม Wongnai 2,500 รีวิวต่อป้าย)
+# ---------------------------------------------------------------------------
+sentiment_dataset_path = BASE / "data" / "sentiment_dataset_v2.csv"
+if sentiment_dataset_path.exists():
+    sent_df = pd.read_csv(sentiment_dataset_path, encoding="utf-8-sig")
+    print(f"  ใช้ sentiment dataset ใหม่: {sentiment_dataset_path.name} ({len(sent_df)} แถว)")
+    tr, te = sent_df[sent_df["split"] == "train"], sent_df[sent_df["split"] == "test"]
+    X_train, y_train = tr["clean_text"].astype(str), tr["sentiment"].astype(str)
+    X_test, y_test = te["clean_text"].astype(str), te["sentiment"].astype(str)
+    sent_src_test = te["source"].astype(str)
+else:
+    print(f"  [คำเตือน] ไม่พบ {sentiment_dataset_path.name} — ใช้รีวิว Wongnai อย่างเดียว")
+    wongnai = pd.read_csv(OUT / "wongnai_cleaned.csv", encoding="utf-8-sig")
+    _parts = [grp.sample(min(len(grp), 2500), random_state=42) for _, grp in wongnai.groupby("sentiment")]
+    wongnai = pd.concat(_parts)
+    X = wongnai["clean_text"].astype(str)
+    y = wongnai["sentiment"].astype(str)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42, stratify=y)
+    sent_src_test = pd.Series(["wongnai"] * len(X_test), index=X_test.index)
 
 # ---------------------------------------------------------------------------
 # FIX (พบระหว่างพัฒนาความแม่นยำของ sentiment_confidence/category_confidence):
@@ -85,18 +94,34 @@ sent_pred = sentiment_model.predict(X_test)
 sent_acc = accuracy_score(y_test, sent_pred)
 sent_report = classification_report(y_test, sent_pred, output_dict=True, zero_division=0)
 
-print("Sentiment accuracy (calibrated):", round(sent_acc, 4))
+sent_macro_f1 = f1_score(y_test, sent_pred, average="macro", zero_division=0)
+print("Sentiment accuracy (calibrated):", round(sent_acc, 4), " macro-F1:", round(sent_macro_f1, 4))
+sent_by_source = {}
+for source in sorted(sent_src_test.unique()):
+    m = (sent_src_test == source).values
+    sent_by_source[source] = {
+        "n_test": int(m.sum()),
+        "accuracy": float(accuracy_score(y_test[m], sent_pred[m])),
+        "macro_f1": float(f1_score(y_test[m], sent_pred[m], average="macro", zero_division=0)),
+    }
+    print(f"  source={source:<10} n={m.sum():5d}  accuracy={sent_by_source[source]['accuracy']:.4f}"
+          f"  macro-F1={sent_by_source[source]['macro_f1']:.4f}")
 joblib.dump(sentiment_model, MODELS / "sentiment_model.joblib")
 
-print("\nSTEP 5: Train Category Model from CRM")
+print("\nSTEP 5: Train Category Model")
 X = crm["clean_text"].astype(str)
 y = crm["Category"].astype(str)
-# category อาจบางคลาสน้อย ใช้ stratify เฉพาะถ้าทำได้
-stratify = y if y.value_counts().min() >= 2 else None
-# ส่ง source ไปแบ่งพร้อมกันด้วย (ไม่กระทบผลการแบ่ง X/y เพราะใช้ดัชนีสุ่มชุดเดียวกัน)
 src = crm["source"].astype(str) if "source" in crm.columns else pd.Series(["unknown"] * len(crm), index=crm.index)
-X_train, X_test, y_train, y_test, src_train, src_test = train_test_split(
-    X, y, src, test_size=0.20, random_state=42, stratify=stratify)
+if "split" in crm.columns:
+    # ใช้ split ที่กำหนดไว้ในไฟล์ (ดู 09_build_category_dataset_from_wongnai.py)
+    is_test = (crm["split"] == "test").values
+    X_train, X_test = X[~is_test], X[is_test]
+    y_train, y_test = y[~is_test], y[is_test]
+    src_train, src_test = src[~is_test], src[is_test]
+else:
+    stratify = y if y.value_counts().min() >= 2 else None
+    X_train, X_test, y_train, y_test, src_train, src_test = train_test_split(
+        X, y, src, test_size=0.20, random_state=42, stratify=stratify)
 
 category_base = Pipeline([
     ("tfidf", TfidfVectorizer(analyzer="char_wb", ngram_range=(2,5), min_df=1, max_features=20000)),
@@ -141,6 +166,8 @@ joblib.dump(category_model, MODELS / "category_model.joblib")
 
 metrics = {
     "sentiment_accuracy": float(sent_acc),
+    "sentiment_macro_f1": float(sent_macro_f1),
+    "sentiment_by_source": sent_by_source,
     "category_accuracy": float(cat_acc),
     "category_macro_f1": float(cat_macro_f1),
     "category_accuracy_by_source": cat_by_source,

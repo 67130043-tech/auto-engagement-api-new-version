@@ -1,0 +1,7 @@
+# ใช้เฉพาะตอน fine-tune WangchanBERTa (11_finetune_wangchanberta.py บน Colab GPU)
+# ไม่ต้องติดตั้งบนเซิร์ฟเวอร์ที่รัน API
+torch
+transformers==4.46.3
+accelerate
+sentencepiece
+onnx

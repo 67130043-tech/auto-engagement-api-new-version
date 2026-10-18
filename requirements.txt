@@ -8,3 +8,8 @@ requests
 pyngrok
 pythainlp
 openai
+# WangchanBERTa (ONNX) — ใช้เมื่อมีโมเดลจาก 11_finetune_wangchanberta.py ถ้าไม่มีจะใช้ TF-IDF+SVM
+onnxruntime
+transformers==4.46.3
+sentencepiece
+huggingface_hub

@@ -27,6 +27,20 @@ def choose_segment(total_messages=0, negative_count=0, complaint_count=0, inacti
 # อยู่ในป้ายชื่อเลย ทำให้ branch escalate พิเศษหลายจุดเป็น dead code ไม่ทำงานจริง
 # ตอนนี้แก้ให้เช็คกับ `message` (ข้อความจริงของลูกค้า) แทน
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# กฎความปลอดภัย (ใช้ทั้งใน engine.predict_message และ choose_action): คำที่บ่งบอก
+# สิ่งแปลกปลอมหรืออาหารเป็นพิษ ระบบต้องถือเป็นคำร้องเรียนและส่งต่อผู้จัดการเสมอ
+# เลือกเฉพาะคำที่ไม่กำกวม ("เสียแล้ว"/"หมดสภาพ" กำกวมเกินไป จึงไม่ใส่ในชุดนี้)
+# ---------------------------------------------------------------------------
+SAFETY_HAZARD_WORDS = ["แมลงสาบ", "มีแมลง", "เจอแมลง", "สิ่งแปลกปลอม", "อาหารเป็นพิษ", "บูด",
+                       "เส้นผม", "ผมในอาหาร", "ท้องเสีย", "เศษแก้ว", "ตะปู", "ลวดเย็บ"]
+
+
+def has_safety_hazard(message: str) -> bool:
+    m = str(message or "")
+    return any(w in m for w in SAFETY_HAZARD_WORDS)
+
+
 def choose_action(sentiment, category, segment, message="", message_tags=None):
     s = normalize_label(sentiment)
     c = str(category or "")
@@ -41,7 +55,7 @@ def choose_action(sentiment, category, segment, message="", message_tags=None):
     # เป็น negative ได้เองโดยไม่ต้องพึ่ง ML) เพิ่มไว้ตรงนี้เพื่อให้ตอบ apology_quality_
     # escalate (escalate ทุกเซกเมนต์) แทน apology_escalate ธรรมดา เพราะสิ่งแปลกปลอม
     # ในอาหารเป็นเรื่องร้ายแรงกว่าคำร้องเรียนทั่วไปมาก
-    if s == "negative" and any(w in m for w in ["แมลง", "สิ่งแปลกปลอม", "อาหารเป็นพิษ", "บูด", "เสียแล้ว", "หมดสภาพ", "เส้นผม"]):
+    if s == "negative" and (has_safety_hazard(m) or any(w in m for w in ["แมลง", "เสียแล้ว", "หมดสภาพ"])):
         return "apology_quality_escalate"          # คุณภาพอาหาร - ร้องเรียนหนัก, escalate ทุกเซกเมนต์
 
     if s == "negative" and (any(w in m for w in ["พนักงานหยาบคาย", "บริการแย่", "ไม่สุภาพ", "ไม่ให้เกียรติ"]) or "ร้องเรียนการบริการ" in c):
@@ -66,6 +80,12 @@ def choose_action(sentiment, category, segment, message="", message_tags=None):
         return "apology_membership_issue"
 
     # ---------- 2) จัดส่ง / ออเดอร์ผิดพลาด ----------
+    # "อาหารได้ไม่ตรง/ช้า" = หมวดหลักจากโมเดล (โหมด model ใน engine.py)
+    if s != "positive" and c == "อาหารได้ไม่ตรง/ช้า":
+        if seg in ["VIP", "At-Risk"]:
+            return "apology_coupon_escalate"
+        return "apology_check_order"
+
     if s == "negative" and (any(w in m for w in ["ส่งช้า", "มาช้า", "รอของนาน", "อาหารมาไม่ครบ"]) or "การจัดส่ง" in c or "Delivery" in c):
         if seg in ["VIP", "At-Risk"]:
             return "apology_coupon_escalate"
@@ -126,7 +146,8 @@ def choose_action(sentiment, category, segment, message="", message_tags=None):
     if "เวลาเปิด" in c or "เวลาทำการ" in c:
         return "send_hours"
 
-    if "แผนที่" in c or "สถานที่" in c or "location" in c or "ที่ตั้ง" in c:
+    # ไม่นับหมวดคำชม "ชมสถานที่/บรรยากาศ" (มีคำว่า "สถานที่" ในชื่อแต่ไม่ใช่การถามที่ตั้ง)
+    if not c.startswith("ชม") and ("แผนที่" in c or "สถานที่" in c or "location" in c or "ที่ตั้ง" in c):
         return "send_location"
 
     # FIX (เคสจริง "โดยรวมโอเค แต่ราคาแพงขึ้นเยอะเลย" ถูกตอบ "รบกวนแจ้งเมนูที่สนใจ

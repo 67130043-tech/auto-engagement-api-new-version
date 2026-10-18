@@ -1,0 +1,2 @@
+message,sentiment,category,annotator_1_sentiment,annotator_2_sentiment,annotator_1_category,annotator_2_category,note
+"ตัวอย่าง: อาหารมาช้ามาก รอเกือบชั่วโมง",negative,อาหารได้ไม่ตรง/ช้า,negative,negative,อาหารได้ไม่ตรง/ช้า,อาหารได้ไม่ตรง/ช้า,ลบแถวตัวอย่างนี้ก่อนใช้

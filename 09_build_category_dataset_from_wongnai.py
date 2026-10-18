@@ -295,6 +295,13 @@ def main():
     print(f"\nอัตราส่วนหมวดใหญ่สุด:เล็กสุด = {counts.max() / counts.min():.2f}:1 "
           "(ส่วนที่เหลือชดเชยด้วย class_weight ตอนเทรน ดู 02_train_models.py)")
 
+    # คอลัมน์ split (train/test) กำหนดในไฟล์ เพื่อให้ทุกโมเดล (TF-IDF+SVM, WangchanBERTa,
+    # LLM) วัดผลบนแถวทดสอบชุดเดียวกันเป๊ะ — stratified ตามหมวด, random_state=42
+    from sklearn.model_selection import train_test_split
+    _, test_idx = train_test_split(df.index, test_size=0.20, random_state=42, stratify=df["Category"])
+    df["split"] = "train"
+    df.loc[test_idx, "split"] = "test"
+
     out_path = DATA / "category_dataset_v2.csv"
     df.to_csv(out_path, index=False, encoding="utf-8-sig")
     OUT.mkdir(exist_ok=True)

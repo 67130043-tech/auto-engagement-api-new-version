@@ -59,7 +59,9 @@ class PredictRequest(BaseModel):
 
 @app.get("/")
 def root():
-    return {"status": "ok", "service": "Auto Engagement AI Processing API", "endpoint": "/predict"}
+    from app.engine import backend_info
+    return {"status": "ok", "service": "Auto Engagement AI Processing API", "endpoint": "/make/predict",
+            "models": backend_info()}
 
 #@app.post("/predict")
 #def predict(req: PredictRequest):

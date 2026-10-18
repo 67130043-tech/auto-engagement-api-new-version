@@ -11,7 +11,7 @@ with open(OUT / "model_metrics.json", "r", encoding="utf-8") as f:
     metrics = json.load(f)
 
 model_summary = pd.DataFrame([
-    {"model": "Sentiment Classification", "dataset": "wongnai.csv", "accuracy": metrics["sentiment_accuracy"]},
+    {"model": "Sentiment Classification", "dataset": "sentiment_dataset_v2.csv", "accuracy": metrics["sentiment_accuracy"]},
     {"model": "Category Classification", "dataset": "category_dataset_v2.csv", "accuracy": metrics["category_accuracy"]},
 ])
 model_summary.to_csv(OUT / "research_model_summary.csv", index=False, encoding="utf-8-sig")

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 from pathlib import Path
 from datetime import datetime
 import numpy as np
@@ -6,7 +7,8 @@ import pandas as pd
 import joblib
 
 from app.preprocess import clean_text, tokenize_boundary, tokenize_words
-from app.decision_engine import choose_segment, choose_action, make_reply
+from app.decision_engine import choose_segment, choose_action, make_reply, has_safety_hazard
+from app.transformer_model import load_transformer_model
 from app.keywords_data import (
     _NEGATIVE_BOUNDARY, _POSITIVE_BOUNDARY, _QUESTION_BOUNDARY_MAP,
     _NEGATIVE_TOKENS, _POSITIVE_TOKENS,
@@ -306,13 +308,33 @@ LOG_PATH = OUT / "prediction_log.csv"
 _sentiment_model = None
 _category_model = None
 _behavior = None
+_backend = {"sentiment": None, "category": None}
 
+# ---------------------------------------------------------------------------
+# โมเดลหลัก (ต.ค. 2569): ถ้ามี WangchanBERTa ที่ fine-tune แล้ว (ONNX — ดู
+# 11_finetune_wangchanberta.py และ app/transformer_model.py) ใช้เป็นตัวตัดสินหลัก
+# ถ้าไม่มี ใช้ TF-IDF+SVM (models/*.joblib) เหมือนเดิม
+#
+# DECISION_MODE กำหนดว่าใครเป็นผู้ตัดสิน sentiment/category:
+#   "model"  = ผลของโมเดลเป็นคำตอบสุดท้าย keyword ใช้แค่ (1) กฎความปลอดภัย เช่น
+#              สิ่งแปลกปลอมในอาหาร -> negative เสมอ และ (2) เลือกหมวดละเอียดสำหรับ
+#              reply template เมื่อสอดคล้องกับหมวดที่โมเดลทาย
+#   "hybrid" = แบบเดิม: keyword override ทับผลโมเดลเมื่อเจอคำที่ match
+# ค่าเริ่มต้น: "model" เมื่อใช้ WangchanBERTa, "hybrid" เมื่อใช้ TF-IDF+SVM
+# (TF-IDF+SVM อ่อนเกินกว่าจะตัดสินเองได้ดี) — บังคับได้ด้วย env DECISION_MODE
+# ---------------------------------------------------------------------------
 def load_resources():
     global _sentiment_model, _category_model, _behavior
     if _sentiment_model is None:
-        _sentiment_model = joblib.load(MODELS / "sentiment_model.joblib")
+        _sentiment_model = load_transformer_model("sentiment")
+        _backend["sentiment"] = "wangchanberta" if _sentiment_model is not None else "tfidf_svm"
+        if _sentiment_model is None:
+            _sentiment_model = joblib.load(MODELS / "sentiment_model.joblib")
     if _category_model is None:
-        _category_model = joblib.load(MODELS / "category_model.joblib")
+        _category_model = load_transformer_model("category")
+        _backend["category"] = "wangchanberta" if _category_model is not None else "tfidf_svm"
+        if _category_model is None:
+            _category_model = joblib.load(MODELS / "category_model.joblib")
     if _behavior is None:
         path = OUT / "customer_behavior_features.csv"
         if path.exists():
@@ -320,6 +342,18 @@ def load_resources():
         else:
             _behavior = pd.DataFrame(columns=["customer_id", "total_messages", "positive_count", "negative_count", "complaint_count", "inactive_days", "favorite_hour", "segment"])
     return _sentiment_model, _category_model, _behavior
+
+
+def decision_mode(task: str) -> str:
+    forced = os.environ.get("DECISION_MODE", "").strip().lower()
+    if forced in ("model", "hybrid"):
+        return forced
+    return "model" if _backend.get(task) == "wangchanberta" else "hybrid"
+
+
+def backend_info() -> dict:
+    load_resources()
+    return {task: {"model": _backend[task], "decision_mode": decision_mode(task)} for task in _backend}
 
 def get_user_behavior(user_id: str):
     _, _, behavior = load_resources()
@@ -347,9 +381,26 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     sentiment_ml, sentiment_confidence = predict_with_confidence(sentiment_model, text)
     category_ml, category_confidence = predict_with_confidence(category_model, text)
 
-    sentiment = keyword_sentiment_override(text, sentiment_ml)
-    category_detail = keyword_category_override(text, category_ml)
-    category = map_to_ml_category(category_detail, category_ml)
+    sentiment_mode = decision_mode("sentiment")
+    category_mode = decision_mode("category")
+
+    if sentiment_mode == "model":
+        sentiment = sentiment_ml
+    else:
+        sentiment = keyword_sentiment_override(text, sentiment_ml)
+
+    if category_mode == "model":
+        # หมวดหลักมาจากโมเดล หมวดละเอียดจาก keyword ใช้เฉพาะเมื่ออยู่ในหมวดหลักเดียวกัน
+        # (เช่น โมเดลทาย "สอบถามข้อมูลร้าน" + keyword เจอ "สอบถาม WiFi" -> ตอบรหัส WiFi)
+        category = category_ml
+        keyword_detail = keyword_category_override(text, None)
+        if keyword_detail and map_to_ml_category(keyword_detail, None) == category_ml:
+            category_detail = keyword_detail
+        else:
+            category_detail = category_ml
+    else:
+        category_detail = keyword_category_override(text, category_ml)
+        category = map_to_ml_category(category_detail, category_ml)
 
     # ---------------------------------------------------------------------
     # FIX: ถ้า keyword rule เปลี่ยน label ไปจากที่ ML เดามา แปลว่าคำตอบสุดท้าย
@@ -370,6 +421,13 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     if category != category_ml:
         category_confidence = KEYWORD_MATCH_CONFIDENCE
         category_source = "keyword"
+
+    # กฎความปลอดภัย: สิ่งแปลกปลอม/อาหารเป็นพิษ ต้องเป็นคำร้องเรียนเสมอไม่ว่าโมเดลจะทายอะไร
+    # (ผิดพลาดตรงนี้ร้ายแรงเกินกว่าจะปล่อยให้โมเดลตัดสินเอง — ดู decision_engine.py)
+    if has_safety_hazard(text) and sentiment != "negative":
+        sentiment = "negative"
+        sentiment_confidence = KEYWORD_MATCH_CONFIDENCE
+        sentiment_source = "safety_rule"
 
     # ---------------------------------------------------------------------
     # FIX (ขั้นที่ 3 ตามแผนพัฒนา confidence — ตกลงกับผู้ใช้ไว้ว่าเช็คเฉพาะ sentiment
@@ -517,6 +575,8 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
         "segment": segment,
         "sentiment_source": sentiment_source,
         "category_source": category_source,
+        "sentiment_model": _backend["sentiment"],
+        "category_model": _backend["category"],
         # FIX: บันทึกไว้ใน log/Google Sheet ด้วยว่า Make.com ส่ง message_tags มาจริง
         # หรือไม่ในคอมเมนต์นี้ (True/False) ช่วยให้เจ้าของร้านเช็คได้เองว่าตั้งค่า
         # Make.com ให้ส่ง field นี้ถูกต้องหรือยัง โดยไม่ต้องเดา (ดู has_facebook_tags
