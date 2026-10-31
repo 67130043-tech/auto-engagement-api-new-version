@@ -1,0 +1,7 @@
+.git
+data
+outputs/*.csv
+models/wangchanberta_*
+*.ipynb
+__pycache__
+*.pyc

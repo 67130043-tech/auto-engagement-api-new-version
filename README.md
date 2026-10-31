@@ -22,8 +22,12 @@ Dataset → Preprocessing → Train Sentiment Model → Train Category Model →
 ถ้ายังไม่มีโมเดล API จะใช้ TF-IDF+SVM (`models/*.joblib`) แบบเดิมโดยอัตโนมัติ — เปิด `/` เพื่อดูว่ากำลังใช้โมเดลไหน
 
 1. เปิด `11_finetune_wangchanberta.ipynb` บน Google Colab (Runtime → T4 GPU) แล้วรันทุก cell
-2. ตั้งค่าบน Render: `WANGCHAN_SENTIMENT_REPO`, `WANGCHAN_CATEGORY_REPO` (repo บน HuggingFace Hub ที่ notebook อัปโหลดให้)
-   และ `HF_TOKEN` ถ้า repo เป็น private — หรือวางโฟลเดอร์ `models/wangchanberta_sentiment/`, `models/wangchanberta_category/` เอง
+2. Deploy — โมเดล ONNX fp32 ใช้ ~420 MB ต่อตัว รวม 2 ตัวต้องการ RAM > 1 GB (**Render แผนฟรี 512 MB ไม่พอ**)
+   - **HuggingFace Spaces (ฟรี, 16 GB RAM):** `python 13_deploy_hf_space.py --user <hf_username>` (มี cell ใน notebook)
+     สร้าง Space แบบ Docker ตั้ง `WANGCHAN_*_REPO` ให้ แล้วตั้ง `OPENAI_API_KEY` เองที่ Settings → Secrets
+     ข้อควรรู้: Space ฟรีจะหลับเมื่อไม่มีคนเรียก 48 ชม. คำขอแรกหลังหลับจะช้า (ปลุกเครื่อง + โหลดโมเดล)
+   - **Render แผนที่มี RAM ≥ 2 GB:** ใช้ `Dockerfile` เดียวกัน ตั้ง `WANGCHAN_SENTIMENT_REPO`, `WANGCHAN_CATEGORY_REPO`
+     (และ `HF_TOKEN` ถ้า repo เป็น private)
 3. เทียบผลทุกระบบบน test set เดียวกัน: `python 12_compare_models.py` (เพิ่ม `--llm` เพื่อรวม LLM zero-shot)
 
 | ตัวแปร | ความหมาย |
