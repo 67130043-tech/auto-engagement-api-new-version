@@ -23,7 +23,7 @@ Dataset → Preprocessing → Train Sentiment Model → Train Category Model →
 
 1. เปิด `11_finetune_wangchanberta.ipynb` บน Google Colab (Runtime → T4 GPU) แล้วรันทุก cell
 2. Deploy — โมเดล ONNX fp32 ใช้ ~420 MB ต่อตัว รวม 2 ตัวต้องการ RAM > 1 GB (**Render แผนฟรี 512 MB ไม่พอ**)
-   - **HuggingFace Spaces (ฟรี, 16 GB RAM):** `python 13_deploy_hf_space.py --user <hf_username>` (มี cell ใน notebook)
+   - **HuggingFace Spaces (16 GB RAM — ตั้งแต่ ก.ค. 2026 บัญชีฟรีสร้าง Docker Space ไม่ได้ ได้ error 402 ต้องใช้แผนเสียเงิน):** `python 13_deploy_hf_space.py --user <hf_username>` (มี cell ใน notebook)
      สร้าง Space แบบ Docker ตั้ง `WANGCHAN_*_REPO` ให้ แล้วตั้ง `OPENAI_API_KEY` เองที่ Settings → Secrets
      ข้อควรรู้: Space ฟรีจะหลับเมื่อไม่มีคนเรียก 48 ชม. คำขอแรกหลังหลับจะช้า (ปลุกเครื่อง + โหลดโมเดล)
    - **Render แผนที่มี RAM ≥ 2 GB:** ใช้ `Dockerfile` เดียวกัน ตั้ง `WANGCHAN_SENTIMENT_REPO`, `WANGCHAN_CATEGORY_REPO`
