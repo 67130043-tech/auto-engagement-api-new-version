@@ -37,8 +37,12 @@ Dataset → Preprocessing → Train Sentiment Model → Train Category Model →
 | `DISABLE_TRANSFORMER=true` | บังคับใช้ TF-IDF+SVM |
 
 **ชุดทดสอบมาตรฐาน (Gold Standard):** ป้าย category ใน `category_dataset_v2.csv` มาจากกฎ keyword
-ตัวเลขบนชุดนั้นจึงวัดความสอดคล้องกับกฎ ไม่ใช่ความถูกต้องจริง ให้คัดลอก `data/gold_standard_template.csv`
-เป็น `data/gold_standard.csv` แล้วใส่คอมเมนต์จริงจากเพจที่คนติดป้ายเอง `12_compare_models.py` จะวัดผลบนชุดนี้ด้วย
+ตัวเลขบนชุดนั้นจึงวัดความสอดคล้องกับกฎ ไม่ใช่ความถูกต้องจริง ขั้นตอนสร้างชุดที่คนติดป้าย:
+1. `python 14_build_gold_candidates.py` -> `data/gold_candidates.csv` (389 ข้อความจริง: Wisesight ชุด test ที่เกี่ยวกับร้านอาหาร 300 + คอมเมนต์เพจทดสอบ 89)
+2. ผู้ติดป้าย 2 คนติดป้ายแยกกันบนหน้า "ติดป้ายคอมเมนต์ร้านอาหาร" (claude.ai artifact; เจ้าของแชร์ให้ระดับ Editor/Contributor)
+3. export ป้ายจากหน้าเป็น JSON แล้ว `python 15_export_gold_standard.py --labels-dir <dir>/labels`
+   -> `data/gold_standard.csv`, `outputs/gold_agreement.json` (Cohen's kappa) และ `data/gold_disagreements.csv` ให้ผู้วิจัยชี้ขาด
+4. `python 12_compare_models.py` จะวัดทุกระบบบน gold set ด้วย
 
 ## ลำดับรันใน Google Colab
 
