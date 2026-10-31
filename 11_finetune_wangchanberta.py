@@ -62,8 +62,9 @@ def parse_args():
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--limit", type=int, default=None, help="ใช้แค่ N แถวแรกของ train/test (ไว้ทดสอบโค้ด)")
     p.add_argument("--push-to-hub", default=None, help="repo id บน HuggingFace Hub เช่น user/wangchanberta-category")
-    p.add_argument("--quant", choices=["int8_per_channel", "int8", "none"], default="int8_per_channel",
-                   help="วิธีบีบอัด ONNX: int8_per_channel (ค่าเริ่มต้น แม่นกว่า), int8 (per-tensor), none (fp32 ~420MB)")
+    p.add_argument("--quant", choices=["none", "int8_per_channel", "int8"], default="none",
+                   help="วิธีบีบอัด ONNX: none (fp32 ~420MB, ค่าเริ่มต้น — ไม่เสียความแม่นยำ), int8_per_channel, int8. "
+                        "ผลจริงบน Colab: int8 ทำ accuracy ตก 5-7 จุด จึงไม่ใช้เป็นค่าเริ่มต้น")
     p.add_argument("--from-pytorch", default=None,
                    help="ข้ามการเทรน: export ONNX ใหม่จากโมเดล PyTorch ที่บันทึกไว้ (models/wangchanberta_<task>_pytorch)")
     return p.parse_args()
@@ -299,8 +300,9 @@ def export_onnx(model, tokenizer, out_dir: Path, quant: str):
     if quant == "none":
         fp32_path.replace(final)
         return
-    # per_channel=True: ใช้ scale แยกต่อแถวของ weight — เสียความแม่นยำน้อยกว่า per-tensor มาก
-    # (รอบแรกใช้ per-tensor แล้ว category ตกจาก 0.862 เหลือ 0.831)
+    # หมายเหตุ: ทดสอบจริงบน Colab แล้ว int8 ทำให้ WangchanBERTa เสียความแม่นยำมาก
+    # (per-tensor: category 0.862 -> 0.831, per-channel: sentiment 0.734 -> 0.663,
+    #  category 0.863 -> 0.812) จึงใช้ fp32 เป็นค่าเริ่มต้น
     quantize_dynamic(str(fp32_path), str(final), weight_type=QuantType.QInt8,
                      per_channel=(quant == "int8_per_channel"))
     fp32_path.unlink()
@@ -315,18 +317,25 @@ def export_and_check(model, tokenizer, out_dir: Path, pt_dir: Path, quant: str, 
 
     from app.transformer_model import OnnxTextClassifier
     onnx_model = OnnxTextClassifier(out_dir)
+    # fp32 ให้ผลแทบเท่ากับ PyTorch (ต่างแค่ลำดับการคำนวณ) และรันบน CPU ช้า — วัดจากตัวอย่าง
+    # 1,000 แถว (stratified, seed 42) แทนทั้งชุด; แบบ int8 วัดทั้งชุดเพราะความแม่นยำเปลี่ยนได้จริง
+    eval_set = test
+    if quant == "none" and len(test) > 1000:
+        eval_set = pd.concat([g.sample(max(1, round(1000 * len(g) / len(test))), random_state=42)
+                              for _, g in test.groupby("label")])
     t0 = time.time()
-    onnx_pred = onnx_model.predict(test["input_text"].tolist())
+    onnx_pred = onnx_model.predict(eval_set["input_text"].tolist())
     seconds = time.time() - t0
-    y = test["label"].tolist()
+    y = eval_set["label"].tolist()
     onnx_metrics = {
         "quant": quant,
+        "n_eval": len(y),
         "accuracy": float(accuracy_score(y, onnx_pred)),
         "macro_f1": float(f1_score(y, onnx_pred, average="macro", zero_division=0)),
         "ms_per_text_cpu": round(1000 * seconds / max(1, len(y)), 1),
         "size_mb": round((out_dir / "model.onnx").stat().st_size / 1e6, 1),
     }
-    if "accuracy" in metrics:
+    if "accuracy" in metrics and len(y) == len(test):
         onnx_metrics["accuracy_drop_vs_pytorch"] = round(metrics["accuracy"] - onnx_metrics["accuracy"], 4)
     metrics["onnx"] = onnx_metrics
     print("ONNX (ตัวที่ API ใช้จริง):", json.dumps(onnx_metrics, ensure_ascii=False))
