@@ -7,8 +7,12 @@
 
 อินพุต: โฟลเดอร์ที่ export จากฐานข้อมูลของหน้า (Claude อ่านด้วย ArtifactData แล้วบันทึกเป็น JSON)
     <labels_dir>/<user_id>/answers/<gold_id>.json   {"sentiment", "category", "unsure", ...}
+    และ/หรือ ไฟล์ที่ผู้ติดป้ายกด "คัดลอกผลลัพธ์" ส่งมา (ใช้เมื่อบัญชีเขาบันทึกลงระบบกลางไม่ได้)
+    {"gold_labels": 1, "annotator": "...", "labels": {"G001": [sentiment, category, unsure]}}
 ใช้งาน:
     python 15_export_gold_standard.py --labels-dir path/to/labels
+    python 15_export_gold_standard.py --labels-dir path/to/labels --files somchai.json
+    python 15_export_gold_standard.py --files a.json b.json
 
 กติกาการรวม:
 - ทั้งคู่เลือก "ไม่เกี่ยวข้อง" -> ตัดออก
@@ -46,18 +50,30 @@ def load_labels(labels_dir: Path) -> dict:
     return out
 
 
+def load_pasted(files) -> dict:
+    out = {}
+    for f in files:
+        body = json.loads(Path(f).read_text(encoding="utf-8-sig").strip())
+        name = "pasted:" + (body.get("annotator") or Path(f).stem)
+        out[name] = {gid: {"sentiment": v[0] or None, "category": v[1], "unsure": bool(v[2])}
+                     for gid, v in body.get("labels", {}).items()}
+    return out
+
+
 def kappa(a, b):
     return round(float(cohen_kappa_score(a, b)), 4) if len(a) else None
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--labels-dir", required=True, type=Path)
+    ap.add_argument("--labels-dir", type=Path)
+    ap.add_argument("--files", nargs="*", default=[], help="ไฟล์ JSON จากปุ่ม 'คัดลอกผลลัพธ์'")
     ap.add_argument("--adjudicated", type=Path, default=DATA / "gold_disagreements.csv",
                     help="ไฟล์ที่ผู้วิจัยใส่ final_sentiment/final_category แล้ว (ถ้ามี)")
     args = ap.parse_args()
 
-    labels = load_labels(args.labels_dir)
+    labels = load_labels(args.labels_dir) if args.labels_dir else {}
+    labels.update(load_pasted(args.files))
     if len(labels) < 2:
         raise SystemExit(f"ต้องมีผู้ติดป้ายอย่างน้อย 2 คน พบ {len(labels)} คน")
     # ผู้ติดป้ายที่ทำมากสุด 2 คนแรก -> annotator_1 / annotator_2 (เรียงตามจำนวนข้อ แล้วตาม id)
