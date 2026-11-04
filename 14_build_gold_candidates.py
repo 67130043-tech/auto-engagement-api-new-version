@@ -22,6 +22,11 @@
   - เติมข้อใหม่ที่ผ่านตัวกรองจาก Wisesight ชุด test จำนวนเท่ากัน ใช้ gold_id ต่อท้าย (ไม่ใช้ id ซ้ำ
     เพื่อไม่ให้ป้ายที่ติดไว้แล้วชี้ผิดข้อความ)
 ข้อที่ติดป้ายไปแล้วไม่ถูกแตะต้อง
+
+--drop-ai-offtopic: รอบที่สองยังมีข้อความคุยเล่นทั่วไป ("ไปกินกัน", เรื่องเบียร์/เหล้า) ปนมาก
+ใช้คำแนะนำของ AI (data/gold_ai_hints.csv — Claude อ่านทุกข้อแล้วเสนอป้าย) เป็นตัวคัดกรอง
+ความเกี่ยวข้องเท่านั้น: ข้อที่ยังไม่มีใครติดป้ายและ AI ชี้ว่า "ไม่เกี่ยวข้อง" -> status=dropped
+(ไม่เติมใหม่) ป้ายอารมณ์/หมวดของ AI ไม่ถูกใช้เป็นคำตอบ — ผู้ติดป้ายยังตัดสินเองทุกข้อ
 """
 import argparse
 import re
@@ -93,10 +98,21 @@ def refine(labeled_upto: int):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--refine", action="store_true")
+    ap.add_argument("--drop-ai-offtopic", action="store_true")
     ap.add_argument("--labeled-upto", type=int, default=28, help="เลขข้อสุดท้ายที่เริ่มติดป้ายไปแล้ว (ไม่แตะต้อง)")
     args = ap.parse_args()
     if args.refine:
         return refine(args.labeled_upto)
+    if args.drop_ai_offtopic:
+        cand = pd.read_csv(DATA / "gold_candidates.csv", encoding="utf-8-sig")
+        hints = pd.read_csv(DATA / "gold_ai_hints.csv", encoding="utf-8-sig").set_index("gold_id")
+        off = cand["gold_id"].map(hints["ai_category"]).eq("ไม่เกี่ยวข้อง")
+        drop = off & (cand["status"] == "active") & (cand["gold_id"].str[1:].astype(int) > args.labeled_upto)
+        cand.loc[drop, "status"] = "dropped"
+        cand.to_csv(DATA / "gold_candidates.csv", index=False, encoding="utf-8-sig")
+        a = cand[cand.status == "active"]
+        print(f"dropped {int(drop.sum())}; active = {len(a)}"); print(a["source"].value_counts().to_string())
+        return
     s = pd.read_csv(DATA / "sentiment_dataset_v2.csv", encoding="utf-8-sig")
     ws = s[(s["source"] == "wisesight") & (s["split"] == "test")].copy()
     ws["message"] = ws["text"].astype(str).str.strip()

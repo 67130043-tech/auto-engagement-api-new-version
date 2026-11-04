@@ -157,6 +157,18 @@ def main():
     else:
         print(f"ยังต้องชี้ขาดอีก {len(need)} ข้อ (ดู {args.adjudicated})")
 
+    # คำแนะนำ AI ที่แสดงในหน้าติดป้าย เทียบกับป้ายสุดท้าย (ใช้รายงานว่า AI กับคนเห็นตรงกันแค่ไหน)
+    hp = DATA / "gold_ai_hints.csv"
+    if hp.exists():
+        h = pd.read_csv(hp, encoding="utf-8-sig", dtype=str).fillna("").set_index("gold_id")
+        fin = df[(df.sentiment != "") & (df.category != "")]
+        fin = fin[fin.gold_id.isin(h.index)]
+        if len(fin):
+            report["ai_hint_vs_final"] = {
+                "n": int(len(fin)),
+                "sentiment_accuracy": round(float((fin.gold_id.map(h["ai_sentiment"]) == fin.sentiment).mean()), 4),
+                "category_accuracy": round(float((fin.gold_id.map(h["ai_category"]) == fin.category).mean()), 4)}
+            print("AI hint vs final:", report["ai_hint_vs_final"])
     cols = ["gold_id", "message", "sentiment", "category", "source", "annotator_1_sentiment", "annotator_2_sentiment",
             "annotator_1_category", "annotator_2_category", "unsure", "used_hint"]
     df[cols].to_csv(DATA / "gold_standard.csv", index=False, encoding="utf-8-sig")
