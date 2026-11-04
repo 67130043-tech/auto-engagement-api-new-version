@@ -55,7 +55,8 @@ def load_pasted(files) -> dict:
     for f in files:
         body = json.loads(Path(f).read_text(encoding="utf-8-sig").strip())
         name = "pasted:" + (body.get("annotator") or Path(f).stem)
-        out[name] = {gid: {"sentiment": v[0] or None, "category": v[1], "unsure": bool(v[2])}
+        out[name] = {gid: {"sentiment": v[0] or None, "category": v[1], "unsure": bool(v[2]),
+                           "used_hint": bool(v[3]) if len(v) > 3 else False}
                      for gid, v in body.get("labels", {}).items()}
     return out
 
@@ -94,6 +95,8 @@ def main():
             "annotator_1_sentiment": x.get("sentiment") or "", "annotator_2_sentiment": y.get("sentiment") or "",
             "annotator_1_category": x.get("category") or "", "annotator_2_category": y.get("category") or "",
             "unsure": bool(x.get("unsure")) or bool(y.get("unsure")),
+            # ผู้ติดป้ายกดขอคำแนะนำจาก AI ในข้อนี้ (อาจคล้อยตาม AI -> รายงาน kappa แยก)
+            "used_hint": bool(x.get("used_hint")) or bool(y.get("used_hint")),
         })
     df = pd.DataFrame(rows)
     if df.empty:
@@ -112,7 +115,11 @@ def main():
         "agreement_sentiment": round(float((rel.annotator_1_sentiment == rel.annotator_2_sentiment).mean()), 4) if len(rel) else None,
         "agreement_category": round(float((rel.annotator_1_category == rel.annotator_2_category).mean()), 4) if len(rel) else None,
         "by_source": {},
+        "n_used_ai_hint": int(df["used_hint"].sum()),
     }
+    nh = rel[~rel["used_hint"]]
+    report["kappa_sentiment_no_hint"] = kappa(nh.annotator_1_sentiment, nh.annotator_2_sentiment)
+    report["kappa_category_no_hint"] = kappa(nh.annotator_1_category, nh.annotator_2_category)
     for src, g in rel.groupby("source"):
         report["by_source"][src] = {"n": int(len(g)),
                                     "kappa_sentiment": kappa(g.annotator_1_sentiment, g.annotator_2_sentiment),
@@ -151,7 +158,7 @@ def main():
         print(f"ยังต้องชี้ขาดอีก {len(need)} ข้อ (ดู {args.adjudicated})")
 
     cols = ["gold_id", "message", "sentiment", "category", "source", "annotator_1_sentiment", "annotator_2_sentiment",
-            "annotator_1_category", "annotator_2_category", "unsure"]
+            "annotator_1_category", "annotator_2_category", "unsure", "used_hint"]
     df[cols].to_csv(DATA / "gold_standard.csv", index=False, encoding="utf-8-sig")
     (BASE / "outputs").mkdir(exist_ok=True)
     (BASE / "outputs" / "gold_agreement.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
