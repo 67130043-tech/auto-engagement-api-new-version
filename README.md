@@ -38,7 +38,7 @@ Dataset → Preprocessing → Train Sentiment Model → Train Category Model →
 
 **ชุดทดสอบมาตรฐาน (Gold Standard):** ป้าย category ใน `category_dataset_v2.csv` มาจากกฎ keyword
 ตัวเลขบนชุดนั้นจึงวัดความสอดคล้องกับกฎ ไม่ใช่ความถูกต้องจริง ขั้นตอนสร้างชุดที่คนติดป้าย:
-1. `python 14_build_gold_candidates.py` -> `data/gold_candidates.csv` (389 ข้อความจริง: Wisesight ชุด test ที่เกี่ยวกับร้านอาหาร 300 + คอมเมนต์เพจทดสอบ 89)
+1. `python 14_build_gold_candidates.py` -> `data/gold_candidates.csv` (389 ข้อความจริง: Wisesight ชุด test ที่เกี่ยวกับร้านอาหาร 300 + คอมเมนต์เพจทดสอบ 89) แล้ว `--refine --labeled-upto 28` แทนที่ข้อที่นอกเรื่อง 156 ข้อด้วยตัวกรองที่เข้มขึ้น (ข้อที่ถูกแทนมี `status=dropped`)
 2. ผู้ติดป้าย 2 คนติดป้ายแยกกันบนหน้า "ติดป้ายคอมเมนต์ร้านอาหาร" (claude.ai artifact; เจ้าของแชร์ให้ระดับ Editor/Contributor)
 3. export ป้ายจากหน้าเป็น JSON แล้ว `python 15_export_gold_standard.py --labels-dir <dir>/labels`
    -> `data/gold_standard.csv`, `outputs/gold_agreement.json` (Cohen's kappa) และ `data/gold_disagreements.csv` ให้ผู้วิจัยชี้ขาด

@@ -82,6 +82,8 @@ def main():
     print(f"annotator_1 = {users[0]} ({len(a1)} ข้อ), annotator_2 = {users[1]} ({len(a2)} ข้อ)")
 
     cand = pd.read_csv(DATA / "gold_candidates.csv", encoding="utf-8-sig")
+    if "status" in cand.columns:  # ข้อที่ถูกแทนที่ด้วย --refine ไม่นับ
+        cand = cand[cand["status"] == "active"]
     rows = []
     for r in cand.itertuples():
         x, y = a1.get(r.gold_id), a2.get(r.gold_id)
