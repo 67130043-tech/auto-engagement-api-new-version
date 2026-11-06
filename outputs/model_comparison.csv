@@ -1,0 +1,9 @@
+﻿task,system,eval_set,n,accuracy,macro_f1,ece
+sentiment,tfidf_svm,test,6381,0.6801,0.5757,0.0491
+sentiment,tfidf_svm+keyword,test,6381,0.6399,0.5919,
+sentiment,tfidf_svm,gold,213,0.6056,0.5728,0.0836
+sentiment,tfidf_svm+keyword,gold,213,0.7136,0.712,
+category,tfidf_svm,test,2303,0.8211,0.8222,0.0978
+category,tfidf_svm+keyword,test,2303,0.9171,0.8964,
+category,tfidf_svm,gold,213,0.5117,0.4775,0.1456
+category,tfidf_svm+keyword,gold,213,0.5634,0.5509,
