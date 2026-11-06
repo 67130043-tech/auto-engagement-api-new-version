@@ -1,39 +1,30 @@
 [
   {
-    "task": "sentiment",
-    "system": "tfidf_svm",
-    "eval_set": "test",
-    "n": 6381,
-    "accuracy": 0.6801,
-    "macro_f1": 0.5757,
-    "ece": 0.0491
-  },
-  {
-    "task": "sentiment",
-    "system": "tfidf_svm+keyword",
-    "eval_set": "test",
-    "n": 6381,
-    "accuracy": 0.6399,
-    "macro_f1": 0.5919,
-    "ece": null
-  },
-  {
-    "task": "sentiment",
+    "task": "category",
     "system": "tfidf_svm",
     "eval_set": "gold",
     "n": 213,
-    "accuracy": 0.6056,
-    "macro_f1": 0.5728,
-    "ece": 0.0836
+    "accuracy": 0.5117,
+    "macro_f1": 0.4775,
+    "ece": 0.1456
   },
   {
-    "task": "sentiment",
+    "task": "category",
     "system": "tfidf_svm+keyword",
     "eval_set": "gold",
     "n": 213,
-    "accuracy": 0.7136,
-    "macro_f1": 0.712,
-    "ece": null
+    "accuracy": 0.5634,
+    "macro_f1": 0.5509,
+    "ece": NaN
+  },
+  {
+    "task": "category",
+    "system": "wangchanberta",
+    "eval_set": "gold",
+    "n": 213,
+    "accuracy": 0.5822,
+    "macro_f1": 0.5343,
+    "ece": 0.2078
   },
   {
     "task": "category",
@@ -51,24 +42,69 @@
     "n": 2303,
     "accuracy": 0.9171,
     "macro_f1": 0.8964,
-    "ece": null
+    "ece": NaN
   },
   {
     "task": "category",
+    "system": "wangchanberta",
+    "eval_set": "test",
+    "n": 2303,
+    "accuracy": 0.8628,
+    "macro_f1": 0.8634,
+    "ece": 0.0251
+  },
+  {
+    "task": "sentiment",
     "system": "tfidf_svm",
     "eval_set": "gold",
     "n": 213,
-    "accuracy": 0.5117,
-    "macro_f1": 0.4775,
-    "ece": 0.1456
+    "accuracy": 0.6056,
+    "macro_f1": 0.5728,
+    "ece": 0.0836
   },
   {
-    "task": "category",
+    "task": "sentiment",
     "system": "tfidf_svm+keyword",
     "eval_set": "gold",
     "n": 213,
-    "accuracy": 0.5634,
-    "macro_f1": 0.5509,
-    "ece": null
+    "accuracy": 0.7136,
+    "macro_f1": 0.712,
+    "ece": NaN
+  },
+  {
+    "task": "sentiment",
+    "system": "wangchanberta",
+    "eval_set": "gold",
+    "n": 213,
+    "accuracy": 0.8122,
+    "macro_f1": 0.8075,
+    "ece": 0.0575
+  },
+  {
+    "task": "sentiment",
+    "system": "tfidf_svm",
+    "eval_set": "test",
+    "n": 6381,
+    "accuracy": 0.6801,
+    "macro_f1": 0.5757,
+    "ece": 0.0491
+  },
+  {
+    "task": "sentiment",
+    "system": "tfidf_svm+keyword",
+    "eval_set": "test",
+    "n": 6381,
+    "accuracy": 0.6399,
+    "macro_f1": 0.5919,
+    "ece": NaN
+  },
+  {
+    "task": "sentiment",
+    "system": "wangchanberta",
+    "eval_set": "test",
+    "n": 6381,
+    "accuracy": 0.7339,
+    "macro_f1": 0.7274,
+    "ece": 0.0174
   }
 ]
