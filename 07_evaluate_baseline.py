@@ -85,7 +85,7 @@ print("=" * 70)
 # แทน crm_cleaned.csv เดิม (ซ้ำกันแค่ 85 ประโยคจาก 4,000 แถว — ดูรายละเอียดใน
 # 09_build_category_dataset_from_wongnai.py) เพื่อให้ตัวเลข accuracy ที่วัดได้
 # สะท้อนความสามารถ generalize จริง ไม่ใช่การจำข้อความที่เคยเห็นตอนเทรนซ้ำ
-_category_dataset_path = BASE / "data" / "category_dataset_v2.csv"  # ให้ตรงกับ 02_train_models.py
+_category_dataset_path = BASE / "data" / "category_dataset_v3.csv"  # ให้ตรงกับ 02_train_models.py
 if _category_dataset_path.exists():
     crm = pd.read_csv(_category_dataset_path, encoding="utf-8-sig")
 else:

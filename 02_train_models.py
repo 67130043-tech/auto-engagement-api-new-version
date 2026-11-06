@@ -30,7 +30,10 @@ print("STEP 3: Load cleaned datasets")
 # เงื่อนไข .exists() ด้านล่างจะเป็น False แล้ว fallback ไปใช้ crm_cleaned.csv เดิมที่มี
 # ปัญหา data leakage กลับมาแบบเงียบๆ จึงชี้ไปที่ data/ แทน
 # ---------------------------------------------------------------------------
-category_dataset_v2_path = BASE / "data" / "category_dataset_v2.csv"
+# taxonomy v3 (8 หมวด, 17_build_category_dataset_v3.py) ถ้ามี ไม่งั้นใช้ v2 (10 หมวด)
+category_dataset_v2_path = BASE / "data" / "category_dataset_v3.csv"
+if not category_dataset_v2_path.exists():
+    category_dataset_v2_path = BASE / "data" / "category_dataset_v2.csv"
 if category_dataset_v2_path.exists():
     crm = pd.read_csv(category_dataset_v2_path, encoding="utf-8-sig")
     print(f"  ใช้ category dataset ใหม่: {category_dataset_v2_path.name} ({len(crm)} แถว, ไม่ซ้ำกัน)")

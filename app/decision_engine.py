@@ -81,12 +81,19 @@ def choose_action(sentiment, category, segment, message="", message_tags=None):
 
     # ---------- 2) จัดส่ง / ออเดอร์ผิดพลาด ----------
     # "อาหารได้ไม่ตรง/ช้า" = หมวดหลักจากโมเดล (โหมด model ใน engine.py)
-    if s != "positive" and c == "อาหารได้ไม่ตรง/ช้า":
+    if s != "positive" and c in ("อาหารได้ไม่ตรง/ช้า", "ปัญหาออเดอร์/จัดส่ง"):
         if seg in ["VIP", "At-Risk"]:
             return "apology_coupon_escalate"
         return "apology_check_order"
 
-    if s == "negative" and (any(w in m for w in ["ส่งช้า", "มาช้า", "รอของนาน", "อาหารมาไม่ครบ"]) or "การจัดส่ง" in c or "Delivery" in c):
+    # รออาหารนานในร้าน: ข้อความแบบ "อาหารได้ช้ามากรออย่างนาน" มักไม่มีคำด่าตรงๆ จน sentiment
+    # ออกกลาง แต่เป็นคำติชัดเจน -> ขอโทษ/ตรวจสอบออเดอร์ (เช็คข้อความจริง ไม่พึ่งหมวด)
+    if s != "positive" and any(w in m for w in ["ได้ช้า", "รอนาน", "รออย่างนาน", "รอนานมาก", "อาหารช้า"]):
+        if seg in ["VIP", "At-Risk"]:
+            return "apology_coupon_escalate"
+        return "apology_check_order"
+
+    if s == "negative" and (any(w in m for w in ["ส่งช้า", "มาช้า", "รอของนาน", "อาหารมาไม่ครบ"]) or "จัดส่ง" in c or "Delivery" in c):
         if seg in ["VIP", "At-Risk"]:
             return "apology_coupon_escalate"
         return "apology_check_order"
@@ -111,12 +118,13 @@ def choose_action(sentiment, category, segment, message="", message_tags=None):
     # ที่ถูกต้องอยู่แล้ว ถ้าเช็คแค่ s!="negative" — คำชมเดลิเวอรี่ยังต้องได้ thank_you
     # เหมือนเดิมทุกประการ (ดู "# ---------- 6) positive ทั่วไป ----------" ด้านล่าง)
     # ---------------------------------------------------------------------
-    if s == "neutral" and ("การจัดส่ง" in c or "Delivery" in c):
+    if s == "neutral" and ("จัดส่ง" in c or "Delivery" in c):
         return "delivery_info"
 
     # ---------- 3) ทั่วไป negative ----------
     if s == "negative":
         return "apology_escalate"
+
 
     # ---------------------------------------------------------------------
     # FIX (ข้อความจริง "ขอชมว่าน้ำแข็งเย็นทุกก้อน" ถูกตอบเป็นข้อมูลที่ตั้งร้าน):
@@ -254,7 +262,7 @@ def choose_action(sentiment, category, segment, message="", message_tags=None):
     # แก้โดยแยกกรณี neutral ออกมาต่างหาก ให้ตอบแบบเป็นกลาง (general_support) แทน
     # การขอโทษที่ไม่มีมูล — ไม่กระทบพฤติกรรมเดิมตอน positive/negative เลย
     # ---------- 5) รสชาติ (แยกตาม sentiment เพราะอาจเป็นได้ทั้งบวก/ลบ/กลาง) ----------
-    if "รสชาติ" in c or "คุณภาพอาหาร" in c:
+    if "รสชาติ" in c or "คุณภาพอาหาร" in c or c == "ติอาหาร":
         if s == "positive":
             return "thank_you"
         if s == "negative":

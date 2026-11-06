@@ -11,7 +11,7 @@
   llm_zero_shot      OpenAI zero-shot (เฉพาะเมื่อใส่ --llm และตั้ง OPENAI_API_KEY; สุ่ม --llm-n แถว)
 
 ชุดทดสอบ:
-  test   แถว split=="test" ใน data/sentiment_dataset_v2.csv / data/category_dataset_v2.csv
+  test   แถว split=="test" ใน data/sentiment_dataset_v2.csv / data/category_dataset_v3.csv (taxonomy 8 หมวด)
          หมายเหตุ: ป้าย category ชุดนี้สร้างจากกฎ keyword (weak supervision) ระบบ
          tfidf_svm+keyword จึงได้เปรียบโดยโครงสร้าง ไม่ควรใช้ตัดสินว่าระบบไหนดีกว่า
   gold   data/gold_standard.csv (คนติดป้าย — ดู data/gold_standard_template.csv)
@@ -34,7 +34,7 @@ from sklearn.metrics import accuracy_score, f1_score
 BASE = Path(__file__).resolve().parent
 sys.path.insert(0, str(BASE))
 from app.preprocess import clean_text
-from app.engine import keyword_sentiment_override, keyword_category_override, map_to_ml_category
+from app.engine import keyword_sentiment_override, keyword_category_override, map_to_ml_category, V2_TO_V3_CATEGORY
 from app.transformer_model import load_transformer_model
 
 DATA, OUT, MODELS = BASE / "data", BASE / "outputs", BASE / "models"
@@ -90,7 +90,9 @@ def llm_predict(task, texts):
 
 def load_eval_sets(task):
     sets = {}
-    csv = DATA / f"{task}_dataset_v2.csv"
+    csv = DATA / f"{task}_dataset_v3.csv"
+    if not csv.exists():
+        csv = DATA / f"{task}_dataset_v2.csv"
     df = pd.read_csv(csv, encoding="utf-8-sig")
     test = df[df["split"] == "test"]
     raw = test["text"] if "text" in test.columns else test["clean_text"]
@@ -125,10 +127,14 @@ def main():
             if eval_set not in args.sets:
                 continue
             pred, conf = proba_pred(tfidf, texts)
+            if task == "category":  # โมเดลรุ่นเก่า (10 หมวด) -> v3
+                pred = np.array([V2_TO_V3_CATEGORY.get(p, p) for p in pred])
             rows.append(score("tfidf_svm", task, eval_set, y_true, pred, conf))
             rows.append(score("tfidf_svm+keyword", task, eval_set, y_true, keyword_pipeline(task, texts, pred)))
             if wangchan is not None:
                 wpred, wconf = proba_pred(wangchan, raw_texts)  # WangchanBERTa ใช้ข้อความดิบ
+                if task == "category":
+                    wpred = np.array([V2_TO_V3_CATEGORY.get(p, p) for p in wpred])
                 rows.append(score("wangchanberta", task, eval_set, y_true, wpred, wconf))
             if args.llm:
                 idx = np.random.RandomState(42).permutation(len(texts))[:args.llm_n]

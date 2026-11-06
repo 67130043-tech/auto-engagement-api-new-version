@@ -46,7 +46,7 @@ from app.transformer_model import prepare_text  # noqa: E402  (preprocessing ช
 DEFAULT_MODEL = "airesearch/wangchanberta-base-att-spm-uncased"
 TASKS = {
     "sentiment": {"csv": "data/sentiment_dataset_v2.csv", "label": "sentiment", "max_len": 128},
-    "category": {"csv": "data/category_dataset_v2.csv", "label": "Category", "max_len": 128},
+    "category": {"csv": "data/category_dataset_v3.csv", "label": "Category", "max_len": 128},
 }
 
 
