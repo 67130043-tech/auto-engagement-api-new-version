@@ -24,8 +24,8 @@
   "kappa_sentiment_no_hint": 1.0,
   "kappa_category_no_hint": 0.7222,
   "ai_hint_vs_final": {
-    "n": 143,
-    "sentiment_accuracy": 0.986,
-    "category_accuracy": 0.972
+    "n": 213,
+    "sentiment_accuracy": 0.8685,
+    "category_accuracy": 0.8216
   }
 }

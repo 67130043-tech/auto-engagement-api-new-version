@@ -110,6 +110,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--llm", action="store_true", help="รวม OpenAI zero-shot (เสียค่า API)")
     ap.add_argument("--llm-n", type=int, default=300, help="จำนวนแถวที่สุ่มให้ LLM ต่อชุดทดสอบ")
+    ap.add_argument("--sets", nargs="+", default=["test", "gold"], choices=["test", "gold"],
+                    help="ชุดที่จะวัด (เช่น --sets gold เพื่อวัดเฉพาะ gold standard ซึ่งเร็วกว่ามาก)")
     args = ap.parse_args()
 
     rows = []
@@ -120,6 +122,8 @@ def main():
         if wangchan is None:
             print("  (ยังไม่มี WangchanBERTa สำหรับ task นี้ — ข้าม; รัน 11_finetune_wangchanberta.ipynb ก่อน)")
         for eval_set, (texts, y_true, raw_texts) in load_eval_sets(task).items():
+            if eval_set not in args.sets:
+                continue
             pred, conf = proba_pred(tfidf, texts)
             rows.append(score("tfidf_svm", task, eval_set, y_true, pred, conf))
             rows.append(score("tfidf_svm+keyword", task, eval_set, y_true, keyword_pipeline(task, texts, pred)))
