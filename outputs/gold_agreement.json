@@ -1,0 +1,31 @@
+{
+  "n_double_labeled": 233,
+  "n_both_irrelevant": 14,
+  "n_one_irrelevant": 23,
+  "n_relevant": 196,
+  "kappa_sentiment": 0.8374,
+  "kappa_category": 0.7105,
+  "kappa_relevance": 0.4938,
+  "agreement_sentiment": 0.8929,
+  "agreement_category": 0.7653,
+  "by_source": {
+    "own_page": {
+      "n": 84,
+      "kappa_sentiment": 0.8379,
+      "kappa_category": 0.8294
+    },
+    "wisesight": {
+      "n": 112,
+      "kappa_sentiment": 0.8174,
+      "kappa_category": 0.5744
+    }
+  },
+  "n_used_ai_hint": 221,
+  "kappa_sentiment_no_hint": 1.0,
+  "kappa_category_no_hint": 0.7222,
+  "ai_hint_vs_final": {
+    "n": 143,
+    "sentiment_accuracy": 0.986,
+    "category_accuracy": 0.972
+  }
+}
