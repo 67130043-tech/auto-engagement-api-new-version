@@ -42,7 +42,7 @@ G083,กับข้าวเย็นตอนเสิร์ฟ ช่วย�
 G087,มีปิ้งย่างด้วย,neutral,สอบถามเมนูอาหาร,wisesight,neutral,positive,สอบถามเมนูอาหาร,ติชมอาหารและบริการ,False,True,สอบถามเมนูอาหาร,deterministic_map
 G089,พี่ตูนกับ MK HAPPY LUNCH คล้ายกันยังไง ? อยากรู้ก็มาอิ่มอร่อยได้ที่ MK HAPPY LUNCH #ให้มื้อเที่ยงสุขกว่าที่เคย #MKHappyLunch . *ตั้งแต่วันที่ 24 มกราคม ถึง 15 มีนาคม 2561 นี้ *วันจันทร์ ถึง วันศุกร์ เวลา 11.00 – 15.00 เท่านั้น *บริการ MK Happy Lunch เฉพาะสาขาที่ร่วมรายการ *ไม่ร่วมบริการ MK Delivery,neutral,สอบถามโปรโมชั่น,wisesight,neutral,neutral,สอบถามโปรโมชั่น,สอบถามโปรโมชั่น,False,True,สอบถามโปรโมชั่น,deterministic_map
 G090,ช่วงนี้ปรับเวลาเปิด-ปิดไหมคะ,neutral,สอบถามข้อมูลร้าน,own_page,neutral,neutral,สอบถามข้อมูลร้าน,สอบถามข้อมูลร้าน,False,True,สอบถามข้อมูลร้าน,deterministic_map
-G092,ส่งไวมากค่ะ แพ็คของมาเรียบร้อยดีมาก,positive,ติอาหาร,own_page,positive,positive,การจัดส่ง (Delivery),การจัดส่ง (Delivery),False,True,การจัดส่ง (Delivery),researcher_relabel
+G092,ส่งไวมากค่ะ แพ็คของมาเรียบร้อยดีมาก,positive,ชมบริการ/บรรยากาศ,own_page,positive,positive,การจัดส่ง (Delivery),การจัดส่ง (Delivery),False,True,การจัดส่ง (Delivery),researcher_relabel
 G095,คุ้มค่ามากค่ะ ราคาย่อมเยาปริมาณเยอะด้วย,positive,ชมอาหาร,own_page,positive,positive,ชมรสชาติอาหาร,ติชมอาหารและบริการ,False,True,ชมรสชาติอาหาร,deterministic_map
 G096,เอาจริงๆ รู้สึกเสียดายเงินทุกครั้งที่กินร้านนี้ คุณภาพ drop ลงมาก ถ้าไม่ไปกินฟรีเพราะพี่ๆเลี้ยง จะไม่เดินเข้าไปกินเองเด็ดขาด,negative,ติอาหาร,wisesight,negative,negative,ติชมอาหารและบริการ,ติชมอาหารและบริการ,False,True,ติชมอาหารและบริการ,researcher_relabel
 G101,#รีวิวฮอกไกโด บุฟเฟ่ต์ปิ้งย่างไม่อั้น1.30ชม เราเลือกแบบ5200¥ คุ้มมาก มีซูชิ เนื้อวากิว เนื้อออส หมู แกะ ซุป เครื่องเคียง พนักงานบริการดี แนะนำให้จองคิวก่อนนะ,positive,ชมอาหาร,wisesight,positive,positive,ชมรสชาติอาหาร,ติชมอาหารและบริการ,False,True,ติชมอาหารและบริการ,researcher_relabel
@@ -129,7 +129,7 @@ G310,ชาบูโอโซน 199 อร่อย,positive,ชมอาหา
 G314,โดยรวมประทับใจ จะกลับมาอุดหนุนอีก,positive,ชมอาหาร,own_page,positive,positive,ชมรสชาติอาหาร,ติชมอาหารและบริการ,False,True,ติชมอาหารและบริการ,researcher_relabel
 G316,เจอเส้นผมในอาหารค่ะ ขอให้ตรวจสอบด้วย,negative,ติอาหาร,own_page,negative,negative,ติชมอาหารและบริการ,ติชมอาหารและบริการ,False,True,ติชมอาหารและบริการ,researcher_relabel
 G317,ส้มตำรสจัดถูกใจมาก แต่ที่จอดรถน้อยไปหน่อย,neutral,ติบริการ/ร้าน,own_page,positive,negative,ติชมอาหารและบริการ,ชมสถานที่/บรรยากาศ,False,True,ชมสถานที่/บรรยากาศ,researcher_relabel
-G318,วันนี้ไปกินมา รสชาติไม่ค่อยได้เรื่องเลยอ่ะ เค็มจัด,negative,ติบริการ/ร้าน,own_page,negative,negative,ติชมอาหารและบริการ,ติชมอาหารและบริการ,False,True,ติชมอาหารและบริการ,researcher_relabel
+G318,วันนี้ไปกินมา รสชาติไม่ค่อยได้เรื่องเลยอ่ะ เค็มจัด,negative,ติอาหาร,own_page,negative,negative,ติชมอาหารและบริการ,ติชมอาหารและบริการ,False,True,ติชมอาหารและบริการ,researcher_relabel
 G323,ขอบุฟเฟ่ต์ทุกสาขาเป็นการขอโทษจ้า,negative,ติบริการ/ร้าน,wisesight,negative,negative,บริการไม่ดี,ติชมอาหารและบริการ,False,True,บริการไม่ดี,researcher_relabel
 G325,อยากจองโต๊ะสำหรับ6คนคืนวันเสาร์นี้ค่ะ,neutral,สอบถามข้อมูลร้าน,own_page,neutral,neutral,สอบถามข้อมูลร้าน,สอบถามข้อมูลร้าน,False,True,สอบถามข้อมูลร้าน,deterministic_map
 G328,ดิฉันมาประกาศความอลังการของฮอทพอทเค้าเด้อ มันพีคกินไปขำไปจนนึกว่าใส่กัญชาในน้ำซุป มีน้ำสี่แบบให้เลือก เนื้อก็ตามเมนู อันนี้มีความพลาดที่ราคาแรง เดี๋ยวไปตามหาอันตลาดมาลงแป๊บ,neutral,ติอาหาร,wisesight,positive,neutral,ชมสถานที่/บรรยากาศ,ติชมอาหารและบริการ,False,True,ติชมอาหารและบริการ,researcher_relabel
