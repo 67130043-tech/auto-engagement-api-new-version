@@ -28,6 +28,9 @@ Dataset → Preprocessing → Train Sentiment Model → Train Category Model →
      ข้อควรรู้: Space ฟรีจะหลับเมื่อไม่มีคนเรียก 48 ชม. คำขอแรกหลังหลับจะช้า (ปลุกเครื่อง + โหลดโมเดล)
    - **Render แผนที่มี RAM ≥ 2 GB:** ใช้ `Dockerfile` เดียวกัน ตั้ง `WANGCHAN_SENTIMENT_REPO`, `WANGCHAN_CATEGORY_REPO`
      (และ `HF_TOKEN` ถ้า repo เป็น private)
+     ค่าที่ใช้จริง: `WANGCHAN_SENTIMENT_REPO=lastnamenewkan/wangchanberta-autoengage-sentiment`,
+     `WANGCHAN_CATEGORY_REPO=lastnamenewkan/wangchanberta-autoengage-category-v3` (8 หมวด, ฝึกด้วยข้อมูล weak + คนติดป้าย 511 ข้อ)
+     ถ้าเครื่องมี RAM น้อยกว่า `WANGCHAN_MIN_RAM_MB` (ค่าเริ่มต้น 1536) ระบบข้าม WangchanBERTa แล้วใช้ TF-IDF เอง
 3. เทียบผลทุกระบบบน test set เดียวกัน: `python 12_compare_models.py` (เพิ่ม `--llm` เพื่อรวม LLM zero-shot)
 
 | ตัวแปร | ความหมาย |
@@ -171,3 +174,10 @@ https://xxxx.ngrok-free.app/make/predict
 - `outputs/customer_behavior_features.csv`
 - `outputs/prediction_log.csv`
 
+
+**ข้อมูลฝึกหมวดหมู่ที่คนติดป้าย (เพิ่มจากข้อมูล weak):**
+1. `python 18_build_train_label_items.py` -> `data/train_label_items.csv` (Wisesight ส่วน train 800 ข้อ ไม่ทับกับ gold)
+2. ผู้ติดป้าย 2 คน (`data/train_labels/annotator_*.json`) + ผู้วิจัยชี้ขาด 156 ข้อ (`adjudication.json`)
+3. `python 19_build_human_category_dataset.py` -> `data/category_human_v3.csv` (511 ข้อที่เกี่ยวข้อง) และ `outputs/train_label_agreement.json`
+4. Colab: `python 11_finetune_wangchanberta.py --task category --extra-train data/category_human_v3.csv --extra-repeat 3`
+5. `python 20_eval_category_variants.py <model dirs...>` วัดบน gold — ผล 3 seed อยู่ใน `outputs/category_variants_gold.txt`
