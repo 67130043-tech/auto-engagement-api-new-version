@@ -1,0 +1,626 @@
+{
+"T0015": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0314": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0128": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0274": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0332": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0110": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0364": {
+"sentiment": "neutral",
+"category": "สอบถามข้อมูลร้าน"
+},
+"T0279": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0080": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0318": {
+"sentiment": "neutral",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0329": {
+"sentiment": "neutral",
+"category": "สอบถามข้อมูลร้าน"
+},
+"T0338": {
+"sentiment": "neutral",
+"category": "ชมอาหาร"
+},
+"T0293": {
+"sentiment": "negative",
+"category": "ปัญหาออเดอร์/จัดส่ง"
+},
+"T0275": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0191": {
+"sentiment": "neutral",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0262": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0020": {
+"sentiment": "neutral",
+"category": "ติอาหาร"
+},
+"T0149": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0184": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0105": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0186": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0205": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0162": {
+"sentiment": "negative",
+"category": "ติบริการ/ร้าน"
+},
+"T0117": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0179": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0231": {
+"sentiment": "neutral",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0282": {
+"sentiment": "neutral",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0317": {
+"sentiment": "neutral",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0322": {
+"sentiment": "neutral",
+"category": "ติบริการ/ร้าน"
+},
+"T0294": {
+"sentiment": "positive",
+"category": "ชมบริการ/บรรยากาศ"
+},
+"T0079": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0062": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0381": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0029": {
+"sentiment": "negative",
+"category": "ติบริการ/ร้าน"
+},
+"T0056": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0065": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0304": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0355": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0244": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0098": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0280": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0100": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0009": {
+"sentiment": "neutral",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0249": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0281": {
+"sentiment": "positive",
+"category": "ปัญหาออเดอร์/จัดส่ง"
+},
+"T0026": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0330": {
+"sentiment": "neutral",
+"category": "สอบถามข้อมูลร้าน"
+},
+"T0113": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0316": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0003": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0261": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0145": {
+"sentiment": "negative",
+"category": "ติบริการ/ร้าน"
+},
+"T0187": {
+"sentiment": "neutral",
+"category": "ชมอาหาร"
+},
+"T0253": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0331": {
+"sentiment": "neutral",
+"category": "ชมอาหาร"
+},
+"T0146": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0224": {
+"sentiment": "negative",
+"category": "ปัญหาออเดอร์/จัดส่ง"
+},
+"T0106": {
+"sentiment": "negative",
+"category": "ปัญหาออเดอร์/จัดส่ง"
+},
+"T0170": {
+"sentiment": "neutral",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0349": {
+"sentiment": "negative",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0101": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0321": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0287": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0298": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0108": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0077": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0156": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0150": {
+"sentiment": "neutral",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0201": {
+"sentiment": "negative",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0018": {
+"sentiment": "neutral",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0172": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0014": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0324": {
+"sentiment": "neutral",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0012": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0109": {
+"sentiment": "negative",
+"category": "ปัญหาออเดอร์/จัดส่ง"
+},
+"T0204": {
+"sentiment": "neutral",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0006": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0016": {
+"sentiment": "positive",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0242": {
+"sentiment": "neutral",
+"category": "สอบถามข้อมูลร้าน"
+},
+"T0334": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0188": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0209": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0043": {
+"sentiment": "negative",
+"category": "ปัญหาออเดอร์/จัดส่ง"
+},
+"T0206": {
+"sentiment": "negative",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0339": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0246": {
+"sentiment": "positive",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0171": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0256": {
+"sentiment": "neutral",
+"category": "สอบถามข้อมูลร้าน"
+},
+"T0075": {
+"sentiment": "neutral",
+"category": "ติอาหาร"
+},
+"T0225": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0126": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0166": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0008": {
+"sentiment": "neutral",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0177": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0045": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0312": {
+"sentiment": "negative",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0096": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0200": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0300": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0085": {
+"sentiment": "neutral",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0203": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0199": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0290": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0111": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0011": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0215": {
+"sentiment": "negative",
+"category": "ติบริการ/ร้าน"
+},
+"T0041": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0183": {
+"sentiment": "negative",
+"category": "ติบริการ/ร้าน"
+},
+"T0118": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0060": {
+"sentiment": "negative",
+"category": "ติบริการ/ร้าน"
+},
+"T0353": {
+"sentiment": "neutral",
+"category": "ติอาหาร"
+},
+"T0358": {
+"sentiment": "negative",
+"category": "ติบริการ/ร้าน"
+},
+"T0306": {
+"sentiment": "positive",
+"category": "ชมบริการ/บรรยากาศ"
+},
+"T0356": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0257": {
+"sentiment": "negative",
+"category": "สอบถามข้อมูลร้าน"
+},
+"T0297": {
+"sentiment": "negative",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0119": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0348": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0087": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0295": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0379": {
+"sentiment": "positive",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0376": {
+"sentiment": "neutral",
+"category": "สอบถามข้อมูลร้าน"
+},
+"T0341": {
+"sentiment": "negative",
+"category": "ติบริการ/ร้าน"
+},
+"T0010": {
+"sentiment": "positive",
+"category": "ชมบริการ/บรรยากาศ"
+},
+"T0067": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0212": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0335": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0362": {
+"sentiment": "neutral",
+"category": "ติบริการ/ร้าน"
+},
+"T0189": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0158": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0036": {
+"sentiment": "negative",
+"category": "สอบถามข้อมูลร้าน"
+},
+"T0227": {
+"sentiment": "neutral",
+"category": "ติอาหาร"
+},
+"T0165": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0333": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0122": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0071": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0370": {
+"sentiment": "neutral",
+"category": "ติบริการ/ร้าน"
+},
+"T0044": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0350": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0251": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+},
+"T0112": {
+"sentiment": "neutral",
+"category": "สอบถามข้อมูลร้าน"
+},
+"T0163": {
+"sentiment": "neutral",
+"category": "สอบถามเมนูอาหาร"
+},
+"T0237": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0088": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0031": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0048": {
+"sentiment": "neutral",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0265": {
+"sentiment": "neutral",
+"category": "สอบถามโปรโมชั่น"
+},
+"T0174": {
+"sentiment": "neutral",
+"category": "ชมอาหาร"
+},
+"T0328": {
+"sentiment": "neutral",
+"category": "ติอาหาร"
+},
+"T0365": {
+"sentiment": "",
+"category": "ไม่เกี่ยวข้อง"
+},
+"T0245": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0152": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0057": {
+"sentiment": "neutral",
+"category": "ชมอาหาร"
+},
+"T0082": {
+"sentiment": "negative",
+"category": "ติอาหาร"
+},
+"T0063": {
+"sentiment": "neutral",
+"category": "สอบถามข้อมูลร้าน"
+},
+"T0083": {
+"sentiment": "positive",
+"category": "ชมอาหาร"
+}
+}

@@ -60,6 +60,10 @@ def parse_args():
     p.add_argument("--lr", type=float, default=3e-5)
     p.add_argument("--max-len", type=int, default=None)
     p.add_argument("--seed", type=int, default=42)
+    p.add_argument("--extra-train", default=None,
+                   help="csv ข้อมูลฝึกเพิ่มที่คนติดป้าย (เช่น data/category_human_v3.csv) — เข้าเฉพาะ train/val ไม่เข้า test")
+    p.add_argument("--extra-repeat", type=int, default=1, help="ทำซ้ำข้อมูลเพิ่มกี่เท่าใน train (ให้น้ำหนักมากขึ้น)")
+    p.add_argument("--extra-only", action="store_true", help="ฝึกด้วยข้อมูลเพิ่มอย่างเดียว (ไม่ใช้ข้อมูลเดิม)")
     p.add_argument("--limit", type=int, default=None, help="ใช้แค่ N แถวแรกของ train/test (ไว้ทดสอบโค้ด)")
     p.add_argument("--push-to-hub", default=None, help="repo id บน HuggingFace Hub เช่น user/wangchanberta-category")
     p.add_argument("--quant", choices=["none", "int8_per_channel", "int8"], default="none",
@@ -129,7 +133,7 @@ class TextDataset(torch.utils.data.Dataset):
         return item
 
 
-def load_splits(task, limit, seed):
+def load_splits(task, limit, seed, extra=None, extra_repeat=1, extra_only=False):
     cfg = TASKS[task]
     df = pd.read_csv(BASE / cfg["csv"], encoding="utf-8-sig")
     df["label"] = df[cfg["label"]].astype(str)
@@ -144,6 +148,21 @@ def load_splits(task, limit, seed):
         train_all = train_all.groupby("label", group_keys=False).head(max(2, limit // df["label"].nunique()))
         test = test.groupby("label", group_keys=False).head(max(2, limit // (4 * df["label"].nunique())))
     train, val = train_test_split(train_all, test_size=0.10, random_state=seed, stratify=train_all["label"])
+    if extra:
+        ex = pd.read_csv(extra, encoding="utf-8-sig")
+        ex["label"] = ex[cfg["label"]].astype(str)
+        ex["input_text"] = ex["text"].fillna("").astype(str)
+        ex["source"] = ex["source"] if "source" in ex.columns else "human"
+        counts = ex["label"].value_counts()
+        strat = ex["label"] if counts.min() >= 2 else None
+        ex_tr, ex_val = train_test_split(ex, test_size=0.10, random_state=seed, stratify=strat)
+        cols = ["input_text", "label", "source"]
+        if extra_only:
+            train, val = ex_tr[cols], ex_val[cols]
+        else:
+            train = pd.concat([train[cols]] + [ex_tr[cols]] * max(1, extra_repeat), ignore_index=True)
+            val = pd.concat([val[cols], ex_val[cols]], ignore_index=True)
+        print(f"extra={extra} rows={len(ex)} (train {len(ex_tr)} x{extra_repeat}, val {len(ex_val)}) extra_only={extra_only}")
     return train.reset_index(drop=True), val.reset_index(drop=True), test.reset_index(drop=True)
 
 
@@ -160,8 +179,8 @@ def main():
     out_dir = Path(args.out or BASE / "models" / f"wangchanberta_{args.task}")
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    train, val, test = load_splits(args.task, args.limit, args.seed)
-    classes = sorted(train["label"].unique())
+    train, val, test = load_splits(args.task, args.limit, args.seed, args.extra_train, args.extra_repeat, args.extra_only)
+    classes = sorted(set(train["label"]) | set(val["label"]) | set(test["label"]))
     label2id = {c: i for i, c in enumerate(classes)}
     print(f"task={args.task} classes={classes}")
     print(f"train={len(train)} val={len(val)} test={len(test)}")

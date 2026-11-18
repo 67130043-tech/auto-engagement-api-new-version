@@ -1,0 +1,512 @@
+﻿item_id,text,Category,sentiment,wisesight_sentiment,label_source,n_annotators,source
+T0003,อย่าไปกินเลย ขาดทุน ม่ายของ,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0006,ปังยิ่งกว่าเดิม เพราะปังไข่ชีสขยายเวลาอร่อยกับปังนุ่ม ไข่เนียนๆ และชีสเยิ้มๆ กันได้ทั้งวัน ทุกเวลา เริ่มเพียง 29.- ตั้งแต่ 15 ม.ค. 61 ตี 5 เป็นต้นไป พรุ่งนี้พุ่งตัวเลย #ปังไข่ชีส #อร่อยปังไม่จำกัดเวลา,ชมอาหาร,positive,positive,adjudicated,2,wisesight_human
+T0008,มาเจอกับโปรโมชั่นนี้ได้เฉพาะ MK สาขาในเทสโก้โลตัสเท่านั้นนะคะ ^^,สอบถามโปรโมชั่น,neutral,neutral,adjudicated,2,wisesight_human
+T0009,#ถ้าออกขึ้นมาละฮาเลย จะจัดเอ็มเคชุดใหญ่ไฟไม่กระพริบ 555,สอบถามโปรโมชั่น,neutral,positive,adjudicated,2,wisesight_human
+T0010,ไปกิน MK ซดน้ำร้อนๆให้คลายหนาวเลย ห้างใกล้บ้านดี 2 นาทีถึง,ชมบริการ/บรรยากาศ,positive,neutral,adjudicated,2,wisesight_human
+T0012,เหล้าเบลล์รสชาติเหี้ยสุด จะไม่แดกอีกละ,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0014,สเมอนอฟอีเล้คทริคบลูรสชาติเหี้ยมาก,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0015,อาหารคลีน,สอบถามเมนูอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0016,"พลาดไม่ได้! วาเลนไทน์นี้กับ ""ยูนิคอร์นมิลค์"" สีหวานสุดโรแมนติค ดั่งต้องมนตร์ ที่ MK Restaurants วันนี้ - 4 เม.ย. 61 (หรือจนกว่าสินค้าจะหมด)",สอบถามโปรโมชั่น,positive,neutral,adjudicated,2,wisesight_human
+T0017,อันนี้เรื่องจริง เมื่อก่อนคือติดใจข้าวผัดกระเทียมมาก เดี๋ยวนี้ไม่อร่อยเหมือนแต่ก่อน,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0018,🎉🎉พบกับคอนเสิร์ต ปู พงษ์สิทธิ์ คำภีร์🎉🎉 ได้ที่ร้าน กาแฟ ณ เสม็ด —สำรองโต๊ะนั่งได้ที่088-8888888—-/ราคาโต๊ะละ2500/1โต๊ะต่อ4ที่นั่ง พร้องเบียร์ช้างขวดเล็ก8ขวด กับ เฟรนฟรายและข้าวเกรียบ1จานคับผม🙏🙏🙏 🎉🎉แล้วมาสนุกไปด้วยกัน🎉🎉,สอบถามโปรโมชั่น,neutral,neutral,adjudicated,2,wisesight_human
+T0019,แต่ร้านนี้อาหารอร่อยจริงๆ ทุกเมนูเลย ทั้งซี่โครงซอส bbq ข้าวผัดหมูเค็ม ยำก้านคะน้า โดยเฉพาะหมี่ผัดกระเฉด ร้านบอกเหมามาทั้งตลาดก็ยังไม่พอ ต้องรีบสั่งกลัวหมด 😂,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0020,บาร์บีคิวพลาซ่า ชี้แจง!! เนื้อวัวที่เห็นไม่ใช่พยาธิแน่นอน แต่ขอเวลาพิสูจน์ 7 วัน เพื่อความกระจ่าง!!,ติอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0026,ไก่ เบื่อเอ็มเค,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0027,รู้งี้น่าจะกินน้ำเปล่า ไม่อร่อยเลย,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0028,อยากได้เซทหมูคะ กับเกี้ยวซ่าพริกเกลือ เกี้ยวซ่าของบาบีคิวพลาซ่า อร่อยทุกรสชาติเลยคะ,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0029,ดูแล้วไม่อยากกินเอ็มเคแล้ว อยากกินเบน 🤣🤣🤣,ติบริการ/ร้าน,negative,positive,adjudicated,2,wisesight_human
+T0034,จัดไปอาหารสุขภาพขนาดนี้ ทางเราอยุ่แล้ว55555555,ชมอาหาร,positive,neutral,agreed,2,wisesight_human
+T0036,ลาก่อยบาบีก้อน;-; ว่าจาไปกิน,สอบถามข้อมูลร้าน,negative,negative,adjudicated,2,wisesight_human
+T0042,ไม่ค่อยชอบไลน์อาหารของฮอทพอทเท่าไรรรรรรงิ,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0043,Mkสาขาบิ๊กซี จ. เลย รออาหารนานมากทั้งๆที่ลูกค้าก็ไม่มีเป็นแบบนี้มาหลายครั้งมากแต่วันนี้เหลืออดจริงๆรอเกินครึ่งช.มแล้วยังไม่พอแม่มึงยกไปให้โต๊ะมาหลังอีก.ไม่รู้มีเจอแบบนี้กันบ้างรึเปล่านะค่ะ...อารมเสียจริงๆๆๆปรับปรุงด้วยนะค่ะ,ปัญหาออเดอร์/จัดส่ง,negative,negative,adjudicated,2,wisesight_human
+T0045,ปัจจุบันเมนูขนมหวานจะมีเป็นไอศกรีมกะทิและมีข้าวโพดวางมาบนไอศกรีมนะคะ ^^,สอบถามเมนูอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0046,โปรโมชั่นนี้สำหรับบริการเดลิเวอรี่เท่านั้นค่ะ ที่ร้านไม่ร่วมรายการนะคะ ^^,สอบถามโปรโมชั่น,neutral,neutral,agreed,2,wisesight_human
+T0048,พี่ก้อน บุฟเฟต์มาช่วงไหนครับ,สอบถามโปรโมชั่น,neutral,neutral,adjudicated,2,wisesight_human
+T0049,จะโอเคก่ต่อเมื่อกินเอ็มเค,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0050,ลูกมินจะไปกินค่ะ อยากได้กล่องดินสอ,สอบถามโปรโมชั่น,positive,neutral,agreed,2,wisesight_human
+T0051,ผมไม่ค่อยชอบ Mk กินแล้วไม่ค่อยอยู่ท้องอ่ะคับ,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0053,ชีสซี๊ดแซปอร่อยระดับ 100 ล้านกะโหลกเลยยยย,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0054,ถ้าเปลี่ยนเตาแล้วไม่อร่อยก็ต้องปรับปรุงให้เหมาะสมอีกนะก้อน,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0055,ลูกสีขาวๆมีใส้ข้างในเป็นอาหารจีนอยู่ในเข่งแต่ไม่ใช่ซาลาเปาน่ะ,สอบถามเมนูอาหาร,neutral,neutral,agreed,2,wisesight_human
+T0057,บาร์บีคิวพลาซ่า เผยชัด!! ผลตรวจชิ้นเนื้อ ไม่เจอพยาธิ พร้อมโชว์หลักฐานละเอียด,ชมอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0059,หนูเพิ่งไปกินมาค่ะสั่งชุด299มา1ชุดได้น้อยมากของไม่ค่อยสดเท่าไรแล้วก็สั่งน้ำซุปเอ็มเคและน้ำดำแถมแมลงวันหัวเขียวมาอีก1ตัวแค่จะบอกว่าของแพงไปหน่อยค่ะ#เล่าสู่กันฟังค่ะ,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0060,แหม...จัดลานเบียร์สิงห์ เบียร์ช้าง ให้เขามาขายแค่น้ำเปล่า ขายโออิชิรึไงวะ เฮ้อออออ สมองไดโนเสาร์สุดๆ มิน่า ถึงไม่พัฒนา แถมยังตะหวงทำไมวะ...อำนาจเนี่ย,ติบริการ/ร้าน,negative,negative,adjudicated,2,wisesight_human
+T0062,อยากกินสุกี้ หิวเลยยย,ชมอาหาร,positive,positive,adjudicated,2,wisesight_human
+T0063,หมวดเอ็มเคดี เมืองคอนหนูว่ามันไม่ได้ไกลมากนะ,สอบถามข้อมูลร้าน,neutral,positive,adjudicated,2,wisesight_human
+T0067,คาเฟ่ส่วนใหญ่เดี๋ยวนี้เน้นตกแต่งสวย มีมุมถ่ายรูปเยอะๆ เค้กน่ากิน แต่ไม่อร่อย ไม่อร่อยยย,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0070,แก้ไขค่ะ ราคาของคุณกินจริงๆ แทบจะราคาใกล้เคียงกับไปกินแบบบุฟเฟ่ต์ของเจ้าอื่นๆ,ติบริการ/ร้าน,negative,negative,agreed,2,wisesight_human
+T0071,บาร์บีกอนชุดเนื้ออออ เมนู1ใน4จะเลือกกุ้งเนยกระเทียมจ้าาา เป็นสาวกเนื้อโทยเเท้ทรู ปล.อยากได้จุงเบยยยย💕😝🙏🏻,ชมอาหาร,positive,neutral,adjudicated,2,wisesight_human
+T0072,ไปกินวันนั้นนั่งปุ๊บสั่งกับข้าวกลับบ้านให้ลูกก่อน เพราะลูกหลับกลัวรอนานด้วย จากนั้นก็สั่งมากิน2คนกับแฟน พอเช็คบิล ข้าวที่สั่งกลับบ้านคือหมด แล้วทำไมไม่แจ้งแต่แรก โมโหมาก ถามพนักก็โยนให้กัน สุดท้ายก็ไม่ได้เรื่องทอนเงินก็ช้าอีก ลูกร้องหิวข้าว แย่มากอ่ะแอด,ปัญหาออเดอร์/จัดส่ง,negative,negative,agreed,2,wisesight_human
+T0074,จะบอกว่าสาขาโลตัสภูเก็ตพนง น้อย บริการช้า เพิ่มพนง หน่อยค่ะ จะได้ทั่วถึง รสชาติอร่อยเหมือนเดิม,ติบริการ/ร้าน,negative,negative,agreed,2,wisesight_human
+T0075,ความอร่อยเหมือนเดิมแต่ติดตรงหมูแผ่นบางเกินไป,ติอาหาร,neutral,negative,adjudicated,2,wisesight_human
+T0077,ในอนาคต KFC เมืองไทย จะมีเบียร์ช้างเสิร์ฟมั้ยน๊าาาา,สอบถามเมนูอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0079,ตำส้มตำหรอ,สอบถามเมนูอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0080,ตกลงกินไร ไหนบอกเอ็มเค,สอบถามเมนูอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0082,ของจริงรูปไม่ตรงปก หมูได้ไม่กี่ชิ้น รอครึ่งชม.กว่าถึงจะได้ สั่งเซตทะเลไป รอจนน้ำซุปแทบจะเหือดแห้งข้นจนเค็ม พอของมาน้ำซุปขอเติมก็ไม่มาเติมให้ บอกไปกับพนักงาน4คนไม่ได้บริการซักคน ขอเติมน้ำจิ้มก็ช้า ปลาหมึกเหมือนเศษปลาหมึกมาก ไม่โอเคจ้าาาา 599 สภาพงี้,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0083,เยลลี่กาแฟอร่อยจริงคอนเฟิร์ม กินประจำ แต่เราคาก็แอบแรง,ชมอาหาร,positive,negative,adjudicated,2,wisesight_human
+T0085,โปรโมชั่น MK HAPPY LUNCH เฉพาะรับประทานที่ร้านเท่านั้นค่ะ ^^,สอบถามโปรโมชั่น,neutral,neutral,adjudicated,2,wisesight_human
+T0087,ไปปบบไปกินแค่ชาไทะได้มะ5555,สอบถามเมนูอาหาร,neutral,positive,adjudicated,2,wisesight_human
+T0088,ส่วนตัวนะ รสชาติคล้ายบลู กับสเปร แดกได้อาทิตยแล้วกัยังปวดหัวไม่เลิก สู้บัก2ซาวบ้านข่อยบ่ได้,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0090,ปลาหมึกสัมผัสปลอมแบบนี้คือสิ่งที่เหี้ยที่สุดของปีที่ผ่านมา ขอให้ไม่เจอแล้วเลิกใช้กันได้แล้ว จะทำร้านอาหารก็ใส่ความตั้งใจลงไปด้วย,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0091,น่าอร่อย,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0096,สเปรย์​ แม่ง อร่อยมาก ซีแกรม ระดับเทพ..,ชมอาหาร,positive,positive,adjudicated,2,wisesight_human
+T0098,ยุค1873 Amsterdam start-up ยุคของ gerard adriaan heinekin ได้เริ่มใช้ชื่อแบรนด์ Heineken® เป็นการเริ่มต้นรสชาติละมุนนุ่มลิ้นนี้,ชมอาหาร,positive,positive,adjudicated,2,wisesight_human
+T0099,=+1 ไม่อร่อยแห้งๆ ข้าวไม่หอมเนย ราคาก็แพงมากกก,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0100,วุ้นเส้นเกาหลี ที่สุดของความเกา เคี้ยวหนึบๆ แอดนี่ชอบมากๆ Cr. สนุกเต็มที่ อร่อยเต็มอิ่ม กับคุณ,ชมอาหาร,positive,positive,adjudicated,2,wisesight_human
+T0101,น่ามีตลอดนะก้อนเพราะบางทีพาเด็กไปกินจะได้สั่งชุดแบบนี้ สั่งแต่ข้าวผัดกระเทียมไม่อิ่มเลยค่ะ,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0102,น้ำจิ้มค่ะอีกถ้วยมีสีเขียส อีกถ้วยไม่มีค่ะ,ติอาหาร,negative,neutral,agreed,2,wisesight_human
+T0104,bar bq plaza🐲 สั่งเซ็ตปาร์ตี้หมูมา แบบโปรโมชั่นเดือนเกิดดิฉัน ฟินจ้ะ พนักงานดูเเลดี้ดี (ดีเกิน ไม่ได้ประชด) สาขานี่ยังเป็นเตาทอง ติดมากจ้าหมูติดกระทะหนึบเลย ตักน้ำซุปก็ยากลำบาก ปล. หมูเกือบลวกปากดีออกกกกก #barbqplaza,ชมบริการ/บรรยากาศ,positive,negative,agreed,2,wisesight_human
+T0105,แสงโสมไม่อร่อยเยอะ หวานไป,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0106,บาบีก้อน บุฟเฟต์(ต้มผัก) หม้อจะไหม้ล่ะ 🙄 #รอนานมาก #บาบีก้อน #จะได้กินมั้ย,ปัญหาออเดอร์/จัดส่ง,negative,negative,adjudicated,2,wisesight_human
+T0109,สั่ง mk มากินที่บ้านอีกแล้ว แพงแถมยังต้องต้มเองล้างหม้อเองอีก,ปัญหาออเดอร์/จัดส่ง,negative,negative,adjudicated,2,wisesight_human
+T0110,"เข้าฤดูหนาวแร้ว...เทศกาลเบียร์สดก้อมา วันหยุดนี้ อย่าลืมแวะไปอุดหนุน ""เบียร์ช้าง"" เบียร์คนไทยของเรากันนะคับ รสชาตินุ่มเหมาะกับคนไทยในราคาไม่แพง",ชมอาหาร,positive,neutral,adjudicated,2,wisesight_human
+T0112,📆 พร้อมเสิร์ฟแล้ววันนี้ - 15 มกราคม 61 📍 ที่ บาร์บีคิว พลาซ่า ทุกสาขา,สอบถามข้อมูลร้าน,neutral,neutral,adjudicated,2,wisesight_human
+T0113,วาวอร่อยกว่าสปายอีกจิงดิ 😁,ชมอาหาร,positive,negative,adjudicated,2,wisesight_human
+T0114,คุณภาพแย่ลงมากมาตรฐานก็เช่นกันสาขาซีคอนบางแคนะสั่งอาหารเรียกพนักงานรอนานกว่าจะมาและอีกอย่าเราขอผักเพิ่มรอบ2-3เริ่มหน้าไม่ดีใส่แล้ว ราคาก็แพงเกินเหตุบอกเลย,ติบริการ/ร้าน,negative,negative,agreed,2,wisesight_human
+T0115,อร่อยค่ะ,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0116,ไปทีไรไม่เจอปลาเลยอาหารก็น้อยไม่สมกะรีวิวเลยค่ะ...สาขาแปดริ้ว,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0119,กลับไปกินช้างยังลื่นคอกว่าเยอะคะ 🤮🤮,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0122,อันนี้ไม่บุฟเฟ่ต์หนิ,สอบถามเมนูอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0125,MK สาขาบิ๊กซี Extra รัตนาธิเบศร์ พนักงานบริการแย่มากครับ ไม่เติมน้ำให้ลูกค้า แถมอาหารที่สั่งก็ได้ไม่ครบ จนต้องเดินไปตามหลายครั้ง สรุปแย่มาก,ติบริการ/ร้าน,negative,negative,agreed,2,wisesight_human
+T0126,5555 เป็นมุกครับ คนแก่ชอบเรียกเฮลูบอยครับ. ส่วนเรื่องอร่อยนี่ไม่ถูกจริตจริงๆครับ ผมว่าสู้เจ้ามิดไนท์ของสเมอร์นอฟไม่ได้อ่ะ มันหวานไป ผมแช่เย็ดจัดแล้วนะ,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0128,ลีโอขมชิบหายค่ะ นี่กินลีโอไง รอถามแม่ตอนแม่มาหาดีกว่า อร่อยตรงไหน,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0132,อินชอนชิกเก้นวิงค์ที่โชว์ดีซี เรามองว่าเขาไม่ต้องการบริการเรา ให้ไปรอที่อื่นทั้งที่เราก็สั่งอาหารเหมือนกันแต่แค่นำกลับบ้าน ไม่มีเก้าสำหรับรอ,ติบริการ/ร้าน,negative,negative,agreed,2,wisesight_human
+T0134,อร่อยทุกอย่างเลยเชียว,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0136,ไปสั่งแมคโดนัลสาขาแถวนานาพนักงานบอกว่าไม่มีหมูเพราะเป็นโซนอสิลามอันนี้จิงหรือเปล่า,สอบถามเมนูอาหาร,neutral,neutral,agreed,2,wisesight_human
+T0137,ชานมไข่มุกจะเยียวยาทุกอย่าง #เสร็จจากยิมก็ยิ้มให้ของกิน,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0138,ยังมีเบียร์ช้างรวมในบุฟเฟต์อยู่อีกไหมครับ เมื่อก่อนไปบ่อย ปล. กลับมาอยู่ไทยได้ปีกว่าละครับ,สอบถามเมนูอาหาร,neutral,neutral,agreed,2,wisesight_human
+T0139,กินน้ำซุปดำนะอร่อยนะ,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0140,มีโปรบุฟเฟต์หรือค่ะถึงวันที่เท่าไรค่ะ,สอบถามโปรโมชั่น,neutral,neutral,agreed,2,wisesight_human
+T0141,วันนี้ลองเมนูน้ำมะพร้าวอัญชันของเอ็มเค หวานมาก ไม่มีกลิ่นทั้งกลิ่นมะพร้าวและอัญชันเลยอะ,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0145,ไปกิน mk เมื่อวาน 9 คน หมดไป 4500😅 เฉลี่ยตกหัวละ500 ตกใจ เอามือทาบอก เอา 500 นี้ไปกินบุฟเฟ่เพิ่มvatนิดหน่อย แล้วกินให้จุก คุ้มกว่าเยอะเลย นี่มาของหยิบๆย่อยๆ แต่ราคารวมอย่างโหด,ติบริการ/ร้าน,negative,negative,adjudicated,2,wisesight_human
+T0146,เลือกได้ 2 ซุป และน้ำจิ้มท่านละ 1 รสชาติค่ะ ^^,สอบถามเมนูอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0149,ไปค่ะ ทั้งโออิชิทั้งบารบีกอน 2อย่างเลย อิอิ😄😄,ชมอาหาร,positive,positive,adjudicated,2,wisesight_human
+T0150,นี่ๆ แมคนักเก็ต เค้าลดราคาพิเศษ 50% เหลือเพียง 50.- เท่านั้น (จากปกติ 85.-) เมื่อใช้บริการผ่านไดร์ฟทรู พิเศษเฉพาะลูกค้าที่มีสติกเกอร์ไดร์ฟทรู เริ่ม 5 ม.ค. ถึง 28 ก.พ. 61 - สาขาที่ให้บริการไดร์ฟทรู http://bit.ly/DriveThruTH #โปรดีบอกต่อ #แมคโดนัลด์ #ไดร์ฟทรู,สอบถามโปรโมชั่น,neutral,neutral,adjudicated,2,wisesight_human
+T0151,อร่อยจิง แต่ยังไม่ได้กิน ตัวสีม่วงเลยย,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0152,รีวิว เหล้า jameson โคตรกาก หวานเลี่ยนไม่อร่อยอย่างแรง,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0155,รสชาติเป็นไงพี่ กลิ่นแรงปะ ว่าจะลอง,สอบถามเมนูอาหาร,neutral,neutral,agreed,2,wisesight_human
+T0157,ใครคิดปาท่องโก๋ราดนม ราดสังขยามานะ อร่อยมากกกกฮือ กรอบๆ นุ่มๆ หวานๆ ลงตัวสุด ยอมใจอันนี้ 40 บาท กินได้ 2-3 คนเลย ซื้อที่ icon siam ชั้น sook siam จ้า,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0160,น้ำจิ้มอร่อยให้อภัยค่ะ ไม่เคยเจออะไรแปลกๆเลย ที่สำคัญไม่กินเนื้อวัว แฮะๆ,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0161,ไม่อร่อยเลย,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0162,วันนี้ไปทาน สาขาบิ๊กซีหัวหมาก พนักงานบริการดีค่ะ แต่เสียแค่เรื่องการเติมอาหาร ช้ามากกกกค่ะ,ติบริการ/ร้าน,negative,positive,adjudicated,2,wisesight_human
+T0163,อันนี้มีซูชิ,สอบถามเมนูอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0165,MK ยิ้มกริ่มเลย พรุ่งนี้หมี่หยกเต็มร้าน หิวจัด ไม่ต้องเสียค่าโฆษณายุ่งยาก เป็นไวรัล ติดเทรนเรียบร้อย เพราะเรื่องวิธีการกินล้วนๆ 5555 😁😅,ชมอาหาร,positive,neutral,adjudicated,2,wisesight_human
+T0166,555ไปกินถึงที่ คือไปกินของสดและถูก.แต่ถ้าไปแดกเบียร์ช้างขวดละ120ตามราคาเทศบาล.บอกเลย รวยทั้งหัวหิน. ขอแนะนำ ทะเลตรงไหนมันก็เหมือนกัน.ไปเที่ยวทะเลที่จัน บอกเลย อาหารสด ดี ถูก อร่อย..จริงๆ ค่าน้ำมันแพงกว่าค่ากินสองวัน6มื้อ,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0167,ไก่เคเอฟซีหร่อยกว่าแมคจืด,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0168,เมนูอะไร โฮการ์เด้น ?,สอบถามเมนูอาหาร,neutral,neutral,agreed,2,wisesight_human
+T0170,เกณฑ์การตัดสินและเงื่อนไข - กิจกรรม MK คิดชีสใหม่ ได้ซี้ดฟรี!,สอบถามโปรโมชั่น,neutral,neutral,adjudicated,2,wisesight_human
+T0172,อยากไอติมสตอเบอรี่ด้วย,สอบถามเมนูอาหาร,neutral,positive,adjudicated,2,wisesight_human
+T0173,ไม่สะอาด อาหารเช้าไม่สมราคา ห้องน้ำเหม็นมาก,ติบริการ/ร้าน,negative,negative,agreed,2,wisesight_human
+T0174,"การดื่มด่ำกับรสชาติที่ดีที่สุดเพื่อให้ได้รสชาติที่คลาสสิกนั้นมีวิธีดื่มที่ง่ายมากๆ ด้วยสไตล์ที่เรียกกันว่า ""ออน เดอะ ร็อก"" นั่นเอง หรือถ้าอยากจะผสมมิกเซอร์ แนะนำให้ใส่น้ำแข็ง วิสกี้ และน้ำเปล่า ด้วย ""อัตราส่วน 1 ต่อ 1"" แค่นี้ก็จะได้สัมผัสรสชาติที่แท้จริงของวิสกี้แล้วครับ",ชมอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0175,วันนี้ไปกินเอมเคละแบบพนงที่เปนเด่กมัดยมแบบบริการไม่ดีมากๆๆๆๆๆๆแต่กุก้ทำรัยมั่ยดั้ย,ติบริการ/ร้าน,negative,negative,agreed,2,wisesight_human
+T0177,พึ่งดูข้าวบาบีก้อนมีพยาธิในเนื้อเมื่อเช้า ตะกี้พี่ทักมาบอกอยากกิน ไปกินกัน............,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0178,วันนี้ไปจัดมาแล้ว อร่อยจุงเบย,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0179,ไปกินมาแล้วค่ะแต่อยากให้ชุดตอกไข่กลับมาอีก,สอบถามเมนูอาหาร,neutral,positive,adjudicated,2,wisesight_human
+T0182,ผมเอาแสงโสมเข้าไปกินได้ไหมแต่ซื้อบัตรนะ,สอบถามข้อมูลร้าน,neutral,neutral,agreed,2,wisesight_human
+T0183,ดูราคาที่ลงต่อขวด ต่อ อาหาร ที่ขาย ค่อนข้างแพงครับ โรงแรม รีสอร์ทผม ยังขายไม่ถึงเลย เบียร์ช้าง อย่างมาก ขวด ละ 70 บาท อันนี้ขวด 120 บาท แพงมาก ๆ ขนาดต่างชาติ ยังชาร์ดเซอร์วิส ขวดละ80-100 บาท เอง นี้ รีสอร์ท 5 ดาวนะครับ,ติบริการ/ร้าน,negative,negative,adjudicated,2,wisesight_human
+T0184,บาบีก้อนรึป่าว ย่างเกรียมๆหน่อยนะ จิ้มน้ำจิ้ม หืมมมมม😋😋,สอบถามเมนูอาหาร,neutral,positive,adjudicated,2,wisesight_human
+T0185,น้ำจิ้มอร่อยเด็ด = ร้อยเอ็ด ได้ปะ,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0187,กิน Mk ละไปกินบิงซู,ชมอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0188,กด wow ชอบรสชาติของ SPY Gold Series พอลองชิมแล้วติดใจมากๆ หรูไฮ ล้ำสมัยจริงๆ เวลามีนัดปาตี้กับเพื่อนก็จะนึกถึงรสชาติของSPY Gold คือของมันต้องมีก็จัดไปทุกซีรี่ย์เลยค่าา😁 เลยแนะนำรสชาตินี้ให้เพื่อนอีกหลายคนไปลอง เพื่อนบอกว่าหรูเริศมากค่ะ อร่อยจริงๆ 🖒,ชมอาหาร,positive,positive,adjudicated,2,wisesight_human
+T0189,แตงโม นอกจากจะช่วยควบคุมน้ำหนักได้แล้ว ยังช่วยให้ชะลอวัยได้อีกด้วยค่ะ #ชีวจิต #อาหารสุขภาพ,ชมอาหาร,positive,neutral,adjudicated,2,wisesight_human
+T0191,วิสกี้ Bell's เตรียมบุกไปพบคนจริงแห่งเมืองสระบุรี 24 พ.ย.นี้ กับคอนเสิร์ตคนจริงของจริง Be Real Concert สนุกสุดเซอร์กับศิลปินสุดแนว Polycat ที่ร้าน LONGNOUR จ.สระบุรี สำรองที่นั้งโทร 088-888-8888 #คนจริงของจริง #BellsWhisky #วิสกี้แท้สายพันธุ์อังกฤษ #รสชาตินุ่มแบบของจริง #BEREAL,สอบถามโปรโมชั่น,neutral,neutral,adjudicated,2,wisesight_human
+T0194,เมนูข้าวเด็ดๆ,ชมอาหาร,positive,neutral,agreed,2,wisesight_human
+T0196,คี่เหมือนเป็นคนเดียวที่ไม่อินบาบีก้อน;-; น้ำจิ้มมันถั่วอ่ะ ไม่ชอบ เกลียดกลิ่นถั่ว ไปกินได้ แต่ไม่จิ้มน้ำจิ้มอ่ะ...,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0198,ไม่อร่อย 😂 กินน้ำใสปกติเถอะ,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0199,ผมกินเเล้วรดชาติไม่อร่อยเลยสุ้ลีโอไม่ได้คับ,ติอาหาร,negative,positive,adjudicated,2,wisesight_human
+T0200,เมนูของหวานไม่ได้รวมอยู่ในเซตนะคะ มีให้บริการดังนี้ค่ะ ^^,สอบถามเมนูอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0201,เอมเค 370 บาท 5555+ แม่งมื้อเดียวอยู่ได้กี่วัน,สอบถามเมนูอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0202,ทำไม่เรารู้สึกว่าบาบิก้อนไม่อร่อยสู้ปิ้งย่างแบบตามร้านหมูกะทะทั่วๆไปไม่ได้คือกินแล้วไม่ได้ฟิวอะหรือลิ้นเราไม่ถูกกะของขึ้นห้างหว่า😂😂,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0203,ค่ายนี้ขนาดเบียร์สิงห์ที่เคยอร่อย ทุกวันนี้ยังปรับสูตรลดต้นทุนซะรสชาติไม่เอาอ่าว,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0204,เลือก Set หมู เมนูทานฟรี ปลาแซลมอนนอร์เวย์ ครับบ แล้วเจอกันนะพี่ก้อน,สอบถามโปรโมชั่น,neutral,neutral,adjudicated,2,wisesight_human
+T0205,เบื่อซูชิแบ๊ววววววว🤩,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0206,กินบุฟเฟ่เอ็มเคยังไงกูก็กินไม่คุ้มอะ,สอบถามโปรโมชั่น,negative,negative,adjudicated,2,wisesight_human
+T0207,อยากให้ทำอาหารให้เหมือนในรูปที่โฆษณา ทำมาทีไม่ว่าจะกินร้านหรือสั่งมากินบ้าน เบอร์เกอร์ขยุกขยุ่ย ผักไปทาง ชีสไปทาง เนื้อไปทาง ไปดูเบอร์เกอร์แบรนด์อื่นนู้น วางเบอร์เกอร์เรียบร้อยห่อมาอย่างดี,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0212,เมื่อวานกูบองกินแล้ว อร่อยเวอร์ สปายหลบไป,ชมอาหาร,positive,negative,adjudicated,2,wisesight_human
+T0213,มีแต่หมูกับเนื้อ อาหารทะเลมีแต่ปลาหมึกกรอบ นี้คือราคาที่สมควรมากคะ,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0214,เป็ดย่างเอ็มเคไม่อร่อยง่า งือออออ,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0215,ได้ไปทานเอ็มเคสาขาเซ็นศาลายา จะสั่งตอกไข่บอกหมดเขต แต่เพื่อนไปกินอีกที่ยังขายอยู่คืองงมากค่ะ,ติบริการ/ร้าน,negative,negative,adjudicated,2,wisesight_human
+T0218,รีวิวชาชีสเอ็มเค กล้าเรียกตัวเองว่าชาชีสหรอ5555555555555555555555555555555555,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0219,=+1คับบ เดี๊ยวนี้ไม่อร่อยเลย 😭,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0220,โลตัสพัทยาเหนือ..คุ้มค่ะ ที่ไหนให้หมูน้อย มาที่นี่เลยค่ะ อร่อย คุ้ม,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0222,"อ่านข่าวแล้วเหมือนบาร์บีคิว พลาซ่าอยากจะบอกว่า""สบายใจได้ ไม่ใช่พยาธิ แค่ฝีในเนื้อวัวที่มีหนองขาวขุ่นเอง""",ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0223,ต้องจัดล้าวละ55555 เพิ่งจัดเอ็มเคไปวันนี้👍🏻,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0224,รบกวนสอบถาม เรื่องการต่ออายุบัตรสมาชิก ทาง mk แจ้งว่าส่งบัตรให้ตั้งแต่เดือนมกราคม ปัจจุบันยังไม่ได้รับบัตรเลยค่ะ (แต้มสะสมได้ต่อบัตรฟรี),ปัญหาออเดอร์/จัดส่ง,negative,neutral,adjudicated,2,wisesight_human
+T0227,ลองแล้วใช้เบียร์ช้างอร่อยค่ะลีโอจืด,ติอาหาร,neutral,negative,adjudicated,2,wisesight_human
+T0228,รสชาติดีมากครับ กินง่าย ไม่ขมคอ,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0231,ลานเบียร์ยังน้อยไปสำหรับไฮเนเก้น ยุคนี้ต้องจัดปาร์ตี้ ส่งเบียร์สดถึงบ้าน เพื่อเพิ่มโอกาสในการดื่ม จะมีแพ็คเกจไหน ราคาเท่าไหร่ ไปดูกัน.. #Heineken #Beerpark #Stardeliveryservice #Brandinside https://brandinside.asia/heineken-beer-park/,สอบถามโปรโมชั่น,neutral,neutral,adjudicated,2,wisesight_human
+T0233,เห็นข่าวบาบีก้อนแล้วจะอ้วก /ของดปิ้งย่างไปอีกนาน,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0235,อะไรคือการที่เอ็มเคเอาเป็ดที่จองไว้จะไปรับตอนทุ่มนึงไปขายให้คนอื่น 😡,ปัญหาออเดอร์/จัดส่ง,negative,negative,agreed,2,wisesight_human
+T0237,อยากกินบาบีก้อน ไม่ใช่เอ็มเค ! :(,ติอาหาร,negative,neutral,adjudicated,2,wisesight_human
+T0239,ไปกินสาขาโรบินสันกาญจนบุรีของไม่เติมพอขอบ่อยๆก้อชักสีหน้า😞😞ขนาดราคา379นะค่ะ,ติบริการ/ร้าน,negative,negative,agreed,2,wisesight_human
+T0242,ทีเอ็มเคท่ามะกาใข้ไหมคะ,สอบถามข้อมูลร้าน,neutral,neutral,adjudicated,2,wisesight_human
+T0244,มู๋ตังกุว่าแวะเอ็มเค นางคงมักเป็ดมากกว่าปู,สอบถามเมนูอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0245,อีกละอยู่ๆก็ไปหยิบbreezerมากินแต่ที่บ้านเหลือแค่รสสตอไม่อร่อยเลอชอบพีชมากกว่า🍑,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0246,วันหยุดออกมากินข้าวกันเถอะ!!! ก่อน3ทุ่มลีโอ สิงห์ไลท์ ยูเบียร์ 55บาท สั่งได้ไม่อั้น!!! #239Vintage,สอบถามโปรโมชั่น,positive,neutral,adjudicated,2,wisesight_human
+T0247,ผมเจออาหารเป็นพิษครับสาขานี้ ไม่ไปอีกแล้ว,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0248,ยังจำรสชาติได้ยุติดลิ้นยุเลยตอนนี้555,ชมอาหาร,positive,neutral,agreed,2,wisesight_human
+T0249,แบบวอดก้าชอตก็ไม่อร่อย เบลนผสมก็ไม่อร่อย เบียธรรมดาก็ไม่อร่อย แดกยากเนอะ,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0250,นี่บอกเลยว่าเลิกกินบาบีก้อนแล้ว เราไปกินครั้งก่อนท้องเสียกระจายยยย,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0251,มื้อเที่ยงสุขสรรค์,ชมอาหาร,positive,neutral,adjudicated,2,wisesight_human
+T0252,อร่อยมาก ควรมีตลอด,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0253,วันแรกที่ท้องเสียกิน mk วันต่อมาเซเว่น วันนี้ก็เซเว่น,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0254,คงไม่ไปกินแล้วอ่าค่ะ เสียความรู้สึก พนักงานเดินกันไปๆมาๆ ไม่มีคัยสนจัยจะถามสักคน ปล่อยให้ลูกค้านั่งรออยู่ได้ ราคาก็แพง บริการห่วยแตก ไปกินที่ร้านอื่นราคาเท่ากันบริการดีกว่านี้เยอะ,ติบริการ/ร้าน,negative,negative,agreed,2,wisesight_human
+T0256,เปลี่ยนใจกินเอ็มเคไหม,สอบถามข้อมูลร้าน,neutral,neutral,adjudicated,2,wisesight_human
+T0257,แค่เบียร์ช้างขวดละ120ก้อแพงละ..แล้วมากันเยอะก้อจริง..ปริมาณอาหารสมราคาหรือป่าวล่ะ..ส่วนมากก้อจ้องจะชาร์ตกันยุละ..ทุกที่แหละครับ..ไม่ต้องวิเคราะห์อย่างอื่นหรอกครับ..แค่เบียร์ก้อรู้ละ..ต้นทุนมาเท่าไรขายเท่าไร..,สอบถามข้อมูลร้าน,negative,negative,adjudicated,2,wisesight_human
+T0258,แนะนำเลยร้านนี้บรรยากาศ​ชิวๆ​ อาหารอร่อย​มีตั้งแต่ซูซิ​ สเต็ก​ ปิ้งย่าง​ อาหารเริสมากต้องมากโดนจริงๆ​ เบียร์อร่อย​ มากันเยอะๆจ้า​ ร้านชื่อsaltland เด้อหาในเฟสโลด #รีวิวอุดร #รีวิวอีสาน,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0261,กินได้หมดแค่ขอพวกรสชาติธรรมชาติปกติพอ พวกโฮกาเด้น สเตลล่า หวานๆ ที่คนไทยเห่อๆกันหลายปีมานี้ผมนี่ไม่เอาเลย,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0262,ไปกินน้ำอย่างเดียวได้ปะ 55555,สอบถามเมนูอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0263,เดือนไหนแจกปฤิทิน จะไปกิน,สอบถามโปรโมชั่น,neutral,positive,agreed,2,wisesight_human
+T0264,กินอาหารจีนกันมั๊ย ที่ Mayflower รร ดุสิตก่อนที่ 6 มค นี้ รรเค้าจะทุบแล้ว ร้านนี้เมนูประจำคือพักทองชุบไข่เค็มกับปลาหมึกเหล้าแดง อร่อยที่สุด!!!,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0265,"บุฟเฟ่ต์เบียร์สด🍺 ""ช้าง"" 299 ยาวๆ ไป 18.00-21.00 น นะต๊ะ",สอบถามโปรโมชั่น,neutral,neutral,adjudicated,2,wisesight_human
+T0267,เข้าใจละว่าทำไมถึงมีสูตรกระป๋องดำๆ ที่ไม่อร่อย,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0268,ไม่ชอบชัส ค่ะ ไม่เคยพบว่ามันอร่อยค่ะ,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0273,ใช้พ้อยแลกส่วนลดแมคโดนัล,สอบถามโปรโมชั่น,neutral,neutral,agreed,2,wisesight_human
+T0274,แต่นี่ไม่ชอบเบียร์ช้างอะ รสชาติเหี้ย เหี้ยหมดเพราะไม่ชอบกิน ชอบพวกคอกเทลมากกว่า,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0276,ไมาเหมือนที่ไปกินเลย บางเบา,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0280,ถ้าเป็นเรื่องรสชาติยกให้ป๋องดำ แต่ถ้าเมา ก็เมาเหมือนกันหมดจ้าา,ชมอาหาร,positive,neutral,adjudicated,2,wisesight_human
+T0281,เบียร์ระดมกิมมิกแรงส์ปลุกยอด ไฮเนเก้นรุกสายปาร์ตี้เสิร์ฟดีลิเวอรี่ถึงบ้าน,ปัญหาออเดอร์/จัดส่ง,positive,neutral,adjudicated,2,wisesight_human
+T0282,ของขวัญปีใหม่ #ของขวัญปีใหม่จากบาบีคิวพลาซ่า #BarBQPlaza,สอบถามโปรโมชั่น,neutral,neutral,adjudicated,2,wisesight_human
+T0286,เพิ่งไปกินมาเอง ไม่อร่อย ร้านอื่นเส้ 555,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0288,ปะ กินเอ็มเคกัน ชีสอู๊ดๆ!! ตะกินตะกิน!!,ชมอาหาร,positive,neutral,agreed,2,wisesight_human
+T0289,พอกินอาหารทำเองบ่อยมากๆ เข้า ก็เพิ่งรู้สึกว่าเอ็มเคนี่เค็มแฮะ,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0290,อยากลองกินชาไข่มุกแมคโดนัลด์ ให้เพื่อนซื้อมาฝากมันจะเน่าก่อนมั้ย555555,สอบถามเมนูอาหาร,neutral,negative,adjudicated,2,wisesight_human
+T0293,วันนี้สาขา เซนฯแจ้งประมาณ 18.30 เติมของช้ามากๆ ผักหมดไปเกือบ20นาที กวางตุ้งหมด มาเติมก็เกือบจะอิ่มแล้ว โซนอาหารนานาชาติก็ว่างไป2พอต แถมไก่ย่างยังซ้ำอีก เหลือของไม่กี่อย่าง,ปัญหาออเดอร์/จัดส่ง,negative,negative,adjudicated,2,wisesight_human
+T0294,ไปกินแทบทุกอาทิตเลยค่ะ,ชมบริการ/บรรยากาศ,positive,positive,adjudicated,2,wisesight_human
+T0295,บุฟเฟต์ ซีฟู้ด หมูย่างเกาหลี,สอบถามเมนูอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0296,ทำไมมันเหม็นนนนนน เหมือนเครื่องเทศอาหารอินเดีย,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0297,ซูชิไม่มีอีกอ่ะ5555,สอบถามเมนูอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0299,บาร์บิก้อนวันนี้ไม่อร่อยเลย รู้สึกกินสารอะไรสักอย่าง จะอ้วก,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0300,แมคไก่ทอดน้ำเกลือ ใหญ่ กรอบเต็มคำ,ติอาหาร,negative,neutral,adjudicated,2,wisesight_human
+T0301,ช : ไปกิน บาร์บีกอน ทีไร ต้องสั่งใหม่ ทุกที ญ : อร่อยมาก ละสิ! ช : ได้น้อย!,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0303,มาทาน MK สาขานี้ พนักงานน่ารักมากๆ พี่ผช.ที่ออกสาวๆหน่อย ใส่ใจลูกค้าทุกโต๊ะเลย,ชมบริการ/บรรยากาศ,positive,positive,agreed,2,wisesight_human
+T0304,กด♥️ให้กับความเรียบง่ายของ Spy Cooler เป็น Spy ที่เห็นมาตั้งแต่จำความได้เลยค่ะจริงๆ ตั้งแต่ป้า มาอา มาพี่สาว จนมารุ่นตัวเอง ก็ยังกิน Spy สีโปรดเลยของหนูคือ classic สีชมพูเลยค่ะ อร่อย อมหวาน อมเปรี้ยว รสชาติถูกใจสุดๆ พูดแล้วก็อยากเลยทีเดียว #จัดไปกับทุกเทศกาล 🎉🎉🎉,ชมอาหาร,positive,positive,adjudicated,2,wisesight_human
+T0306,เชิญมาฉลองวันเกิดที่ MK กันนะคะ ^^,ชมบริการ/บรรยากาศ,positive,neutral,adjudicated,2,wisesight_human
+T0308,ทำไมเราไปกินไม่เห็นลดเบย,สอบถามโปรโมชั่น,negative,negative,agreed,2,wisesight_human
+T0310,อีพนักงานเอ็มเค ด้ายยยยยยยยย ด้ายยยยยยยยยย เดี๋ยวเจอคอมเพลน อิสัส,ติบริการ/ร้าน,negative,negative,agreed,2,wisesight_human
+T0311,ชาชีสลามมาเอ็มเคแล้วหรอ เอาจริงนะ คือมันไม่อร่อย,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0312,ไปกินแล้ว 2 คนคิดราคาเต็ม 379 ไม่เหนคิด 299 เลย สาขาซีค่อนบางแค ด้วย,สอบถามโปรโมชั่น,negative,negative,adjudicated,2,wisesight_human
+T0314,พี่หมีหอมกลิ่นข้าวสาลี หอมละมุน ริมรสชาติเหมือน โฮกาเดน. นิ่มนุ่มละมุน. ดีไซน์เก๋. กระป๋องสวยงาม หรูๆๆ,ชมอาหาร,positive,positive,adjudicated,2,wisesight_human
+T0315,“สังขยา พาสเทล” หนึ่งในเมนูไฮไลท์ของร้าน“Milky Good” อุดร ในช่วงหน้านาวนี้ สั่งทีเดียวได้สังขยา 4 รสไปเลย คือใบเตย + นมเย็น+ อัญชัน เเละ ชาไทย อยู่ข้างศูนย์มาสด้าเจริญศรี ถนน โพศรี เยื้องกับโรงแรมเจริญโฮเต็ล,ชมอาหาร,positive,neutral,agreed,2,wisesight_human
+T0316,หมูเขียว พอเอาออกก็ไม่ไปกินละ,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0317,"รับสิทธิ์ได้ที่ร้าน MK ทุกสาขา (ยกเว้น MK Gold, MK Live, MK Delivery) ค่ะ ^^",สอบถามโปรโมชั่น,neutral,neutral,adjudicated,2,wisesight_human
+T0318,โปรโมชั่น 343 จะช่วยซับน้ำตาคุณลูกค้าได้นะคะ แวะมาลองกันได้ที่ MK สาขาใกล้บ้านกันนะคะ ^^,สอบถามโปรโมชั่น,neutral,neutral,adjudicated,2,wisesight_human
+T0319,ขอถามคะ ในรูปเป็นแก้วอีกแบ ตอนสั่งใส่แก้วพลาสติก นั่งกินยุในร้าน ทำไมได้แก้วพลาสติกอะคะ #Mk โลตัสพระรามสาม,ติบริการ/ร้าน,negative,negative,agreed,2,wisesight_human
+T0321,กินมาแล้วอร่อยมาก...มีแบบสังกลับมากินต่อมั้ยคะ,ชมอาหาร,positive,positive,adjudicated,2,wisesight_human
+T0322,รอใบเสร็จเอ็มเคมาประมาณ10นาทีละ พนักงานเขาก็เดินมามอง ๆ เหมือนว่าทำไมเราไม่ไป เพราะเงินทอนมัน 1 บาทอ่ะ555555 พี่คะหนูจะเอาใบเสร็จ,ติบริการ/ร้าน,neutral,negative,adjudicated,2,wisesight_human
+T0323,ชานมหร่อยมากกก ไปลองมาละ,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0324,ชุดเอ็มเคเบิร์ดเดย์สุขใจ ไม่รวมกับส่วนลดคูปองวันเกิด 20% ค่ะ,สอบถามโปรโมชั่น,neutral,neutral,adjudicated,2,wisesight_human
+T0325,นังยำตัวดี!!! กินร้านนี้ทีไรคืออาหารเป็นพิษตลอด แนะนำว่าอย่าไปกิน ถึงเวลาจะผ่านไปนานก็ไม่ปรับปรุง สกปรกเหมือนเดิม แม่ค้าเอามือเปล่ากระซั่วไม่ใช้ไม้คีบคีบ🤮 ร้านที่ชื่อขึ้นต้นด้วย ‘คุณ’ ลงท้ายด้วย ‘ไย’ ร้านชื่อดังจังหวัดหนองคาย,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0328,ก็แนวเดียวกับสเมอร์นอฟแหละ รสชาติใกล้เคียงกระทิงแดง555,ติอาหาร,neutral,negative,adjudicated,2,wisesight_human
+T0329,ที่ไปกินสิงห์วันนั้นอ่ะหรา,สอบถามข้อมูลร้าน,neutral,neutral,adjudicated,2,wisesight_human
+T0330,แวะม่รับประทานมื้อเที่ยงที่ MK กันนะคะ ^^,สอบถามข้อมูลร้าน,neutral,neutral,adjudicated,2,wisesight_human
+T0331,เพิ่งไปกินชาบูชิมาก็ทำเป็นพูด,ชมอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0335,ไดซาชิเถอะ อร่อยกว่า จีจี,ชมอาหาร,positive,positive,adjudicated,2,wisesight_human
+T0337,เทคนิค: จับกล้อง ยกแก้ว (แชะ) รีบถ่ายเลยค่าาา เพราะองค์ประกอบทุกอย่างลงตัวอยู่แล้ว แค่เห็นก็อดใจไม่ไหวต้องรีบถ่ายรีบทานค่ะ แล้วจะพบกับความอร่อย 😊 ชอบ Lychee Midnight เพราะมีความหวาน หอม นุ่มละมุน ทานคู่กับเมนู MK ต่างๆเป็นความอร่อยที่ลงตัวที่สุดแล้วค่ะ ✨ #SnapTheMagicMomentwithMK,ชมอาหาร,positive,neutral,agreed,2,wisesight_human
+T0338,ยอมรับว่านานๆกินที เพราะแพงแล้วยังได้น้อย แต่อร่อยครับ คนก็เยอะ วู๊วว รอนาน ว่าแล้วก็อยากไปตำ 5555,ชมอาหาร,neutral,negative,adjudicated,2,wisesight_human
+T0339,กินข้าวยุบ้านดีกว่าเนาะ 555,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0340,ภาพเนื้อหมูบาบิก้อนติดตามากเลยอะ แอบทำให้รู้สึกไม่ค่อยอยากกินปิ้งย่าง ชาบูใดๆไปเลยช่วงนี้ ขอทำใจ 🤢💔,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0341,บุฟเฟ่ต์​กลับมาแล้ว รอบมึให้จัดหนักกันทุกสาขา แต่สาขากระทะดำที่ย่างแล้วอร่อยน้อยกว่ากระทะแบบทองเหลือง มีแต่ชุดแพงนะจ๊ะ #เอากระทะทองเหลืองของดราคืนมา #ดราม่าทำไม 555😂 #ไปกิน,ติบริการ/ร้าน,negative,negative,adjudicated,2,wisesight_human
+T0344,เมนูที่สั่งบ่อยๆคือ ปลาหมึกผัดเผ็ดกับหมูสามชั้น แล้วก็ไข่ตุ๋น ไข่ตุ๋นคือดี ร้อนๆกินตอนหนาวๆคือฟิน เมื่อก่อนชอบเรียกว่าร้านหมึกดุ เพราะพนักงานดุมาก แต่รอบล่าสุดไป ไม่ดุแล้ว55555 มาฮงแดก็คือต้องกินร้านนี้,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0348,ลองละไม่อร่อย รสชาติเหมือน285เลยอะ,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0349,ลองหลายทีและ ไม่โอเท่าไหร่ ราคาแพงไป ราคานี้ซื้อโฮกาเด้นอร่อยกว่ส,สอบถามเมนูอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0350,นี่ก็กินได้หลายอย่างนะยกเว้นสิงห์อ่ะรสชาติแปร่งมากไม่อร่อยอ่ะ555555555555555,ติอาหาร,negative,negative,adjudicated,2,wisesight_human
+T0353,"บาร์บีคิว พลาซ่า ยืนยันไม่ใช่พยาธิ โชว์ผลตรวจ ""ตุ่มขาวที่เนื้อ""",ติอาหาร,neutral,neutral,adjudicated,2,wisesight_human
+T0354,ไม่เอา ไม่อร่อย,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0355,เคยบ้าเอ็มเคกับแม่ กินอาทิตย์ละ3-4 วันติด โคตรหนักและโคตรเปลืองงงง,ชมอาหาร,positive,negative,adjudicated,2,wisesight_human
+T0358,ครั้งที่แล้วไปกินกว่าน้ำจิ้มที่เป็นแจ่วจะมาเสิร์ฟให้นานมาก ตอนเอามาให้คืองงว่าเอามากินกับอะไรเพราะกินเนื้อไปหมดแล้ว,ติบริการ/ร้าน,negative,negative,adjudicated,2,wisesight_human
+T0359,คือมะวานจะไปกินที่ซีคอนศรีนครินสรุปปิดจ้าคืออดเซ็งมาก,ติบริการ/ร้าน,negative,negative,agreed,2,wisesight_human
+T0360,แมคฟิชเมนูโปรด เพิ่มชีส2แผ่น🤤,ชมอาหาร,positive,neutral,agreed,2,wisesight_human
+T0362,โอ๊ย...ปิดปรับปรุงตั้งนาน..ไปกินสาขาอื่นก็ไม่เหมือนสาขานี้..ต้องหาวันว่างไปสะแล้ว,ติบริการ/ร้าน,neutral,negative,adjudicated,2,wisesight_human
+T0364,ที่สาขาไม่มีให้บริการค่ะ เฉพาะบริการเดลิเวอรี่เท่านั้นค่ะ ^^,สอบถามข้อมูลร้าน,neutral,neutral,adjudicated,2,wisesight_human
+T0367,กูเป็นคนเดียวรึป่าวว่ะที่คิดว่าบาบิก้อนแม่งไม่มีความอร่อยอ่ะน้ำจิ้มแปลกๆแล้วแพงสัส กะหล่ำนี่เยอะชิบหายอยู่ข้างล่างหมูอ่ะ 5555,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0369,เมนูฮิตที่ทุกคนคนชอบ,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0370,อย่กเสริม ข้าวก็ไม่ร้อนเวลาเสิร์ฟ. เป็นทุกครั้งที่สั่งค่ะ,ติบริการ/ร้าน,neutral,negative,adjudicated,2,wisesight_human
+T0372,อร่อยค่ะ ชอบๆๆๆ,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0373,หนูสั่งหมูกรอบนะคะ.. ไม่ใช่หมูแข็งนอกแข็งในแบบนี้..บางทีก็อยากให้ MK..ช่วยปรับปรุงคุณภาพอาหารบ้างไม่ใช่สักแต่จะขายไปวันๆ..เข้าใจว่าคนติดแต่หนูว่าเมื่อก่อนคุณภาพอาหารและน้ำจิ้ม..จะดีกว่านี้มากนะคะ..อยากให้ปรับปรุงคุณภาพหน่อยค่ะ..ไปกินบ่อยแต่ก็ไม่ค่อยปรับปรุง..,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0374,เห็นโฆษณาเอ็มเคละก็อยากกินบะหมี่หยกเป็ดย่างทันที ไอชิบหาย,ชมอาหาร,positive,negative,agreed,2,wisesight_human
+T0375,ไม่มีรสชาติอะไรเลย เสียใจ,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0376,ขออนุญาตตอบแทนนะคะ มีนานแล้วค่ะ อยู่ชั้น4 ใกล้ๆเอ็มเค กะยำแซบ,สอบถามข้อมูลร้าน,neutral,positive,adjudicated,2,wisesight_human
+T0378,ร้านก๋วยเตี๋ยวไม่มีชื่อ จุดสังเกตุคือตรงข้ามร้านกาแฟ ตั้งบักเส็ง ลูกชิ้นขาวเนื้อแน่นฟู เส้นเล็กเนื้อหนึบ,ชมอาหาร,positive,positive,agreed,2,wisesight_human
+T0379,mk ชีสละ,สอบถามเมนูอาหาร,positive,neutral,adjudicated,2,wisesight_human
+T0380,ชาชีสของเอ็มเคก็ไม่รอดเหมือนกัน ชีวปลอมมาก55555ดีหน่อยที่ชาเย็นไม่หวาน ร้านที่สยามดิสนี่อร่อยสุด สมราคาแล้วเมื่อเทียบกับของก๊อบ 😅,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0381,ไปกินคลีนๆๆๆ,ชมอาหาร,positive,positive,adjudicated,2,wisesight_human
+T0382,=+1 ค่ะ รสชาติต้องปรับปรุงด่วน,ติอาหาร,negative,negative,agreed,2,wisesight_human
+T0383,"39คิว รอวันนี้ได้กินพรุ่งนี้อ่อ😑 (@ MK Gold in Pathum Wan, Bangkok)",ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0386,ว่าจะไปกินละเชี้ยว.จบกัน,ติอาหาร,negative,neutral,single,1,wisesight_human
+T0387,สาขาเซนทรัลชลบุรีบริการแย่มากเลยนะคะ สั่งอาหารเป็นเซต ตอนมาได้แค่ข้าวจานเดียวกับน้ำซุปป่าวๆ ไม่มีเกี๊ยวมาให้ บอกอย่างเกี๊ยวหมด แล้วแบบนี้จะขายเป็นเซตทำไมคะ ? 👎🏿,ปัญหาออเดอร์/จัดส่ง,negative,negative,single,1,wisesight_human
+T0391,จะรอน้าาก้อนน ที่เซนทรัลพลาซ่าลำปาง คนเดินเยอะ ร้านอาหารเห็นคนเต็มตลอดนะคะ :),สอบถามข้อมูลร้าน,positive,positive,single,1,wisesight_human
+T0392,รอบุฟเฟต์บาบีก้อนน,สอบถามโปรโมชั่น,neutral,positive,single,1,wisesight_human
+T0398,เซตเมนู 343 บาทเหรอคะ👍🏻🤪,สอบถามโปรโมชั่น,neutral,neutral,single,1,wisesight_human
+T0403,ไม่ต้องไปกินไกลละ,สอบถามข้อมูลร้าน,positive,neutral,single,1,wisesight_human
+T0404,😬 เพื่อนพึ่ง (ภาฯ) เกษตรแฟร์ ปีนี้โซนอาหาร🍴จริงจังมากนะ 🤣 ดูแผนที่ซิเล่า บุกเข้าไปสำนักพิพิธฯ แล้ววว มีคนถามเยอะเรื่องขายของ โทร. 02561 4749 สำนักงานทรัพย์สิน มก. ใบสมัครโหลดเอาเด้อ ▶️,สอบถามข้อมูลร้าน,neutral,neutral,single,1,wisesight_human
+T0406,นั่นน่ะสิ ไว้ไปกินอย่างอื่นดีกว่าเนอะ,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0407,อร่อยครับชอบๆๆ,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0408,มันอร่อยมาก ลืมอ้วนกันเลยทีเดียว,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0409,อยากจี่ 😛 กูว่าแม่งจะไม่อร่อยก็ตรงสเมอนอฟเนี่ยย,ติอาหาร,negative,negative,single,1,wisesight_human
+T0410,ต้องสั่งน้ำซุปนี้เฉพาะหรือเปล่าคะ ถึงได้ราคา 299 ทุกวันจันทร์-ศุกร์ เมื่อวานไปกินมา โดนโปรวันพุธ ตกคนละ 310 คือเป็นโปร 299 เลยชวนกันไป เวลาลงโปร เขียนให้ชัดเจนหน่อยได้มั้ยคะ หรือเป็นบางสาขาที่จัดโปร ขอบคุณค่ะ,สอบถามโปรโมชั่น,negative,negative,single,1,wisesight_human
+T0412,MK สร้างสุขให้เด็กไทย...,ชมบริการ/บรรยากาศ,positive,neutral,single,1,wisesight_human
+T0413,วันนี้ ลุงไปกินเอ็มเคมาครับ กินครั้งแรก ผิดหวังมากครับ พนักงานเอาตะเกียบให้ลุงผิดคู่ มื้อนี้กินไม่อร่อยเลยครับ เหมือนคีบไม่ถนัด ทางเอ็มเค ระวังเรื่องนี้ด้วยน่ะครับ ขอบคุณครับ,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0414,โปรโมชั่น MK HAPPY LUNCH มีให้บริการคุณลูกค้าดังนี้ค่ะ ^^,สอบถามโปรโมชั่น,neutral,neutral,single,1,wisesight_human
+T0416,อยากกินบาร์บีกอนคัตสรรเซตหมู 🐽🐽🐽🐽🐽#BARBQPlaza 💕,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0417,จัดบ่ / แต่เมือนี้ไปชาบูก่อนแฮปปี้ๆ😅,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0418,ใช่ๆไม่ซ่่าส์ จิงๆกินแล้วไม่มีรสชาติของแป๊บซี่เลย,ติอาหาร,negative,negative,single,1,wisesight_human
+T0419,แวะมาดูก่อนนะคร๊าบบบ ก้อนมีให้เลือกเยอะเลย http://www.11street.co.th/store/barbqplaza,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0421,ตามกะเเสร์จริงฯยุกไฮเท็กต่อไปก็คงจะสั่ง เอ็มเค,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0422,ชั้นได้เมนูของฟรีล่ะ,สอบถามโปรโมชั่น,neutral,positive,single,1,wisesight_human
+T0424,หิวแต่ออกไปกินไม่ได้พี่หัวหน้ายังไม่มา จะสั่งแมคก็แพง 😂 เลยนึกถึงร้านอาหารตามสั่งปากซอยจำได้แต่ไม่รุเบอร์โทรแต่นึกได้ว่าชื่อร้านเป็นภาษาฝรั่งเศสเลยลองพิมพ์ดูเจอด้วยเลยรอด 😂 ค.เด็กศิลป์ฝรั่งเศสช่วยชีวิต 😃😂,สอบถามข้อมูลร้าน,neutral,negative,single,1,wisesight_human
+T0427,กลางปี อีกหลายเดือนอ่ะ ปีที่แร้วมีกุมภาพันธ์ปีนี้คืออะไรอ่ะ กลัวเจ๋งหรอ โปรโมชั่นไม่ตรงคอนเซ็ปท์เลย บาร์บีคิว พลาซ่า,สอบถามโปรโมชั่น,negative,negative,single,1,wisesight_human
+T0428,เบียร์ช้างกับเคเอฟซี5555,ชมอาหาร,neutral,neutral,single,1,wisesight_human
+T0430,เย็นแล้วมาทานอาหารเย็นกันครับ ฟังดนตรีสดเบาๆ จิบเบียร์เย็นๆ สิงห์ไลท์ ลีโอ ยูเบียร์ ขวดละ 52 บาท วันศึงุกร์แห่งชาติ ฉลองโดนหวยแดก!!!!!!,ชมบริการ/บรรยากาศ,positive,neutral,single,1,wisesight_human
+T0431,เครื่องดื่มที่รสชาติละมุน นุ่มลิ้น หวานคออย่างBLEND285ไง พอรวมตัวกับ เดอะแก๊งส์ มันก็จะกลมกล่อมหน่อยๆนะ,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0432,"Live!! งาน ""Bell's Be Real Concert"" คนจริงของจริง #รีวิวเชียงใหม่ ตะลุย Party มีทั้งยีนส์แนววินเทจและดนตรีแนวบริทิสคูลๆ กับเบลล์ วิสกี้ ที่ร้านนาเบะ ใครผ่านมาทางนี้แวะด่วน!! มีวงพอสขึ้นตอน 4 ทุ่ม นะฮะ ไปตะลุยกันเลยยยยยย #BellsWhisky #คนจริงของจริง #วิสกี้แท้สายพันธุ์อังกฤษ #รสชาตินุ่มแบบของจริง",ชมบริการ/บรรยากาศ,positive,neutral,single,1,wisesight_human
+T0436,ชีสเล็กมากๆๆๆ ลดต้นทุนใช่มั้ยคะ แมคโดนัลด์ไทยแล้นนนน,ติอาหาร,negative,negative,single,1,wisesight_human
+T0437,งั้นไปบิ๊กซี แม็คโดนัลด์ ไอติมโคน5บาท คริคริ,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0438,อะไรคือการกินสเมอร์นอฟรสใหม่ที่รสชาติเหมือนยาแก้ไอไปหนึ่งกระป๋อง แล้วเมา 5555,ติอาหาร,negative,negative,single,1,wisesight_human
+T0439,กินข้าวซุ้มกะแซ่บนะ,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0440,เออนี่ไม่ชอบเบียร์ช้างอะ รสชาติแม่งแบบ แต่ตอนวันเกิดนี่นี่กินได้แต่แม่งเลือกได้ไม่ซื้อต่อแน่นอน กลับไปแดกไวน์ธรรมดาต่อไป,ติอาหาร,negative,negative,single,1,wisesight_human
+T0442,ตืดวัวที่เจอในบาบีก้อน นี่ว่ามันเป็นเรื่องบังคับกันไม่ได้100%อ่ะ แต่คือก่อนเสิร์ฟก็ไม่เอาส่วนที่ไข่ตืดออกไง พนง.ร้านก็ผิด ลูกค้าไม่ควรมาเจอค.พะอืดพะอมนี้,ติอาหาร,negative,negative,single,1,wisesight_human
+T0443,เอาจริงๆเมื่อก่อนปีใหม่ก็กินไก่ทอดสลับกันทุกวันก่อนหยุด.... เค้บซี แมคดี เท๊กสัสส 555555555555,ชมอาหาร,neutral,negative,single,1,wisesight_human
+T0444,ยกให้เป็นอีก1เมนูในดวงใจ Chizu Brûlé ชานมไข่มุกวิปชีสเบิร์นน้ำตาล ตัววิปชีสหอมมันได้กลิ่นน้ำตาลไหม้นิดๆ ตัวชาไม่ได้หวานมากกำลังพอดีกับน้ำตาลที่มากับไข่มุกหนึบๆ กลิ่นน้ำตาลทรายหอมดีอะชอบ📍Kamu,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0445,เมนูคุณหนู(เมนูเด็ก)มีตัวไหนแนะนำบ้างค่ะ,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0446,"สาวๆจากทาง Johnnie Walker พร้อมของขวัญพีเมียม ในวันลอยกระทง ที่ร้านอาหาร The Stories Korat 💕 The Stories Korat Restaurant &Bar. Tel : 044-251-181 Mobile: 088-8888888 Line : the_stories Facebook: www.facebook.com/stories 04 Address: 86 ,ถนน กุดั่น, ตำบลในเมือง,อ.เมืองนครรรชสีมา,จ.นครราชสีมา 30000",สอบถามข้อมูลร้าน,neutral,neutral,single,1,wisesight_human
+T0448,วันก่อนไปกินก้อน ก้อนเปลี่ยนไป ก้อนใช้มะนาวปลอม เหม็นเหมือนน้ำยาทำความสะอาดเลย,ติอาหาร,negative,negative,single,1,wisesight_human
+T0449,ไอศกรีมรสชาติใหม่,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0450,เที่ยงพรุ่งนี้ว่าจะไปกินสักหน่อย แต่พออ่านคอมเม้นแล้วเปลี่ยนใจไม่ไปกินดีกว่า,ติบริการ/ร้าน,negative,neutral,single,1,wisesight_human
+T0452,ไม่หาไรกินดีกว่า shabu หรือ mk buffe’,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0455,ช่วงหลังไม่ได้ไปกิน mk เลยจ้า,ติอาหาร,neutral,negative,single,1,wisesight_human
+T0456,นี่มันไม่ใช่แค่ระแวงพยาธิในหมูบาร์บีกอนแล้ว แต่นี่ระแวงนานาทุกชนิดหมูที่ต้องไปแดกพวกปิ๊งย่างชาบูงี้ แงงงง 😭😭😭😭😭,ติอาหาร,negative,negative,single,1,wisesight_human
+T0457,บาบิก้อนไม่เท่าไหร่ หมูกระทะข้างทางเนี่ย เสี่ยงกว่าอีกไอชิบหาย นี่ไม่ดูอะ แดกอย่างเดียว - -,ติอาหาร,negative,negative,single,1,wisesight_human
+T0458,ไม่อยากแดกเอ็มเคไปอีกนาน,ติอาหาร,negative,negative,single,1,wisesight_human
+T0461,แมคโดนัลของจีนครับ^^,สอบถามข้อมูลร้าน,neutral,neutral,single,1,wisesight_human
+T0462,คุณลูกค้าหมายถึงเลือกอาหารที่จะใช้คูปองหรือเปล่าคะ,สอบถามโปรโมชั่น,neutral,neutral,single,1,wisesight_human
+T0464,อยากกินชาบู เอ็มเค ปิ้งย่างง เบื่อข้าวรชโว้ยยย,ชมอาหาร,neutral,positive,single,1,wisesight_human
+T0465,เมื่อกี้ไปกินแล้ว ไม่ยักกะบอกว่า เป๊ปซี่ลดราคา พึ่งทำบัตรสมาชิกด้วยซำ้,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0466,ถ้าซื้อ 2ปอนด์มานี่ งานช้างเลยนะ .. ครั้นจะแบ่งไปให้คนอื่นกินก็ละอายอ่ะ มันไม่อร่อยอ่า,ติอาหาร,negative,negative,single,1,wisesight_human
+T0467,กินแม็ค ทุกวันนิ ไปกินที่ญี่ปุ่นแล้วเอามาฝากเค้าด้วย,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0469,"อิ่มท้องกับ เอ็มเค"" พร้อมลุ้นเที่ยวญี่ปุ่นฟรีกับ ""กรุงศรี คอนซูมเมอร์"" แพ็คเกจทัวร์ 6 วัน 4 คืน 10 รางวัล รางวัลละ 2 ที่นั่ง รวมมูลค่า 1,700,000 บาท ที่เอ็มเคสาขาที่ร่วมรายการ ตั้งแต่วันนี้ - 31 มกราคม 2561 #MK #Krungsri #เที่ยวญี่ปุ่นฟรี #MarketPlusOnline",สอบถามโปรโมชั่น,neutral,neutral,single,1,wisesight_human
+T0471,โอ้ย ขนลุก กูแพ้285 กินแล้วขนลุกซู่เลยสัสสสส เกลียดรสชาติสุดๆ,ติอาหาร,negative,negative,single,1,wisesight_human
+T0472,อวสานชานมไข่มุก 😭,ติอาหาร,negative,negative,single,1,wisesight_human
+T0473,กรณีลูกค้าไม่ได้สั่งอาหารสดทาง MK จะไม่มีน้ำจิ้มให้นะคะ แต่ถ้าลูกค้าต้องการขอเพิ่ม ทางสาขาจะให้เป็น 1 ถุงเล็กค่ะ,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0474,แต่เราจะแดก Kfc แทนบาบีก้อน,สอบถามเมนูอาหาร,neutral,negative,single,1,wisesight_human
+T0475,นอกจากน้ำซุปหม่าล่าน้องใหม่สุดเผ็ดร้อน และยังมีเมนูที่ตามมาติดๆกันอีก นั่นก็คือ ข้าวผัดจักรพรรดิ และ เป็ดพะโล้ผัดต้นหอมญี่ปุ่นให้เติมกันแบบไม่อั้นอีกด้วย ที่ HOT POT BUFFET ใกล้บ้านคุณทุกสาขานะ #HOTPOTBUFFET #DIYBUFFET #ซุปหม่าล่า #ข้าวผัดจักรพรรดิ #เป็ดพะโล้ผัดต้นหอมญี่ปุ่น,สอบถามเมนูอาหาร,positive,neutral,single,1,wisesight_human
+T0478,"ตามนี้นะ??!! ""บาร์บีคิว พลาซ่า"" ออกโรงเเถลงผลตรวจสอบ""เนื้อวัว""เเล้ว?? ประเด็นร้อนสนั่นโลกออนไลน์ ลูกค้าโพสต์เจอสิ่งเเปลกปลอม??!!(รายละเอียด)",ติอาหาร,neutral,neutral,single,1,wisesight_human
+T0479,เต้าเจียวหรืออะไรที่ไข่ไก่ เค็มมากค่ะ น้ำซุปก็ค่อนข้างเค็ม บอกตรงว่าไม่กล้ากินอีก ต้องเปลี่ยนอาหารจานเดียวแทน,ติอาหาร,negative,negative,single,1,wisesight_human
+T0480,คิดดูมันคุ้มมั้ยคะ ถ้าไปกิน 2 คน ค่าเช่าชุดปาไปเท่าไหร่แล้วคะ แล้วยังไม่รู้อีกว่าไปกินสิทธิ์เต็มหรือยัง ถ้าเต็มคือเสียค่าเช่าชุดฟรีจ่ะ,สอบถามโปรโมชั่น,neutral,negative,single,1,wisesight_human
+T0481,เอ็มเค. ไม่อิ่มนะราคานี้,ติอาหาร,negative,negative,single,1,wisesight_human
+T0482,แพงค่ะน้ำจิ้มมีอย่างเดียวไม่อิ่มค่ะ..,ติอาหาร,negative,negative,single,1,wisesight_human
+T0487,อยากกินบาบีก้อนด้วย แต่ปิ้งย่างเกาก็ดี แง,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0490,เจอ 2 รอบแล้วค่ะ สั่งอาหารที่ร้านมากินที่บ้าน ของไม่เคยครบ แต่เงินคิดครบ แปลกแต่จริง,ปัญหาออเดอร์/จัดส่ง,negative,negative,single,1,wisesight_human
+T0491,มันคือฝีหนองงง 😨 #เจริญอาหารมั้ยล่ะ,ติอาหาร,negative,negative,single,1,wisesight_human
+T0492,เมนูคนโสดคนเดียวก้กอนได้55,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0493,น่าลองไปกินเน๊อะ,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0495,วันนี้ไปทาน mk มา ตั้งใจไปทานเพราะอยากได้รูป เพราะได้มาทุกๆ ปี แต่เสียใจไม่เห็นพนักงานมาถ่ายรูปให้เลยค่ะ 😓😓😓,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0496,เพิ่งไปกินมาวันนี้ กลิ่นตุๆค่ะไม่โอเคเลย,ติอาหาร,negative,negative,single,1,wisesight_human
+T0497,คุณลูกค้าติดต่อ MK Call Center 02-222-2222 ได้เลยค่ะ ^^,สอบถามข้อมูลร้าน,neutral,neutral,single,1,wisesight_human
+T0501,เมนูใหม่มาแล้ววววว 😍😍😍,สอบถามเมนูอาหาร,positive,positive,single,1,wisesight_human
+T0502,วันนั้นไปกินเบียช้างที่ตะวันแดง1ทาว เลยได้มาอะ,สอบถามโปรโมชั่น,neutral,neutral,single,1,wisesight_human
+T0505,อยากรู้ว่าเดี๋ยวนี้ฮอตพอตรสชาติและความอร่อยดีกว่าเมื่อก่อนมั้ย เคยกินเมื่อ6ปีที่แล้ว รู้สึกไม่ประทับใจเลยยย,ติอาหาร,negative,negative,single,1,wisesight_human
+T0507,ของเรามีไม่กี่น้ำจิ้มเอง,ติอาหาร,negative,negative,single,1,wisesight_human
+T0509,ใช่เข้าแอฟก้ยาก ไม่มีเมนูอะไรด้วย งงมากมีแต่โปรโมชั่น,ปัญหาออเดอร์/จัดส่ง,negative,negative,single,1,wisesight_human
+T0510,"ข้าวเหนียวหมูทอดยุค 4.0 ต้องอย่างงี้ ทอดไร้น้ำมันมีถึง 5 รส: หมาล่า, ปลาร้า, ต้มยำ, เขียวหวาน และน้ำผึ้งทานกับข้าวเหนียวสีสันน่าทานสุดๆ หมูนุ่มชิ้นใหญ่อร่อย ชุดหมูสายเปย์ (ปรกติ 430 ลดเหลือ 349) เซ็ทจัดหนักสำหรับ 6 คน 📌 Here Dolce (เฮียดอยซ์) เดลิเวอรี่",ชมอาหาร,positive,positive,single,1,wisesight_human
+T0511,ส่วนพรี่เบื่อเอ็มเคแร้ว,ติอาหาร,negative,negative,single,1,wisesight_human
+T0512,สรุปแล้วเลยกินบุฟเฟ่ต์กันแบบเปรมประชากรมากๆ สั่งแซลมอนซาซิมิแบบรัวๆ 😂 พร้อมขนมหวานปิดท้าย ตกคนละ 350 พอดิบพอดี ถูกกว่าเอ็มเคเมื่อวานอีก 😒,ชมอาหาร,positive,negative,single,1,wisesight_human
+T0513,บาร์บีคิวพลาซ่า แถลงผลตรวจชิ้นเนื้อวัวไม่พบพยาธิ-ขอโทษลูกค้า,ติบริการ/ร้าน,neutral,neutral,single,1,wisesight_human
+T0514,เมื่อวานพึ่งไปทานมา สาขาโลตัสท่านา นครปฐม น้ำจิ้มไม่เหมือนเดิม ดำเข้มขึ้นและเค็มมาก ไม่รุ้แต่ละสาขาน้ำจิ้มสูตรเดียวกันป่าว,ติอาหาร,negative,negative,single,1,wisesight_human
+T0515,เล็กลงมา แต่ดีเท่าเดิม 😘 แวะมาหาได้ที่เซเว่นน๊า 💛#ubeer ❤️ ฮิพหน่อยแต่อร่อย 😂,ชมอาหาร,neutral,positive,single,1,wisesight_human
+T0517,555 อยากกิน mk อยากกินหมูกรอบ,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0519,จิงๆเราจิ้มน้ำ แต่ทำไมเค้าเรียกน้ำจิ้มคับ,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0520,เป็นเหมือนกัน น้ำเปล่ามีรสชาตินะเว้ยย สิงห์นี่ขอบาย กินไม่ลง,ติอาหาร,negative,negative,single,1,wisesight_human
+T0521,B1 ไม่ชอบกินไอติมอะ B2,ติอาหาร,negative,negative,single,1,wisesight_human
+T0522,ก่อนนอนอีกแล้ว mk 😂,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0524,คิดว่าไม่เเพงนะเพราะกินตั้ง13คนคิดเเล้วก็คนประมาณ500กว่าบาท.ไปกินเอ็มเค2คนก็เป็นพันเหมือนกัน..นานๆๆทีกินอาหารทะเลซื้อความสุขให้ตัวเองค่ะ,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0526,ค่ะมีป้ายติดหน้าร้านค่ะ แล้วก็ไปกินในช่วง จัน-ศุก ด้วยค่ะ,สอบถามข้อมูลร้าน,neutral,negative,single,1,wisesight_human
+T0527,망원동티라미수 ติดใจจนต้องไปซ้ำ ครั้งนี้ลองมันทุกเมนูเลย สรุปคือชอบแบบออริจินอลกับสตอเบอร์รี่ที่สุด ส่วนถ้าคนชอบหวานน่าตะชอบโอริโอ้ ส่วนเครื่องดื่ม เราชอบreal chocolate สุด มันไม่หวาน แต่ก้ไม่ได้ขม อร่อยดี #รีวิวเกาหลี #อร่อยไปแดก #คาเฟ่เกาหลี,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0528,คิดถึง ซีเหมิงติ้ง/นี่ ชวนล่วงหน้า บาบีก้อนมีรีฟิวเเล้วนะ จะไปกินหลังปิดเล่มธีสิส กลับบ้านก็จะไปกินอีก 55555555555555555555555,สอบถามโปรโมชั่น,positive,neutral,single,1,wisesight_human
+T0529,มีทุกสาขาไหมค่ะ เมื่อวานไปกินที่เซ็นทรันบางนามาไม่เหนมีเลย,สอบถามข้อมูลร้าน,neutral,neutral,single,1,wisesight_human
+T0530,มีแค่บาบิก้อนเอ็มเคหมูทะและบลาๆๆๆๆๆๆๆๆที่จะหยุดน้องได้,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0531,พาไปกินหน่อย kfc ด้วย อยากกก,ชมอาหาร,neutral,positive,single,1,wisesight_human
+T0532,กำลังนอนดูเมนูเอ็มเค 555,สอบถามเมนูอาหาร,neutral,positive,single,1,wisesight_human
+T0533,อันนี้น้ำจิ้มไม่อร่อย,ติอาหาร,negative,negative,single,1,wisesight_human
+T0535,"กด ha ha ชอบ spy cocktail หอมหวาน,อร่อย ดื่มเย็นๆสดชื่นดีครับ",ชมอาหาร,positive,positive,single,1,wisesight_human
+T0536,ดื่มกาแฟไม่เป็น ปกติดื่มชายี่ห้อheineken,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0540,เหมือนเอ็มเคทำพิษอะ,ติอาหาร,negative,negative,single,1,wisesight_human
+T0544,เป็นเมนูให้บริการช่วงมื้อเที่ยงนะคะ ^^\,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0545,เบียร์ช้างอร่อยน้า,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0547,อ่านคอมเม้นแล้วไม่อยากไปกินเลย ดูสิ,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0548,กด❤ให้กับความเรียบง่ายของSPY Cooler ชอบรสชาติสุดคลาสสิค นุ่มละมุนละไม ดื่มง่าย เหมาะกับเราที่สุด,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0549,ข้าวผัดกระเทียมไม่อร่อยเลยค่ะ ><,ติอาหาร,negative,negative,single,1,wisesight_human
+T0550,เอ็มเคไหมละค่าา555,สอบถามข้อมูลร้าน,neutral,neutral,single,1,wisesight_human
+T0552,สาขาแถวที่บ้าน ไม่ค่อยเติมซูชิ หน้าซาลม่อน ให้รอจนอิ่มกว่าจะเติมที สาขาอุตรดิตถ์,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0553,คหสตนี่ว่าลีโอไม่อร่อยอะให้กินลีโอกุกินช้างดีกว่า นุ่มคอกว่าเยอะ,ติอาหาร,negative,negative,single,1,wisesight_human
+T0556,🥤 #ตุ๊กตาชานมไข่มุก #น่ารักน่ากินงั่มมม เรามาถึงจุดที่มีตุ๊กตาชานมไข่มุกกันแล้ววว นุ่มนิ่มน่ากอด น่ากินด้วยอะงื้อ แก้วเล็ก 285.- เป็นพวงกุญแจได้ด้วย แก้วใหญ่ 495.- งุ้ยรักน้องงง~ 📆 วันนี้เป็นต้นไป📍 โซนของเล่น @สยามพารากอน #ปันโปร #ชานมไข่มุก #ของมันต้องมี #แท็กเพื่อนมาดู,สอบถามโปรโมชั่น,positive,positive,single,1,wisesight_human
+T0557,ขอถามหน่อยนะค่ะพวกเราไปกินมา4คนตอนคิดว่า299แต่มาจ่ายตังพนักงานบอกว่า1596บาทนะค่ะอยากจะทราบว่าราคาปกติเท่าไหร่ค่ะ,สอบถามโปรโมชั่น,negative,negative,single,1,wisesight_human
+T0559,อร่อยจนติดจมูก5555😋,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0560,เบื่อไก่อยากกินเอ็มเค,ชมอาหาร,neutral,negative,single,1,wisesight_human
+T0561,อยากกินเอ็มเค็ม 55,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0562,คิดถึงสาขาชั้นใต้ดินเซียร์รังสิตมากครับ ไปกินกับเพื่อนๆบ่อยมาก,ชมบริการ/บรรยากาศ,positive,negative,single,1,wisesight_human
+T0563,ผมกินที่กรุงเทพร้านแถวริมน้ำ blackสองขวด อาหาร โซดา น้ำ โค๊กไม่ถึง11คน ดื่มเหล้าสี่คน รวมบิลเก้าพัน อาหารทะเลมีสองอย่าง😃😃,ติอาหาร,negative,neutral,single,1,wisesight_human
+T0566,มันต้องแบบนี้ครับออกมายอมรับผิดชอบแบบนนี้ ว่าแต่เมื่อไรกอนจะจัดโปรบุฟเฟ่ต์,สอบถามโปรโมชั่น,neutral,positive,single,1,wisesight_human
+T0568,ชัดขนาดนี้แวะมาลอง 343 ที่ MK สาขาใกล้บ้านกันนะคะ ^^,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0569,....บาบีก้อนอร่อยเหรอ พี่ไปกินครั้งเดียวไม่กินอีกเลย,ติอาหาร,negative,negative,single,1,wisesight_human
+T0570,ขอบ่นก่อนนอนนิดนึงวันนี้ไปกิน mk ที่เมเจอร์รังสิตมาเออมันมีบุฟเฟ่ด้วยความที่นี่ไปกับเพื่อนแค่สองคนถ้าสั่งแบบเซตยังไงก้เกินราคาบุฟอยู่แล้วนี่เลยเลือกแบบบุฟ 415 บาท โอเคเวลา 1ชม15นาที น้อยสัส เพื่อนเราเลยถามพนง.ว่า พอหมดเวลาต้องลุกออกเลยหรือยังไง,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0571,พลาดและไปกินแม็ค,ติอาหาร,negative,neutral,single,1,wisesight_human
+T0572,เรากิน mk ก็ท้องเสีย,ติอาหาร,negative,negative,single,1,wisesight_human
+T0573,น่าลอง รสชาติเป็นไง,สอบถามเมนูอาหาร,neutral,positive,single,1,wisesight_human
+T0574,กินยังงง ชาเย็น เห็นมีคนบอกอร่อย,ติอาหาร,neutral,positive,single,1,wisesight_human
+T0575,ศุกร์ช่วงกลางวันมั้ย มีบัตรพิซซ่า 1 แถม 1 อีก 2 ใบด้วย,สอบถามโปรโมชั่น,neutral,neutral,single,1,wisesight_human
+T0576,4กับ2ชุดชีสแซ่บอู๊ดอู๊ดและ1กับ3ชุดแซ่บซีฟู้ด#MKRestaurants#สุขเอ่อล้นที่MK#มากินที่MK,สอบถามโปรโมชั่น,positive,neutral,single,1,wisesight_human
+T0577,ไม่อร่อยยยเเบบที่คิดอ้ะ //ความคิดเห็นส่วนตัวค่ะ,ติอาหาร,negative,negative,single,1,wisesight_human
+T0578,เบียร์ไทเกอร์รสชาติ”👣”มาก,ติอาหาร,neutral,negative,single,1,wisesight_human
+T0579,ที่สาขาบิ๊กซี สุขสวัสดิ์ ก้อนยังไม่มีชุดรีฟิล (บุฟเฟ่ต์) ร่วมรายการนะครับ^^,สอบถามโปรโมชั่น,neutral,neutral,single,1,wisesight_human
+T0580,อ่อผมไปกินเบียร์ช้างแล้วได้มาค้าบ. คงเป็นโปรของทางร้าน,สอบถามโปรโมชั่น,neutral,positive,single,1,wisesight_human
+T0581,"วันนี้มาแนะนำร้านอาหาร Feed the beast ตรงซอยเจริญนคร 45 ค่า สั่ง ribs half rack แล้วก็ snack platter มี chicken wings, nachos, pulled pork มาให้ในเซ็ต อร่อยเหมือนกินอยู่เมกาเลยเทอ เอาปากดูดๆคือเนื้อหลุดมาหมดแล้วอ่ะ เค้าทำมานุ่มมากก มีเบียร์เยอะด้วยจ้า ไปลองๆ #อร่อยไปแดก",ชมอาหาร,positive,positive,single,1,wisesight_human
+T0582,มีปล่อยอิสระบ้าง แต่ส่วนมากไม่ถึงชั่วโมง เป็นเวลากินข้าว หรือไม่ก็ให้นั่งให้ยืนโง่ๆ การบรีฟงานก็ห่วย ไม่ต้องบรีฟก็ได้ ถึงเวลาจริงการบรีฟไม่ช่วยอะไรเลย บอกมีปัญหาให้ติดต่อสตาฟบางคน ถึงเวลาจริงติดต่อไม่ได้ ถ้ารับมือไม่ได้ก็โดนด่าทั้งลูกค้าทั้งจากบริษัทเอง,ติบริการ/ร้าน,negative,neutral,single,1,wisesight_human
+T0583,ขอโทษทีค่ะ ตัวนี้จะมีจำหน่ายเฉพาะที่ แมคโดนัลญี่ปุ่นค่ะ,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0585,เปิดเทอมคราวนี้น้ำหนักจะลดก็ให้มันรู้ไป สัส จะเที่ยงคืนมาหาของกิน ทั้งที่วันนี้...ติ่มซำ mk starbucks แหลมเจริญ........โอ้ชิด,ชมอาหาร,positive,negative,single,1,wisesight_human
+T0586,เบียร์ยูเป็นเบียร์ที่กูจะกินครั้งนี้ครั้งแรกและครั้งสุดท้าย รสชาติ.... มาก,ติอาหาร,negative,negative,single,1,wisesight_human
+T0588,รอกินไอติมแมคมาประมาณครึ่งชม.แล้วจ้าาาา,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0589,ถ้าเบียร์ช้างจัดโปร+น้ำลิ้นจี่ จะอร่อยคล้าย ฮูกาเดิน ... มีเฮ,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0590,วันนี้ไปทานที่สาขาโลตัสหลังสวน ปลาหมึกสดเก่ามากมีกลิ่น เป็ดก็ทั้งแข็งทั้งเค็มเหมือนอุ่นมาหลายๆรอบ ของสดหลายๆอย่างคุณภาพแย่มากคะ สั่งของไปเยอะแยะ หมดเกินครึ่ง คือไปทานตอน สี่โมงเย็น ของหมดเกิน 10 รายการ ปกติเป็นทาสเอ็มเคมาเกิน 10 ปีนะคะ แต่บอกจากใจจริงรสชาติและคุณภาพของสดของสาขานี้แย่ที่สุด,ติอาหาร,negative,negative,single,1,wisesight_human
+T0592,กินเมื่อวานนี้ยุสีเกดไม่เหนลดเลยครับ แต่ดียุอาหารอร่อย,สอบถามโปรโมชั่น,negative,negative,single,1,wisesight_human
+T0593,ไปกินคนเดียวได้ปะคะ 5555,สอบถามข้อมูลร้าน,neutral,neutral,single,1,wisesight_human
+T0594,วันก่อนไปกินเอมเคตามน้องฟ้าด้วย กินน้ำจิ้มน้อยลงด้วย,ติบริการ/ร้าน,neutral,negative,single,1,wisesight_human
+T0595,กูไม่ชอบน้ำจิ้มบาร์บีก้อน,ติอาหาร,negative,negative,single,1,wisesight_human
+T0596,ช่วงนี้อินสีชมพู Sparkling peach ตอบโจทย์ รสชาติน่ารักกว่าสปาย หาซื้อง่ายที่เซเว่น ราคาไม่แพงด้วยยยย 🍑 #รีวิวขี้เมา,ชมอาหาร,positive,negative,single,1,wisesight_human
+T0599,ในส่วนของเมนูข้าวหน้าเป็ดย่างปกติจะเสิร์ฟพร้อมน้ำซุปเห็ดหอมค่ะ สำหรับเมนูข้าวในโปรโมชั่น MK HAPPY LUNCH จะได้รับน้ำซุปเกี๊ยวหมูค่ะ,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0601,Mk Palio เขาใหญ่แย่มากเลยครับ บางทีมาถึง 19.30 หนาร้านเขียนปิด 20.00 แต่พนักงานแจ้งว่าปิดร้านแล้วหลายรอบมาก วันนี้มาถึง 19.10 พนง. แจ้งว่าให้สั่งทีเดียวเลยครัวจะปิดแล้ว จากนั้นไม่เกิน 15 นาทีมีนักท่องเที่ยวจีนมา พนง. เอาป้ายปิดแล้วไปกันหน้าร้าน,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0603,ซุปนี้อร่อย... ชอบๆๆๆๆ,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0605,บาร์บีก้อนก็มีบุฟเฟต์แล้วนะ,สอบถามโปรโมชั่น,neutral,positive,single,1,wisesight_human
+T0606,รสชาติไม่สมราคา “เย็นชืดจืดสนิท”,ติอาหาร,negative,negative,single,1,wisesight_human
+T0607,อยากให้มีตุ๊กตาเป็ดเอ็มเคเหมือนสติ๊กเกอร์เป็นพรีเมี่ยม แลกซื้ออะไรแบบนี้ครับ อยากได้ๆๆๆๆ!!,สอบถามโปรโมชั่น,neutral,positive,single,1,wisesight_human
+T0608,ถูกกว่าพิซซ่า555,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0609,ขอบคุณครับ ฝากด้วยครับ เมื่อก่อนผมจะชอบดื่มไฮเนเก้นมาก ด้วยที่ชอบความนุ่มลื่นและฟองที่มันดื่มง่าย เดี๋ยวนี้ผมว่ารสชาตเปลี่ยนจากเดิมไปเยอะ รสชาติเข้ม ขม จนเหมือนเบียร์ตลาดล่างๆไปแล้ว ... ติเพราะรักและชื่นชอบมาก่อนครับ ถ้ารสชาตเดิมกลับมา ผมมีติดตู้เย็นเหมือนเดิมแน่ๆครับ,ติอาหาร,negative,positive,single,1,wisesight_human
+T0611,รอแต่เอ็มเคละ 😂,ชมอาหาร,neutral,neutral,single,1,wisesight_human
+T0612,รสชาตินุ่ม ดื่มลื่นคอไม่ค่อยฝืน สำหรับใครที่ไม่ชอบกลิ่นวิสกี้ แนะนำนำเลยROYAL STAG รับรองไม่มีกลิ่นฉุน,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0613,"วันนี้มาเปิดตัวงาน Heineken ""Star Dellivery"" บริการจัดปาร์ตี้อย่างสะดวกสบายตามสไตล์ของคนเมือง รับรองไม่ผิดหวังแน่นวล... อิอิ ⭐️💚 #กลับไม่ดึก #Heineken #StarDeliveryService",ชมบริการ/บรรยากาศ,positive,neutral,single,1,wisesight_human
+T0614,คนรอบาบีก้อนยาวกว่าชาบูอิก อิควัยอยากกินไรมะได้กิน,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0615,แกๆ ปิ้งย่างนะๆๆ หอมดี,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0616,ขอตอบได้มั้ย ในฐานะคนทำงาน MK ก็ได้ หมี่หยกมันลวกมาพร้อมทานแล้วจริงๆนะคะะะ จากการฝึกงานในครัวเป็ดมา 4 วัน ยืนลวกบะหมี่หยกตลอดเวลาเลยค่ะะ ขายดีมากเว่อร์ 555555555 ถ้าเอาลวกในหม้ออีกรอบมันจะยุ่ยและเปื่อยรสชาติมันก็จะไม่ original แล้วนะคะ 55555555 #ทีมไม่ลวกหมี่หยก,ชมอาหาร,neutral,neutral,single,1,wisesight_human
+T0617,กราบขอบพระคุณเอ็มเค🙏มากๆนะคะ ที่ส่งเค้กปีใหม่มาให้ เรียกว่าส่งมากินกันทั้งออฟฟิตไม่หมดเลยอะคะ ขอบพระคุณที่สุด ❤️❤️รักเอ็มเคมากๆ😘😘😘,ชมบริการ/บรรยากาศ,positive,neutral,single,1,wisesight_human
+T0619,ไปกินมา สาขาเดอะมอล์โคราช ของน้อยมากไม่เติมของเลย,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0620,เรา❤️SPY Cooler สุดๆเลย นุ่มละมุนลิ้น ดื่มได้บ่อย อร่อยไม่เคยเปลี่ยน ดื่มได้ทุกเทศกาล ค่ะ,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0623,แต่สปายทำรสไรมาก็ไ่ค่อยอร่อย,ติอาหาร,negative,negative,single,1,wisesight_human
+T0624,เมนูเหล้าปั่น jack daniel honey ผสมไอติมวนิลาครับ ดูดลื่นนุ่มคอหอมหวาน เมาแบบไม่รู้เรื่องกันเลยทีเดียว 5555,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0628,ทีร้าน MK มีให้บริการในส่วนของเป็ดย่างเท่านั้นค่ะ ^^,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0629,กินเอ็มเคทีไรขี้แตกทุกที,ติอาหาร,negative,negative,single,1,wisesight_human
+T0634,breezer melon ทำไมรสชาติมันเเปลกๆวะ หรือคิดไปเอง,ติอาหาร,negative,negative,single,1,wisesight_human
+T0636,Spyรสชาติองุ่นอร่อยซ่าไม่คลื่นไม่เมาบอกเลยว่าชอบมากๆ,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0638,เหมือนสมัยเด็กๆมึงหัดกินเบียร์สิงห์นั่นแหละ แดกปุ๊บอยากบ้วนทิ้งปั๊บ เหี้ยไรเนี่ยเป๊บซี่ยังอร่อยกว่า สุดท้ายข้ามขั้นไปแดกเหล้าขาวนู้น,ติอาหาร,negative,neutral,single,1,wisesight_human
+T0639,น้องส้มตำปูปลาร้าบวกเบียร์ช้าง ยาวดี55555,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0641,วันสุขไปกินบาบีก้อนน,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0643,เอ็มเค เป็ดอร่อย,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0645,อร่อย ทีม. หิวววว,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0646,กุแดกละกลับมาแดกลีโออร่อยกว่า555,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0647,เก็บเงินไปกินบาบีก้อนก่อน 555,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0648,เบียร์ ลีโอ ชุด299 พอ วันนั้นกูไปกิน 499 กินไม่หมด,ติอาหาร,neutral,neutral,single,1,wisesight_human
+T0650,ไม่กินละพอรสชาติเหมือนกัน อีเบียร์หมีนี่ก็เหมือนกัน แย่,ติอาหาร,negative,negative,single,1,wisesight_human
+T0651,ขออนุญาตค่ะ ไปกินmkมาสาขาบิ๊กซีขอนแก่นมา2 ครั้งค่ะ เจอแมลงวันมา2ครั้งแบบนี้ควรปรับปรุงบ้างนะค่ะ จากที่ทานอร่อยๆทานไม่ลงเลยค่ะ,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0652,ดีแล้วยู เบียร์ไม่อร่อย 55555,ติอาหาร,negative,negative,single,1,wisesight_human
+T0653,ครั้งแรก !! กับเมนูที่ Thai Pro Eater กินไม่หมด งานนี้จัดใหญ่ อร่อยจุใจกับ Street Food กรุงเทพฯ พลาดแล้วจะเสียใจ #อลังการจานช้าง #อร่อยฮาน้ำตาไหลน้ำลายท่วม #ช้าง #Chang #ChangSensoryTrails,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0654,ไม่น่ากินสปายอ่ะ ง่วง กินกาแฟไม่ได้ 🤷🏻‍♀️,ติอาหาร,negative,negative,single,1,wisesight_human
+T0655,รายการเมนูเบียร์ช้างมาแล้วครับ,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0656,ทำไมกินเอ็มเคทุกครั้งต้องปวดขี้ว่ะ55555 งงคือมันร้อนหรอเลยปวดงิอ่อ🤣,ติอาหาร,negative,negative,single,1,wisesight_human
+T0657,ฝากร้านนนนน O-PA’ อร่อยทุกอย่างเลยน้าาาาา ใครมาหนองคายไปตำเด้ออ 📍พิกัด : ซอยข้างสกุลคูเจริญ ตรงข้ามปั๊มเอสโซ่ ร้านสีเหลืองๆ,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0658,"ชุดนี้เลย ""เบริ์ดเดย์เฮฮา"" ไม่ว่าจะวันเกิดตัวเอง พ่อแม่ พี่น้อง เพื่อนฝูง ก็ชวนไปทำบัตรสมาชิก สั่งชุดวันเกิด อร่อย คุ้ม มีของให้ทานเยอะมาก แถมมีของขวัญเล็กๆน้อยๆ ให้อีก วันเกิดทีไร ต้องพากันไปฉลองที่บาร์บีคิวพลาซ่าทุกที",ชมอาหาร,positive,positive,single,1,wisesight_human
+T0659,ถึงคราว MK ทำร้านขนมตัวเอง ชื่อ MK Harvest รสชาติโดยรวมไม่แย่ ราคาไม่แพง สมน้ำสมเนื้อ วาฟเฟิลฮ่องกงเนื้อเบาดี ชอบกว่าแบบต้นตำรับ ส่วนไอติมทับทิมกรอบข้างล่างมีวุ้นมะพร้าวด้วย อร่อยมาก ปิดท้ายด้วยชากุหลาบผลไม้แก้เลี่ยน พนักงานบริการดี ร้านอยู่แถวๆ MK Live เอ็มควอเทียร์,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0660,สีสวยแบบนี้แวะมาลองกันที่ MK สาขาใกล้บ้านกันนะคะ ^^,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0661,ไม่ได้กินนาน เพิ่งไปกิน เดี๋ยว นี้ ราคาแพง มากจิงๆ ไม่คุ้มกับอาหาร หมูก็ เหนียว ที่เซนทัลเวอ์ นะ,ติอาหาร,negative,negative,single,1,wisesight_human
+T0662,กาแฟใส่เบียร์ Hoegaarden ?,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0664,ราคาสูง ส้มตำ 60 บาท ผัดไทย 100 น้ำเปล่า 20 โค๊ก 30 เบียร์ช้าง 80 ปาดเหงื่อแว่บ,ติอาหาร,negative,neutral,single,1,wisesight_human
+T0665,บาร์บีคิวพลาซ่า แถลงภาพเนื้อผิดปกติไม่ใช่พยาธิ,ติอาหาร,neutral,neutral,single,1,wisesight_human
+T0666,- สำหรับร้าน MK Gold buffet ที่เปิดขายทุกวัน มีสองสาขาคือ - สาขาศาลาแดง - สาขาEsplanade รัชดา - สำหรับร้าน MK Gold buffet ที่เปิดขายเฉพาะวันจันทร์ - ศุกร์ มีรายชื่อสาขา ดังต่อไปนี้ 1.สาขาเอกมัย 2.สาขาเซ็นทรัล เวิล์ดค่ะ ^^,สอบถามข้อมูลร้าน,neutral,neutral,single,1,wisesight_human
+T0668,เออ กินละ โฮการ์เด้นก็ไม่ได้อร่อยขนาดนั้นอะ อืมๆ กินเบียร์ถูกดีกว่า55555555,ติอาหาร,neutral,negative,single,1,wisesight_human
+T0669,นึกว่าสิเอาเงินไปกิน ไฮเนเก้น,ติอาหาร,negative,neutral,single,1,wisesight_human
+T0671,ไม่สายติ่มซำว่ะแต่เอ็มเคได้อยู่ อยากกินเป็ดดดดดดดด,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0672,สละลอยแก้วก็ไม่อร่อย,ติอาหาร,negative,negative,single,1,wisesight_human
+T0673,ใช่ เพราะหลัง ๆ ร้านเหล้าไม่ค่อยขายแสงโสม ต้องหันไปกิน 285 ซึ่งแพงกว่า ไม่ใช่ทาง 5555555555555,ติอาหาร,negative,negative,single,1,wisesight_human
+T0675,อร่อยมากจิงๆๆต้องลอง,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0678,เล่นครบแล้วพี่ มุกได้ไม่ดีเลย ได้น้ำจิ้ม นั่ง2ชม ฟรีมันกุ้ง,ติบริการ/ร้าน,neutral,negative,single,1,wisesight_human
+T0679,"นั่งกินกาแฟอยู่ในร้าน มีน้องผู้ชายเดินถือแก้วเยติแบบอลูมิเนียมสีเงินๆเดินมาซื้อกาแฟ เจ้าของร้านเดินออกมาบอกน้องเค้าว่า ""ที่ร้่านไม่ได้มีโปรฯลดราคาสำหรับคนที่เอาแก้วมาใส่เองนะคะ"" น้องเค้าบอก ""ผมไม่ได้มาขอลดราคา ผมแค่อยากช่วยลดขยะพลาสติกในประเทศ"" กุหน้่าชาแทนเจ้าของร้าน",ติบริการ/ร้าน,negative,neutral,single,1,wisesight_human
+T0682,โชคชัย4ก็มีลานเบียร์นะ!! มีบุฟเฟต์เบียร์สิงห์ ลีโอ และ โอทิงเกอร์ด้วย!! ราคาไม่แพง! ใครอยู่แถวนั้นไปลองดูได้ครับ!,ชมอาหาร,positive,negative,single,1,wisesight_human
+T0683,5555 ล่าสุดปิ่นเกล้าก็ไม่อร่อย,ติอาหาร,negative,negative,single,1,wisesight_human
+T0684,บาบีก้อนหมูแม่งดีมากนะ เนื้อก็ดี แต่นี่เกลียดน้ำจิ้มมันฉิบหาย,ติอาหาร,negative,negative,single,1,wisesight_human
+T0685,เบียร์ช้างไมรสชาติแย่ขนาดนี้.,ติอาหาร,negative,negative,single,1,wisesight_human
+T0687,เบียร์บ๊วย / เหล้าบ๊วยพีช ร้านกินเฮอาหร่อยค่ด ยอมเมาตาย ถ้าชอบบ๊วยควรลองจริงๆๆๆๆ,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0688,กูว่าเอ็มเคไม่พัง พวกเรากินน้อย ไม่คุ้ม,ติอาหาร,negative,negative,single,1,wisesight_human
+T0689,เดี๋ยวนี้เค้าจะเปิดร้านกาแฟหรอเจ็ง,สอบถามข้อมูลร้าน,neutral,neutral,single,1,wisesight_human
+T0692,หืมต้องร้านส้มตำมะ 5555,สอบถามข้อมูลร้าน,neutral,neutral,single,1,wisesight_human
+T0693,อร่อยจุง,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0694,บาร์บีคิวพลาซ่า เผยผลทดสอบชิ้นเนื้อ ยืนยันไม่พบพยาธิ #บาร์บีคิวพลาซ่า #ไม่พบพยาธิ #BarBQPlaza #MarketPlusOnline,ชมอาหาร,neutral,neutral,single,1,wisesight_human
+T0695,เอ้ยยยยย แบบนี้แวะมาทานมื้อเที่ยงที่ MK กันนะคะ ^^,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0697,ปรากด แพงกว่าค่าอาหาร,ติอาหาร,negative,negative,single,1,wisesight_human
+T0698,ร้อนต้องกราบขออภัยทีทำให้ไม่ได้รับความพึงพอใจในคุณภาพการบริการ และอาหารด้วยนะครับ...ทั้งนี้ ก้อนยินดีขอน้อมรับทุกๆคำแนะนำ/ติชม เพือนำข้อมูลที่ได้รับไปปรับปรุง แก้ไข และพัฒนา ให้ดียิงขึ้นต่อไปนะครับผม :'(,ติบริการ/ร้าน,neutral,negative,single,1,wisesight_human
+T0699,รบกวนถามหน่อยค่ะมีสาขาไหนบ้างคะ ที่มีบุฟเฟต์,สอบถามโปรโมชั่น,neutral,neutral,single,1,wisesight_human
+T0700,พะแนง/ขี้เมา. อร่อย,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0701,บอกเลยว่าต้องกินแบบเย็น ถ้าไม่เย็นนี่ไปไม่รอดแน่นอน ให้ 7.5/10 รสชาติขม แต่ไม่มากเหมือนพวกลีโอ ระดับความเมานี่ไม่น่าจะมี,ติอาหาร,negative,negative,single,1,wisesight_human
+T0702,อยากกิน ฉลองความโสดของมึงกะกู ในเมื่อบาร์บีคิวพลาซ่าา มันอร่อยมันจึงคู่ควรกับความโสดของเรา555555,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0705,เราไม่รู้ เราไม่ทานเนื้อวัว แต่ที่แน่ๆ เดี๋ยวนี้ข้าวผัดกระเทียมไม่อร่อย ไม่หอมเนย ไม่หอมกระเทียม เมล็ดข้าวแห้งๆ เย็นชืด ทั้งที่เมื่อสมัยเรายังเด็ก ข้าวผัดกระเทียมของบาร์บีก้อนคือเบอร์1 แท้ๆ,ติอาหาร,negative,negative,single,1,wisesight_human
+T0706,สาขาเดอะมอล์ท่าพระยิ่งกินอาหารเริ่มน้อยลงดูแล้วอาหารไม่มีอะไรเลย,ติอาหาร,negative,negative,single,1,wisesight_human
+T0707,อยากให้ปรับปรุง 1. พนักงานหน้าไม่ต้อนรับลูกค้าเลย (เหมือนไปขอรับบริจาคอาหารเลย) เจอหลายสาขามาก 2. แม็ค ชุดปกติ 159.- แต่เปิดมา ดูธรรมดามากเลยค่ะ ขนมปัง เนื้อ และเศษผักกาดแก้ว (อยากให้ลองไปดูของ BERKER KING ค่ะ ของเค้าทำหน้าทานมากค่ะ,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0710,ไปกินบาร์บิกอนครั้งแรก จำได้ว่าหิวน้ำมาก พนง.ก็เดินมาวางเหยือกกะแก้ว อินี่ก็เทน้ำใส่แก้ว และรีบกินทันทีเพราะหิวน้ำมาก กินหมดแก้วก็สงสัยทำไมน้ำมันเค็มๆจังว่ะ พอหันไปมองโต๊ะข้างๆ อ่าวอิเหี้ย นั่นมันน้ำซุป คือแบบทำไมโต๊ะอื่นพนง.เทให้เลย ละโต๊ะฉันเขามาวางเฉยๆอ่ะ #เรื่องมันช่างหน้าอาย,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0711,ไม่ชอบกินเบียร์ มีบุฟเฟ่ต์แสงโสม หงส์ทอง แม่โขง ไรแบบนี้มั้ย,สอบถามเมนูอาหาร,neutral,negative,single,1,wisesight_human
+T0712,ไม่เคยกิน eristoff แต่เห็นเพื่อนชิมแล้วบอก รสชาติแปลกอ่ะะะ,ติอาหาร,negative,negative,single,1,wisesight_human
+T0714,ล่าสุดแดกไก่ทอดแมคไปชิ้นเท่าบ้านเลย เฟรนฟรายอีกกล่องใหญ่ 555555 ไม่ต้องผอมละอีสัส,ชมอาหาร,positive,negative,single,1,wisesight_human
+T0716,รสชาติเค็มอะปรับหน่อยนะคะ,ติอาหาร,negative,negative,single,1,wisesight_human
+T0719,รสชาติดีคับ กินนิ่มกลิ่นไม่แรง หวานๆ เอาง่ายๆกินดีคับ ดีกว่า หงส์ 285 อีก รสชาติเหมือน 100Piper แต่ฉุนน้อยว่า,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0720,บอกแล้วไงชีสเอ็มเคไม่อร่อย อย่าเลยแต่ถ้าเลี้ยงก็ได้หมดแล้วแต่ขุ่นพี่เลย,ติอาหาร,negative,negative,single,1,wisesight_human
+T0721,กินมาแล้วค่ะก้ออร่อยค่ะบริการไม่ค่อยประทับใจค่ะเพราะพนักงานไม่ยิ้มค่ะสาขาโลตัสบางพลีค่ะ,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0722,ปกติเท่าไหร่นะวันนั้นพาฟิล์มไปกินของมันน้อยอ่ะ,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0724,อยากบอกว่า MK สุกี้มีสาขาที่ญี่ปุ่นด้วยนะ! คนอยู่ญี่ปุ่นนี่ไม่ต้องคิดไปถึง #ทีมไม่ลวกหมี่หยก หรือ #ทีมลวกหมี่หยก เลยค่ะ เพราะ... ที่นี่ไม่มีหมี่หยกให้ทาน (´･ω･｀) //ในเมนูมีแค่เส้นบุก วุ้นเส้น อุด้ง กับหมี่เหลือง...(´；ω；`),ติอาหาร,neutral,neutral,single,1,wisesight_human
+T0725,เปนลูกค้ามากว่า20 ปีละคร่าและจะเปนตลอดไป รักเอ็มเคที่ซู๊ตตตต,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0727,เป็นลีโอที่จืดสัส เหมือนกินน้ำที่รสชาติเฝื่อนๆ,ติอาหาร,negative,negative,single,1,wisesight_human
+T0728,รสชาติคล้ายๆ โฮกาเด้น ออริจินอล,ชมอาหาร,neutral,neutral,single,1,wisesight_human
+T0730,ไปนั่งรอที่โต๊ะเกือบครึ่งชม.ครั้งสุดท้ายแล้วค่ะ จะไมไปกินอีกแล้ว โมโหหนักมาก,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0731,ขอบคุณที่แวะมาอิ่มอร่อยมื้อเช้ากับก้อนกันนะฮ้าบบ😘,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0732,ไปกินฮอทพอทย้อมใจ,ชมอาหาร,neutral,neutral,single,1,wisesight_human
+T0733,เอ็มเคงี้ แต่พูดตรงๆว่าไปกินเอ็มเคทีไรไม่เคยอิ่มอ่ะ เดินไปซื้อข้าวซื้อชาเขียวข้างบ้านดีกว่า,ติอาหาร,negative,negative,single,1,wisesight_human
+T0734,สรุป/ไม่อร่อย/ได้น้อย/แพง🙅,ติอาหาร,negative,negative,single,1,wisesight_human
+T0735,ไม่อร่อยเลยสู้ไก่กรอบแบบเก่าไม่ได้,ติอาหาร,negative,negative,single,1,wisesight_human
+T0739,หิวเมื้อไรก็แวะมา บาร์บีกอนนนนน #อยากกกกกก,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0741,ลีโอ..ต้องขอนแข่น.กับสิง.ถึงจะได้รสชาติ..ถ้าเป็นปทุมนี่ผมไม่กินเลยจืดมาก..,ติอาหาร,negative,neutral,single,1,wisesight_human
+T0742,ทำไมชุดทะเลของ MK มีปลาดอลลี่ครับ ทั้งๆ ที่มันก็คือปลาสวาย,สอบถามเมนูอาหาร,negative,neutral,single,1,wisesight_human
+T0743,งานช้างงงงครัช!!! วันเสาร์ที่ 24/2/2561 พบกันที่ แตงโมทะเลเผา อาหารสด ดนตรีเพราะ เบียร์เย็นๆ...,ชมบริการ/บรรยากาศ,positive,neutral,single,1,wisesight_human
+T0747,เข้าห้างครั้งแรกครับช่วยแนะนำเมนูแม็คโดนัล อร่อยๆทีครับ🧐,สอบถามเมนูอาหาร,neutral,positive,single,1,wisesight_human
+T0750,อร่อยจังเลย. อยากไปบ่อยๆ แต่ล่าสุด ไป ขอพริกกระเทียม ไม่รู้พนักงานไม่พร้อมบริการหรือเปล่า กระชากถาดพริกแถมมองบน ถ้าไม่พร้อมทำงาน น่าจะจัดเตรียมของให้พร้อมก่อนให้ลูกค้านั่งนะ,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0753,สอบถามหน่อย บัตร MK หมดอายุแล้วแจ้งพนักงานแล้วนะงานบอกว่ารอบริษัทติดต่อกับบัตรใหม่ยังไม่ได้แล้วปัดเก่ายังใช้ได้อยู่หรือเปล่าคะ,สอบถามโปรโมชั่น,neutral,neutral,single,1,wisesight_human
+T0754,แลดูอร่อย,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0755,กำลังนั่งกินที่ สาขาบิ๊กซี 2 นครสวรรค์ ไม่มีเมนูนี้ครับ,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0756,ผิดหวัง เมื่อวันเกิด 29/12/60 พาลูกน้องไปเลี้ยง13คน เซนทรัลแจ้งวัฒนะ ซูชิไม่มีเลยเอาออกมานับชิ้นได้ ถาดโล่งประมาณ95% พอออกมาคนก้อรุมกันตัก เพราะคนเยอะมาก แน่นร้านต้องรอคิวโต๊ะ กินครั้วแรกกับที่นี่ ผิดหวังอย่างแรง,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0757,สิ่งที่ช่วยเติมเต็มรสชาติความอร่อยนะในมื้ออาหารนะหรอ ก็คงจะหนีไม่พ้น เครื่องดื่มเย็นๆ “เบียร์ช้าง”เสียงดนตรีและเดอะแก๊งนั้นเอ้งงงงง❤️❤️❤️,ชมบริการ/บรรยากาศ,positive,neutral,single,1,wisesight_human
+T0758,สวัสดีครับ คุณรุ่งรัชฏ์ ก้อนต้องกราบขออภัยสำหรับคุณภาพอาหารที่คุณรุ่งรัชฏ์ ได้รับในครั้งนี้ด้วยนะครับ ทั้งนี้ ก้อนรบกวนขอทราบสาขาที่คุณรุ่งรัชฏ์เข้าใช้บริการ เพื่อนำข้อมูลนี้ไปปรับปรุง แก้ไข คุณภาพอาหารต่อไปนะครับผม,ติอาหาร,neutral,neutral,single,1,wisesight_human
+T0759,เอ็มเคเถอะ,ชมอาหาร,neutral,positive,single,1,wisesight_human
+T0760,กุไม่กินฮอตพอท อาหารเป็นพิษกับแม่งสองรอบ เลิกแดกตลอดชีวิต,ติอาหาร,negative,negative,single,1,wisesight_human
+T0761,อร่อยจนตัวบวม🙊🤫,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0763,เชิญเพื่อนกินเอ็มเคไปคร่าาาา,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0764,พี่หมี แชร์ให้แล้วนะ ขอ voucher ด้วยอยากพาครอบครัวไปกินคร้า we❤️ Bar B Q Plaza,สอบถามโปรโมชั่น,neutral,neutral,single,1,wisesight_human
+T0765,ราคาอาหารน่ะไม่เท่าไรร้อก มะพร้าวลูกละ60 โค้ก60 น้ำ 50 เบียร์ช้าง 120 พวกนี้ล่ะแพง,ติอาหาร,negative,negative,single,1,wisesight_human
+T0769,สปายแม่งรสชาติอย่างกับน้ำล้างตีน,ติอาหาร,negative,negative,single,1,wisesight_human
+T0770,บารฺบีกอน ได้น้อยสุด เปลืองตังค์สุด ในบรรดาอาหารประเภทเดวกัน ไป2 คน ฟมดไม่ต่ำกว่า2 พันแน่,ติอาหาร,negative,negative,single,1,wisesight_human
+T0773,เออวันก่อน กินแอปโซลูทรสมะม่วง แบบราสเบอรี่โคตรเลี่ยนแล้วนะ เจอมะม่วงเข้าไป กินเพียวแทบอ้วกแต่กินกับสไปรท์อร่อยกว่าทุกรส ชอบ55555,ติอาหาร,neutral,negative,single,1,wisesight_human
+T0776,6 ก.พ 61 เวลา11.00-12.00 น. MK โลตัสบึงกาฬ,สอบถามข้อมูลร้าน,neutral,neutral,single,1,wisesight_human
+T0777,ทานเอ็มเคไหม,สอบถามข้อมูลร้าน,neutral,neutral,single,1,wisesight_human
+T0778,ขายวิญญาณให้แมคโดนัลด์​,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0779,มีน้ำจิ้มเด็กที่มีส่วนผสมของเต้าหู้ยี้ให้บริการค่ะ ^^,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0782,ไปกินเอ็มเคกันมั้ยมีชาชีสนุ้งอยากกิน,ชมอาหาร,neutral,positive,single,1,wisesight_human
+T0783,ใช่ครับ พอตอกไข่หมด ผมก็ไม่ได้เข้า mk ล่ะ,ติอาหาร,negative,negative,single,1,wisesight_human
+T0784,เราก็ชอบดื่มสิงห์ รู้สึกมันอร่อยกว่ายี่ห้ออื่น 😅,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0785,อันนี้เหนด้วยคะ เราไปกินเมื่อวาน ปกติเราสั่งแบบธรรมดาก็คุ้มและอิ่มนะ ชุดตอกไข่ก็ได้เยอะ แต่ชุดชีสนี้บอกเลยไม่คุ้มคะ น้อยมาก จนเราต้องชุดผักกับหมูสไลด์ มาอีกชุด นี้คือตอนแรกสั่ง ชุดชีสเป็ด1จาน หมี่หยก 2 และสั่งลูกชิ้นเพิ่มแล้วนะ ไม่คุ้มบอกเลย 😣😣,ติอาหาร,negative,negative,single,1,wisesight_human
+T0786,มีปุฟเฟ่หรืออาหารจานยักษ์,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0787,ไม่เอาชาบู,ติอาหาร,negative,negative,single,1,wisesight_human
+T0788,กล่องข้าวก็ไปกินแล้วสั่งชุดคุณหนูก็ได้กล่องอะป๊ะพรุ่งนี้ไปกินก้อนกัน,สอบถามเมนูอาหาร,neutral,neutral,single,1,wisesight_human
+T0789,ตัวเองอันนี้หร่อยกว่า MK อีกน่ากินนนนน,ชมอาหาร,positive,neutral,single,1,wisesight_human
+T0790,เออ 555 เอ็มเคว่าแพง แต่ไม่น่าเกลียดเท่าร้านนี้,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0793,ชาเย็นธรรมดาโลกไม่จำ ชอบลองของใหม่ เห็น #AllCafe ออกเครื่องดื่มใหม่เป็นชาชีส แต่กดชาเย็นมากละอ่ะ5555 เลยถามพี่พนักงานว่าเพิ่มเพิ่มชีสอย่างเดียวได้ไหมพี่เค้าบอกว่าได้ เพิ่มเงินแค่ 15฿ จัดไปสิค่ะจะรออะไร😂 รสชาติชีสคือเข้มมาก มันๆ ไม่เลี่ยน อร่อยมากไอเลิฟฟ,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0794,ทำไมลีโอมันไม่อร่อยเลยอะ ที่เคยกินมันอร่อยกว่านี้อะ ใครทำอะไรกับลีโอ!!! //ทึ้งหัว,ติอาหาร,negative,negative,single,1,wisesight_human
+T0795,ป่ะ เอ็มเคกันเถอะ #กูรักชีสสสสส 😍😍,ชมอาหาร,positive,positive,single,1,wisesight_human
+T0796,คือตอนนี้ มันสะท้อนให้เห็นคุณภาพ ความมักง่ายของร้านแล้วนะคะ ที่ไหนเขาก็อิงกันได้คะพวกคุณภาพของแหล่งอาหาร แต่ตัวร้านเอ และการตรวจสอบอาหารก่อนถึงผู้รับสุดท้ายเองอะคะ ทำตัวเองเสีย,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0797,KFCอร่อยมั้ยครับ,สอบถามเมนูอาหาร,neutral,negative,single,1,wisesight_human
+T0798,สาขาฟิวเจอร์พาร์ครังสิต บริการไม่ค่อยโอเคนะคะ ล่าสุดไปทานมาค่อนข้างมีปัญหาด้านบริการทั้งล่าช้าแล้วก็ลืมเสิร์ฟกะหล่ำซอย รับออเดอร์ไปแล้วแต่พอทวงก็บอกว่าเราไม่ได้สั่ง งงค่ะ,ติบริการ/ร้าน,negative,negative,single,1,wisesight_human
+T0799,โรบินสัน สระบุรีเปิดใหม่มี Refill ไหมคะ จะได้ไปกิน,สอบถามโปรโมชั่น,neutral,neutral,single,1,wisesight_human
+T0800,สาขาท่ายาง จังหวัดเพชรบุรี ของน้อยมาก ไม่สด ไม่มีซูชิ ของแช่แข็งเก่าๆ,ติอาหาร,negative,negative,single,1,wisesight_human

@@ -1,0 +1,29 @@
+{
+  "n_items": 800,
+  "n_double": 382,
+  "n_both_relevant": 142,
+  "kappa_relevance": 0.426,
+  "kappa_category": 0.687,
+  "kappa_sentiment": 0.865,
+  "relevant_rate_A": 0.389,
+  "relevant_rate_B": 0.668,
+  "A_saw_ai_hint": 0,
+  "B_saw_ai_hint": 777,
+  "label_source_counts": {
+    "agreed": 226,
+    "adjudicated": 156,
+    "single": 418
+  },
+  "n_final_relevant": 511,
+  "category_counts": {
+    "ติอาหาร": 163,
+    "ชมอาหาร": 143,
+    "ติบริการ/ร้าน": 53,
+    "สอบถามเมนูอาหาร": 51,
+    "สอบถามโปรโมชั่น": 50,
+    "สอบถามข้อมูลร้าน": 27,
+    "ชมบริการ/บรรยากาศ": 13,
+    "ปัญหาออเดอร์/จัดส่ง": 11
+  },
+  "sentiment_agreement_with_wisesight": 0.755
+}
