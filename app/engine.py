@@ -8,6 +8,7 @@ import joblib
 
 from app.preprocess import clean_text, tokenize_boundary, tokenize_words
 from app.decision_engine import choose_segment, choose_action, make_reply, has_safety_hazard
+from app import user_history
 from app.transformer_model import load_transformer_model, memory_limit_mb, skip_reason
 from app.keywords_data import (
     _NEGATIVE_BOUNDARY, _POSITIVE_BOUNDARY, _QUESTION_BOUNDARY_MAP,
@@ -381,6 +382,14 @@ def backend_info() -> dict:
 def get_user_behavior(user_id: str):
     _, _, behavior = load_resources()
     user_id = str(user_id)
+    # 1) ประวัติคอมเมนต์จริงของ user_id นี้ (จาก AI_Log/prediction_log) — ใช้ได้กับ user_id ของ Facebook
+    user_history.load(LOG_PATH)
+    hist = user_history.features(user_id)
+    if hist is not None:
+        hist["segment"] = choose_segment(hist["total_messages"], hist["negative_count"],
+                                         hist["complaint_count"], hist["inactive_days"])
+        return hist
+    # 2) ข้อมูล CRM เดิม (customer_id) 3) ลูกค้าใหม่ -> Regular
     row = behavior[behavior["customer_id"].astype(str) == user_id]
     if len(row) == 0:
         return {
@@ -391,8 +400,10 @@ def get_user_behavior(user_id: str):
             "inactive_days": 0,
             "favorite_hour": None,
             "segment": "Regular",
+            "behavior_source": "new",
         }
     r = row.iloc[0].to_dict()
+    r["behavior_source"] = "crm"
     if not r.get("segment") or pd.isna(r.get("segment")):
         r["segment"] = choose_segment(r.get("total_messages", 0), r.get("negative_count", 0), r.get("complaint_count", 0), r.get("inactive_days", 0))
     return r
@@ -627,9 +638,11 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
             "complaint_count": int(behavior.get("complaint_count", 0) or 0),
             "inactive_days": int(behavior.get("inactive_days", 0) or 0),
             "favorite_hour": None if pd.isna(behavior.get("favorite_hour", None)) else int(behavior.get("favorite_hour")),
+            "source": behavior.get("behavior_source", "crm"),
         }
     }
     save_log(result)
+    user_history.record(user_id, sentiment, category)
     return result
 
 def save_log(result: dict):
