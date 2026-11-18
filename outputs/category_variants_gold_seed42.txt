@@ -1,0 +1,8 @@
+# 20_eval_category_variants.py on gold standard (209), Colab T4, 2026-11-18, seed 42
+# test set (weak labels, n_eval=1002): base acc 0.835 mF1 0.834 | mix3 acc 0.842 mF1 0.841 | human-only acc 0.414 mF1 0.407
+wc_cat_base                              acc=0.627 [0.56, 0.699] mF1=0.559 [0.484, 0.628] {'wisesight': 0.524, 'own_page': 0.776} order=16
+wc_cat_base+keyword                      acc=0.608 [0.541, 0.675] mF1=0.547 [0.469, 0.617] {'wisesight': 0.468, 'own_page': 0.812} order=11
+wc_cat_mix3                              acc=0.670 [0.603, 0.737] mF1=0.603 [0.52, 0.676] {'wisesight': 0.597, 'own_page': 0.776} order=16
+wc_cat_mix3+keyword                      acc=0.627 [0.56, 0.694] mF1=0.558 [0.481, 0.626] {'wisesight': 0.492, 'own_page': 0.824} order=12
+wc_cat_human                             acc=0.589 [0.526, 0.656] mF1=0.511 [0.437, 0.578] {'wisesight': 0.54, 'own_page': 0.659} order=15
+wc_cat_human+keyword                     acc=0.598 [0.536, 0.665] mF1=0.526 [0.449, 0.595] {'wisesight': 0.468, 'own_page': 0.788} order=13
