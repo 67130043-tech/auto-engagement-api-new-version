@@ -103,15 +103,52 @@ def resolve_model_dir(task: str):
     return None
 
 
+def memory_limit_mb():
+    """หน่วยความจำที่เครื่อง/คอนเทนเนอร์นี้ใช้ได้ (MB) จาก cgroup v2/v1 หรือ /proc/meminfo — None ถ้าอ่านไม่ได้"""
+    for path in ("/sys/fs/cgroup/memory.max", "/sys/fs/cgroup/memory/memory.limit_in_bytes"):
+        try:
+            raw = Path(path).read_text().strip()
+            if raw and raw != "max" and int(raw) < 1 << 50:
+                return int(raw) // (1024 * 1024)
+        except Exception:
+            pass
+    try:
+        for line in Path("/proc/meminfo").read_text().splitlines():
+            if line.startswith("MemTotal:"):
+                return int(line.split()[1]) // 1024
+    except Exception:
+        pass
+    return None
+
+
+# WangchanBERTa fp32 สองโมเดล + API ใช้ราว 1.2-1.5 GB; เครื่องที่เล็กกว่านี้ (เช่น Render ฟรี 512 MB)
+# จะถูก OOM kill ระหว่างโหลด ซึ่ง try/except ดักไม่ได้ จึงเช็คก่อนโหลดแล้วใช้ TF-IDF แทน
+MIN_RAM_MB = int(os.environ.get("WANGCHAN_MIN_RAM_MB", "1536"))
+_skip_reason = {}
+
+
 def load_transformer_model(task: str):
     """คืน OnnxTextClassifier ของ task (sentiment/category) หรือ None ถ้าไม่มีโมเดล/โหลดไม่ได้"""
     if os.environ.get("DISABLE_TRANSFORMER", "").strip().lower() == "true":
+        _skip_reason[task] = "DISABLE_TRANSFORMER=true"
+        return None
+    limit = memory_limit_mb()
+    if limit is not None and limit < MIN_RAM_MB:
+        _skip_reason[task] = f"RAM {limit} MB < {MIN_RAM_MB} MB"
+        print(f"[transformer_model] ข้าม WangchanBERTa ({task}): {_skip_reason[task]} -> ใช้ TF-IDF")
         return None
     model_dir = resolve_model_dir(task)
     if model_dir is None:
+        _skip_reason[task] = "ไม่พบโมเดล"
         return None
     try:
         return OnnxTextClassifier(model_dir)
     except Exception as e:
         print(f"[transformer_model] โหลดโมเดล {model_dir} ไม่สำเร็จ: {e}")
+        _skip_reason[task] = f"โหลดไม่สำเร็จ: {type(e).__name__}"
         return None
+
+
+def skip_reason(task: str):
+    """เหตุผลที่ไม่ได้ใช้ WangchanBERTa (None ถ้าใช้อยู่หรือยังไม่เคยลองโหลด)"""
+    return _skip_reason.get(task)

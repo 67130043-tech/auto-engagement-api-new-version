@@ -8,7 +8,7 @@ import joblib
 
 from app.preprocess import clean_text, tokenize_boundary, tokenize_words
 from app.decision_engine import choose_segment, choose_action, make_reply, has_safety_hazard
-from app.transformer_model import load_transformer_model
+from app.transformer_model import load_transformer_model, memory_limit_mb, skip_reason
 from app.keywords_data import (
     _NEGATIVE_BOUNDARY, _POSITIVE_BOUNDARY, _QUESTION_BOUNDARY_MAP,
     _NEGATIVE_TOKENS, _POSITIVE_TOKENS,
@@ -373,7 +373,10 @@ def decision_mode(task: str) -> str:
 
 def backend_info() -> dict:
     load_resources()
-    return {task: {"model": _backend[task], "decision_mode": decision_mode(task)} for task in _backend}
+    info = {task: {"model": _backend[task], "decision_mode": decision_mode(task),
+                   "fallback_reason": skip_reason(task)} for task in _backend}
+    info["memory_limit_mb"] = memory_limit_mb()
+    return info
 
 def get_user_behavior(user_id: str):
     _, _, behavior = load_resources()
