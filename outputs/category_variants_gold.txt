@@ -6,3 +6,12 @@ wc_cat_mix3                              acc=0.670 [0.603, 0.737] mF1=0.603 [0.5
 wc_cat_mix3+keyword                      acc=0.627 [0.56, 0.694] mF1=0.558 [0.481, 0.626] {'wisesight': 0.492, 'own_page': 0.824} order=12
 wc_cat_human                             acc=0.589 [0.526, 0.656] mF1=0.511 [0.437, 0.578] {'wisesight': 0.54, 'own_page': 0.659} order=15
 wc_cat_human+keyword                     acc=0.598 [0.536, 0.665] mF1=0.526 [0.449, 0.595] {'wisesight': 0.468, 'own_page': 0.788} order=13
+# seeds 1 and 2 (same settings)
+wc_cat_base_s1  acc=0.612 mF1=0.543 wisesight=0.516 own_page=0.753 order=16 | +keyword acc=0.603 mF1=0.538
+wc_cat_mix3_s1  acc=0.656 mF1=0.579 wisesight=0.581 own_page=0.765 order=12 | +keyword acc=0.617 mF1=0.545
+wc_cat_base_s2  acc=0.617 mF1=0.549 wisesight=0.524 own_page=0.753 order=17 | +keyword acc=0.608 mF1=0.545
+wc_cat_mix3_s2  acc=0.665 mF1=0.598 wisesight=0.605 own_page=0.753 order=11 | +keyword acc=0.627 mF1=0.557
+# mean ± SD over 3 seeds (gold 209)
+base: acc 0.619 ± 0.008, mF1 0.550 ± 0.008, wisesight 0.521
+mix3: acc 0.664 ± 0.007, mF1 0.593 ± 0.013, wisesight 0.594
+paired acc gain mix3 - base: +0.043, +0.044, +0.048 (all 3 seeds positive)
