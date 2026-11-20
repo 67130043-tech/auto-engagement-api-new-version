@@ -18,7 +18,7 @@ predict_message() เท่านั้น ฝั่ง Make ไม่รู้�
 import os
 import json
 
-OPENAI_MODEL = os.environ.get("OPENAI_VERIFIER_MODEL", "gpt-5-nano")
+OPENAI_MODEL = os.environ.get("OPENAI_VERIFIER_MODEL", "gpt-5-mini")
 OPENAI_TIMEOUT_SECONDS = 8
 VALID_SENTIMENTS = {"positive", "negative", "neutral"}
 
