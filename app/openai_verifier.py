@@ -24,6 +24,17 @@ VALID_SENTIMENTS = {"positive", "negative", "neutral"}
 
 _client = None
 _client_init_failed = False
+def _token_args(visible_tokens):
+    """พารามิเตอร์จำกัดความยาวที่ถูกต้องตามรุ่นโมเดล
+    - รุ่น reasoning (gpt-5*, o-series) ไม่รับ max_tokens และนับ token ที่ใช้ "คิด" รวมในเพดาน
+      จึงใช้ max_completion_tokens พร้อมเผื่อที่ให้การคิด และขอ reasoning_effort ต่ำสุด
+    - รุ่นอื่นใช้ max_tokens ตามเดิม"""
+    m = OPENAI_MODEL.lower()
+    if m.startswith(("gpt-5", "o1", "o3", "o4")):
+        return {"max_completion_tokens": visible_tokens + 2000, "reasoning_effort": "minimal"}
+    return {"max_tokens": visible_tokens}
+
+
 _stats = {"ok": 0, "failed": 0, "last_error": None}
 
 
@@ -88,7 +99,7 @@ def verify_sentiment(text: str):
                 {"role": "user", "content": f'ข้อความ: "{text}"'},
             ],
             response_format={"type": "json_object"},
-            max_tokens=30,
+            **_token_args(30),
             # หมายเหตุ: โมเดลตระกูล gpt-5 (รวม gpt-5-nano) ไม่รองรับพารามิเตอร์
             # temperature ค่าอื่นนอกจากค่า default (1) — ถ้าใส่ temperature=0 แบบเดิม
             # จะโดน API ตอบ 400 error ทุกครั้ง (ถูก try/except ด้านล่างจับเงียบๆ กลาย
@@ -175,7 +186,7 @@ def verify_category(text: str):
                 {"role": "user", "content": f'ข้อความ: "{text}"'},
             ],
             response_format={"type": "json_object"},
-            max_tokens=30,
+            **_token_args(30),
         )
         raw = resp.choices[0].message.content
         data = json.loads(raw)
@@ -273,7 +284,7 @@ def generate_smart_reply(message: str, template_reply: str, context: dict = None
                 )},
             ],
             response_format={"type": "json_object"},
-            max_tokens=200,
+            **_token_args(200),
         )
         raw = resp.choices[0].message.content
         data = json.loads(raw)
