@@ -378,6 +378,7 @@ def backend_info() -> dict:
                    "fallback_reason": skip_reason(task)} for task in _backend}
     info["memory_limit_mb"] = memory_limit_mb()
     info["llm"] = llm_status()
+    info["user_history"] = user_history.info()
     return info
 
 def get_user_behavior(user_id: str):

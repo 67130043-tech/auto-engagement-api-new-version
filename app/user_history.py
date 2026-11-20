@@ -40,6 +40,24 @@ def _add(user_id, ts, sentiment, category):
     _hist[str(user_id)].append((ts, str(sentiment or ""), str(category or "")))
 
 
+def _rows_from_csv_url():
+    """ชีต AI_Log ที่เผยแพร่เป็น CSV (ตัวแปร GOOGLE_SHEET_CSV_URL ตัวเดียวกับหน้า /dashboard)"""
+    import os
+    url = os.environ.get("GOOGLE_SHEET_CSV_URL", "").strip()
+    if not url:
+        return None
+    try:
+        df = pd.read_csv(url)
+        df.columns = [str(c).strip() for c in df.columns]
+        keep = [c for c in ("timestamp", "user_id", "sentiment", "category") if c in df.columns]
+        if "user_id" not in keep:
+            return None
+        return df[keep].astype(str).to_dict("records")
+    except Exception as e:
+        print(f"[user_history] อ่าน GOOGLE_SHEET_CSV_URL ไม่สำเร็จ: {e}")
+        return None
+
+
 def _rows_from_sheet():
     try:
         from app.sheets_logger import _get_worksheet
@@ -57,8 +75,12 @@ def load(log_path: Path):
         if _loaded:
             return
         _loaded = True
-        rows = _rows_from_sheet()
+        rows = _rows_from_csv_url()
         if rows is not None:
+            _source = "sheet_csv"
+        else:
+            rows = _rows_from_sheet()
+        if rows is not None and _source is None:
             _source = "google_sheets"
         elif log_path.exists():
             try:
@@ -102,5 +124,6 @@ def features(user_id, now=None):
 
 
 def info():
+    """สรุปแหล่งและขนาดประวัติ (โหลดครั้งแรกถ้ายังไม่โหลด)"""
     with _lock:
         return {"source": _source, "users": len(_hist), "comments": sum(len(v) for v in _hist.values())}
