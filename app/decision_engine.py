@@ -70,7 +70,8 @@ def choose_action(sentiment, category, segment, message="", message_tags=None):
     if s == "negative" and ("ห้องน้ำ" in m or "ห้องน้ำ" in c):
         return "apology_restroom_escalate"
 
-    if s == "negative" and (("บิล" in m or "ยอดเงิน" in m or "ยอดไม่ตรง" in m) and ("ผิด" in m or "ไม่ตรง" in m or "เกิน" in m)):
+    if s == "negative" and (any(w in m for w in ["คิดเงินผิด", "คิดตังผิด", "คิดเงินเกิน", "ทอนเงินผิด", "ทอนผิด", "ชาร์จเกิน"])
+                            or (("บิล" in m or "ยอดเงิน" in m or "ยอดไม่ตรง" in m) and ("ผิด" in m or "ไม่ตรง" in m or "เกิน" in m))):
         return "apology_billing_escalate"
 
     if s == "negative" and (any(w in m for w in ["แอพ", "ระบบ", "เว็บค้าง"]) or "ระบบ" in c):
