@@ -261,7 +261,12 @@ def _shop_facts_text():
         labels = {"opening_hours": "เวลาเปิด", "closed_days": "วันหยุด", "address": "ที่อยู่", "map_link": "แผนที่",
                   "phone": "เบอร์โทร", "line_id": "LINE", "payment_methods": "ชำระเงิน",
                   "min_delivery_order": "ยอดสั่งเดลิเวอรี่ขั้นต่ำ", "queue_wait_estimate": "เวลารอคิวโดยประมาณ",
-                  "corkage_fee": "ค่าเปิดขวด", "menu_note": "หมายเหตุเมนู", "promotion_note": "โปรโมชั่น"}
+                  "corkage_fee": "ค่าเปิดขวด", "menu_note": "หมายเหตุเมนู", "promotion_note": "โปรโมชั่น",
+                  "shop_name": "ชื่อร้าน", "cuisine": "ประเภทอาหาร", "signature_menu": "เมนูแนะนำ", "price_range": "ราคา",
+                  "spice_policy": "ความเผ็ด", "branches": "สาขา", "parking": "ที่จอดรถ", "delivery_platforms": "เดลิเวอรี่",
+                  "takeaway": "สั่งกลับบ้าน", "reservation": "จองโต๊ะ", "pet_policy": "สัตว์เลี้ยง", "kids_facility": "เด็ก",
+                  "private_room": "ห้องส่วนตัว", "alcohol": "แอลกอฮอล์", "buffet": "บุฟเฟ่ต์", "live_music": "ดนตรีสด",
+                  "membership": "สมาชิก", "catering": "จัดเลี้ยง"}
         return "; ".join(f"{labels[k]}: {info[k]}" for k in labels if info.get(k))
     except Exception:
         return ""
