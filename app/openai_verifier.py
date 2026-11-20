@@ -24,6 +24,20 @@ VALID_SENTIMENTS = {"positive", "negative", "neutral"}
 
 _client = None
 _client_init_failed = False
+_stats = {"ok": 0, "failed": 0, "last_error": None}
+
+
+def _record(ok, err=None):
+    _stats["ok" if ok else "failed"] += 1
+    if err is not None:
+        _stats["last_error"] = f"{type(err).__name__}: {str(err)[:160]}"
+
+
+def llm_status():
+    """สถานะชั้นที่ 3 (LLM) สำหรับแสดงที่หน้า / ของ API — ไม่เปิดเผยค่า key"""
+    return {"api_key_set": bool(os.environ.get("OPENAI_API_KEY", "").strip()), "model": OPENAI_MODEL,
+            "client_ready": _client is not None, "calls_ok": _stats["ok"], "calls_failed": _stats["failed"],
+            "last_error": _stats["last_error"]}
 
 
 def _get_client():
@@ -90,8 +104,10 @@ def verify_sentiment(text: str):
         except (TypeError, ValueError):
             confidence = 75.0
         confidence = max(0.0, min(100.0, confidence))
+        _record(True)
         return sentiment, round(confidence, 2)
-    except Exception:
+    except Exception as _e:
+        _record(False, _e)
         # ครอบคลุมทุกกรณี: network error, timeout, rate limit (429), API key ผิด,
         # ตอบมาไม่ใช่ JSON, ไม่มี key "sentiment"/"confidence" ฯลฯ — ตั้งใจไม่ระบุ
         # exception type เจาะจง เพราะเป้าหมายคือ "ห้ามทำให้ /make/predict พังเด็ดขาด"
@@ -171,8 +187,10 @@ def verify_category(text: str):
         except (TypeError, ValueError):
             confidence = 75.0
         confidence = max(0.0, min(100.0, confidence))
+        _record(True)
         return category, round(confidence, 2)
-    except Exception:
+    except Exception as _e:
+        _record(False, _e)
         # เหตุผลเดียวกับ verify_sentiment() ด้านบน: ห้ามทำให้ /make/predict พังเด็ดขาด
         return None, None
 
@@ -259,8 +277,10 @@ def generate_smart_reply(message: str, template_reply: str):
         reply = str(data.get("reply", "")).strip()
         if not reply or len(reply) > _MAX_SMART_REPLY_CHARS:
             return None
+        _record(True)
         return reply
-    except Exception:
+    except Exception as _e:
+        _record(False, _e)
         # เหตุผลเดียวกับ verify_sentiment()/verify_category() ด้านบน: ห้ามทำให้
         # /make/predict พังเด็ดขาด ไม่ว่า OpenAI จะมีปัญหาอะไรก็ตาม
         return None

@@ -19,7 +19,7 @@ from app.keywords_data import (
     keyword_category_and_match, keyword_category_best_match,
     has_facebook_tags,
 )
-from app.openai_verifier import verify_sentiment, verify_category, generate_smart_reply
+from app.openai_verifier import verify_sentiment, verify_category, generate_smart_reply, llm_status
 
 # เกณฑ์เรียก OpenAI เป็นความเห็นที่สอง: เฉพาะตอนไม่มี keyword ไหน match เลย (ต้อง
 # เชื่อผล ML เดาเอง) แล้ว sentiment_confidence (ที่ calibrate แล้ว) ต่ำกว่านี้เท่านั้น
@@ -377,6 +377,7 @@ def backend_info() -> dict:
     info = {task: {"model": _backend[task], "decision_mode": decision_mode(task),
                    "fallback_reason": skip_reason(task)} for task in _backend}
     info["memory_limit_mb"] = memory_limit_mb()
+    info["llm"] = llm_status()
     return info
 
 def get_user_behavior(user_id: str):
