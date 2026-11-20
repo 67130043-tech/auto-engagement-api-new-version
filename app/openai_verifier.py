@@ -48,7 +48,8 @@ def llm_status():
     """สถานะชั้นที่ 3 (LLM) สำหรับแสดงที่หน้า / ของ API — ไม่เปิดเผยค่า key"""
     return {"api_key_set": bool(os.environ.get("OPENAI_API_KEY", "").strip()), "model": OPENAI_MODEL,
             "client_ready": _client is not None, "calls_ok": _stats["ok"], "calls_failed": _stats["failed"],
-            "last_error": _stats["last_error"]}
+            "last_error": _stats["last_error"], "rejected": _stats.get("rejected", 0),
+            "last_rejection": _stats.get("last_rejection")}
 
 
 def _get_client():
@@ -248,10 +249,34 @@ _REPLY_SYSTEM_PROMPT = (
     "4) เมื่อลูกค้าบ่น ให้ขออภัยและรับเรื่อง แต่ไม่ยืนยันข้อกล่าวหาเป็นข้อเท็จจริง "
     "(เช่น 'ขออภัยที่ส้มตำรสเค็มเกินไปนะคะ' แทน 'ส้มตำเค็มจริงๆ')\n"
     "5) ถ้าลูกค้าประชด ให้ตอบตามเจตนาที่แท้จริง (คำบ่น) ไม่ตอบรับคำชมตามตัวอักษร\n"
-    "6) 1-3 ประโยคสั้น กระชับ ไม่ทางการเกินไป ใช้อีโมจิได้ไม่เกิน 1 ตัว\n\n"
+    "6) ใช้เฉพาะข้อมูลร้านที่เกี่ยวกับสิ่งที่ลูกค้าพูด ไม่ยัดข้อมูลอื่น (เช่น ถามเดลิเวอรี่ ไม่ต้องพูดเวลารอคิว) "
+    "ห้ามสัญญาสิ่งที่ไม่มีในคำตอบต้นแบบ เช่น 'กำลังปรับระบบ' 'จะติดต่อกลับ' 'มีเมนูใหม่ทุกวัน'\n"
+    "7) ลิงก์/URL ต้องคัดลอกครบทุกตัวอักษร ห้ามย่อ\n"
+    "8) สั้น กระชับ ไม่เกิน 2 ประโยค (ยกเว้นต้องใส่ที่อยู่/ลิงก์) ไม่ทางการเกินไป ใช้อีโมจิได้ไม่เกิน 1 ตัว "
+    "ตรวจคำสะกดให้ถูกต้อง\n\n"
     "ตอบกลับเป็น JSON เท่านั้น ห้ามมีข้อความอื่นนอกเหนือ JSON รูปแบบ: "
     '{"reply": "ข้อความคำตอบที่เขียนใหม่"}'
 )
+
+
+import re as _re
+
+_URL_RE = _re.compile(r"https?://\S+")
+_NUM_RE = _re.compile(r"\d+(?:[.:,]\d+)*")
+
+
+def _reply_problem(reply, template_reply, message):
+    """ตรวจคำตอบจาก LLM ก่อนใช้จริง คืนเหตุผล (str) ถ้าไม่ผ่าน หรือ None ถ้าใช้ได้
+    - ลิงก์ในคำตอบต้นแบบต้องอยู่ครบตัวอักษร (LLM ชอบย่อ URL เป็น ...)
+    - ตัวเลขทุกตัวในคำตอบต้องมีอยู่ในคำตอบต้นแบบ/ข้อมูลร้าน/ข้อความลูกค้า (กันแต่งราคา เวลา จำนวน)"""
+    for url in _URL_RE.findall(template_reply):
+        if url.rstrip(").,") not in reply:
+            return "url_changed"
+    allowed = template_reply + " " + _shop_facts_text() + " " + (message or "")
+    for num in _NUM_RE.findall(reply):
+        if num not in allowed:
+            return f"new_number:{num}"
+    return None
 
 
 def _shop_facts_text():
@@ -312,6 +337,12 @@ def generate_smart_reply(message: str, template_reply: str, context: dict = None
         reply = str(data.get("reply", "")).strip()
         if not reply or len(reply) > _MAX_SMART_REPLY_CHARS:
             return None
+        problem = _reply_problem(reply, template_reply, message)
+        if problem:
+            _stats["rejected"] = _stats.get("rejected", 0) + 1
+            _stats["last_rejection"] = problem
+            _record(True)
+            return None  # ผู้เรียกใช้คำตอบต้นแบบแทน
         _record(True)
         return reply
     except Exception as _e:
