@@ -244,7 +244,7 @@ _REPLY_SYSTEM_PROMPT = (
 _MAX_SMART_REPLY_CHARS = 500  # กันเคส LLM ตอบยาวผิดปกติ/หลุด format ไปเป็นข้อความยาว
 
 
-def generate_smart_reply(message: str, template_reply: str):
+def generate_smart_reply(message: str, template_reply: str, context: dict = None):
     """
     ให้ LLM เขียนคำตอบใหม่โดยยึด template_reply (จาก REPLY_TEMPLATES) เป็นข้อเท็จจริง
     ที่ต้องคงไว้ แต่ปรับให้ตอบสนองข้อความ message จริงๆ ของลูกค้าแทนคำตอบตายตัว
@@ -266,7 +266,10 @@ def generate_smart_reply(message: str, template_reply: str):
                 {"role": "system", "content": _REPLY_SYSTEM_PROMPT},
                 {"role": "user", "content": (
                     f'ข้อความลูกค้า: "{message}"\n'
-                    f'คำตอบต้นแบบ (ต้องคงข้อมูล/ตัวเลข/เงื่อนไขไว้ครบ): "{template_reply}"'
+                    + (f'ผลวิเคราะห์ของระบบ (ใช้กำหนดน้ำเสียง เช่น ขอบคุณ/ขอโทษ/ให้ข้อมูล): '
+                       f'อารมณ์={context.get("sentiment")}, หมวด={context.get("category")}, การตอบ={context.get("action")}\n'
+                       if context else '')
+                    + f'คำตอบต้นแบบ (ต้องคงข้อมูล/ตัวเลข/เงื่อนไขไว้ครบ): "{template_reply}"'
                 )},
             ],
             response_format={"type": "json_object"},

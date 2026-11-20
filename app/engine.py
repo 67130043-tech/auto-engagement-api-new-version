@@ -599,7 +599,8 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     # เหมือนเดิมทุกประการ เปลี่ยนแค่ "คำพูด" ตอนตอบเท่านั้น ถ้าเรียก LLM ไม่สำเร็จ/ปิด
     # ไว้ (ENABLE_SMART_REPLY=false) จะ fallback กลับไปใช้ template_reply เดิมทันที
     # ---------------------------------------------------------------------
-    smart_reply = generate_smart_reply(message, template_reply)
+    smart_reply = generate_smart_reply(message, template_reply,
+                                       {"sentiment": sentiment, "category": category, "action": action})
     reply = smart_reply if smart_reply else template_reply
     reply_source = "llm" if smart_reply else "template"
 
