@@ -80,17 +80,17 @@ def load(log_path: Path):
             _source = "sheet_csv"
         else:
             rows = _rows_from_sheet()
-        if rows is not None and _source is None:
-            _source = "google_sheets"
-        elif log_path.exists():
+            if rows is not None:
+                _source = "google_sheets"
+        if rows is None and log_path.exists():
             try:
                 rows = pd.read_csv(log_path, encoding="utf-8-sig", usecols=lambda c: c in
                                    {"timestamp", "user_id", "sentiment", "category"}).to_dict("records")
                 _source = "local_log"
             except Exception as e:
                 print(f"[user_history] อ่าน {log_path} ไม่สำเร็จ: {e}")
-                rows = []
-        else:
+                rows = None
+        if rows is None:
             rows, _source = [], "empty"
         for r in rows or []:
             _add(r.get("user_id"), _parse_ts(r.get("timestamp")), r.get("sentiment"), r.get("category"))
