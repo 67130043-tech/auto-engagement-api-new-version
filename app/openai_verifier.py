@@ -380,7 +380,7 @@ def check_relevance(text: str, parent_message: str = "", parent_from_page=None):
             model=OPENAI_MODEL,
             messages=[{"role": "system", "content": _RELEVANCE_SYSTEM_PROMPT},
                       {"role": "user", "content": (
-                          (f'คอมเมนต์นี้เป็นการตอบกลับใต้คอมเมนต์ของ{"เพจร้าน" if str(parent_from_page).lower() in ("true", "1") else "ผู้ใช้คนอื่น"}: '
+                          (f'คอมเมนต์นี้เป็นการตอบกลับใต้คอมเมนต์{"ของเพจร้าน" if str(parent_from_page).lower() in ("true", "1") else "อื่น"}: '
                            f'"{parent_message}"\n' if parent_message else "")
                           + f'คอมเมนต์: "{text}"')}],
             response_format={"type": "json_object"},
