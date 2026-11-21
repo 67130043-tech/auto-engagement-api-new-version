@@ -24,14 +24,14 @@ VALID_SENTIMENTS = {"positive", "negative", "neutral"}
 
 _client = None
 _client_init_failed = False
-def _token_args(visible_tokens):
+def _token_args(visible_tokens, effort="minimal"):
     """พารามิเตอร์จำกัดความยาวที่ถูกต้องตามรุ่นโมเดล
     - รุ่น reasoning (gpt-5*, o-series) ไม่รับ max_tokens และนับ token ที่ใช้ "คิด" รวมในเพดาน
       จึงใช้ max_completion_tokens พร้อมเผื่อที่ให้การคิด และขอ reasoning_effort ต่ำสุด
     - รุ่นอื่นใช้ max_tokens ตามเดิม"""
     m = OPENAI_MODEL.lower()
     if m.startswith(("gpt-5", "o1", "o3", "o4")):
-        return {"max_completion_tokens": visible_tokens + 2000, "reasoning_effort": "minimal"}
+        return {"max_completion_tokens": visible_tokens + 2000, "reasoning_effort": effort}
     return {"max_tokens": visible_tokens}
 
 
@@ -253,6 +253,7 @@ _REPLY_SYSTEM_PROMPT = (
     "ห้ามสัญญาสิ่งที่ไม่มีในคำตอบต้นแบบ เช่น 'กำลังปรับระบบ' 'จะติดต่อกลับ' 'มีเมนูใหม่ทุกวัน'\n"
     "7) ลิงก์/URL ต้องคัดลอกครบทุกตัวอักษร ห้ามย่อ\n"
     "9) ห้ามเรียกชื่อคนที่อยู่ในคอมเมนต์ เพราะมักเป็นชื่อเพื่อนที่ถูกแท็ก ไม่ใช่คนที่คอมเมนต์ (ใช้ 'ลูกค้า' หรือไม่ต้องเรียกชื่อ)\n"
+    "11) ถ้าลูกค้าถามโปร/ส่วนลดแบบเจาะจงที่ไม่มีในข้อมูลร้าน ให้ตอบตรงๆ ว่าตอนนี้ยังไม่มี ห้ามพูดเป็นนัยว่ามี\n"
     "10) ไม่ต้องใส่ชื่อร้านในคำตอบ (ยกเว้นลูกค้าถามชื่อร้าน) และชื่อเมนูต้องสะกดตรงกับข้อมูลร้านทุกตัวอักษร\n"
     "8) สั้น กระชับ ไม่เกิน 2 ประโยค (ยกเว้นต้องใส่ที่อยู่/ลิงก์) ไม่ทางการเกินไป ใช้อีโมจิได้ไม่เกิน 1 ตัว "
     "ตรวจคำสะกดให้ถูกต้อง\n\n"
@@ -275,10 +276,25 @@ def _reply_problem(reply, template_reply, message):
         if url.rstrip(").,") not in reply:
             return "url_changed"
     allowed = template_reply + " " + _shop_facts_text() + " " + (message or "")
+    # ชื่อเมนูแนะนำที่ลูกค้าไม่ได้พูดถึงและไม่อยู่ในคำตอบต้นแบบ ห้ามโผล่มาเอง (กันเดาว่าลูกค้ากินเมนูไหน)
+    for item in _signature_items():
+        if item in reply and item not in (message or "") and item not in template_reply:
+            return f"new_menu:{item}"
     for num in _NUM_RE.findall(reply):
         if num not in allowed:
             return f"new_number:{num}"
     return None
+
+
+def _signature_items():
+    try:
+        from app.shop_config import get_shop_info
+        raw = str(get_shop_info().get("signature_menu", ""))
+        items = [w.strip() for w in raw.replace(",", " ").split() if w.strip() and w.strip() != "และ"]
+        # เรียงยาวก่อน และตัดชื่อที่เป็นส่วนหนึ่งของชื่อที่ยาวกว่า (ส้มตำปูปลาร้า มี ส้มตำ) ออกจากการเทียบ
+        return sorted(items, key=len, reverse=True)
+    except Exception:
+        return []
 
 
 def _shop_facts_text():
@@ -317,6 +333,22 @@ def generate_smart_reply(message: str, template_reply: str, context: dict = None
     if client is None:
         return None
 
+    feedback = ""
+    for _attempt in range(2):
+        reply = _smart_reply_once(client, message, template_reply, context, feedback)
+        if reply is None:
+            return None
+        problem = _reply_problem(reply, template_reply, message)
+        if not problem:
+            return reply
+        _stats["rejected"] = _stats.get("rejected", 0) + 1
+        _stats["last_rejection"] = problem
+        feedback = (f"\nคำตอบก่อนหน้าใช้ไม่ได้ ({problem}): \"{reply}\" "
+                    "ห้ามใส่ชื่อเมนู/ตัวเลขที่ลูกค้าไม่ได้พูดถึง และคัดลอกลิงก์ให้ครบ")
+    return None  # ผู้เรียกใช้คำตอบต้นแบบแทน
+
+
+def _smart_reply_once(client, message, template_reply, context, feedback=""):
     try:
         resp = client.chat.completions.create(
             model=OPENAI_MODEL,
@@ -329,23 +361,18 @@ def generate_smart_reply(message: str, template_reply: str, context: dict = None
                        if context else '')
                     + f'คำตอบต้นแบบ (ต้องคงข้อมูล/ตัวเลข/เงื่อนไขไว้ครบ): "{template_reply}"\n'
                     + f'ข้อมูลร้าน: {_shop_facts_text()}'
+                    + feedback
                 )},
             ],
             response_format={"type": "json_object"},
-            **_token_args(200),
+            **_token_args(200, os.environ.get("OPENAI_REPLY_EFFORT", "low")),
         )
         raw = resp.choices[0].message.content
         data = json.loads(raw)
         reply = str(data.get("reply", "")).strip()
+        _record(True)
         if not reply or len(reply) > _MAX_SMART_REPLY_CHARS:
             return None
-        problem = _reply_problem(reply, template_reply, message)
-        if problem:
-            _stats["rejected"] = _stats.get("rejected", 0) + 1
-            _stats["last_rejection"] = problem
-            _record(True)
-            return None  # ผู้เรียกใช้คำตอบต้นแบบแทน
-        _record(True)
         return reply
     except Exception as _e:
         _record(False, _e)
