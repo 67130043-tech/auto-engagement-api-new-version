@@ -410,7 +410,8 @@ def get_user_behavior(user_id: str):
         r["segment"] = choose_segment(r.get("total_messages", 0), r.get("negative_count", 0), r.get("complaint_count", 0), r.get("inactive_days", 0))
     return r
 
-def predict_message(user_id: str, message: str, channel: str = "manual", display_name: str = "", source: str = "api", message_tags=None):
+def predict_message(user_id: str, message: str, channel: str = "manual", display_name: str = "", source: str = "api", message_tags=None,
+                    parent_message: str = "", parent_from_page=None):
     sentiment_model, category_model, _ = load_resources()
     text = clean_text(message)
 
@@ -604,7 +605,7 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     # ไม่ให้ร้านไปตอบ "ขอบคุณที่ชอบร้าน" ผิดที่ผิดทาง: unrelated -> ไม่ตอบ (should_reply=False)
     # invite_friend -> ตอบต้อนรับ LLM เรียกไม่ได้ -> ตอบตามปกติ (ไม่พลาดลูกค้าจริง)
     # ---------------------------------------------------------------------
-    relevance = check_relevance(message) if os.environ.get("ENABLE_RELEVANCE_FILTER", "true").lower() != "false" else None
+    relevance = check_relevance(message, parent_message, parent_from_page) if os.environ.get("ENABLE_RELEVANCE_FILTER", "true").lower() != "false" else None
     should_reply = relevance != "unrelated"
     if relevance == "invite_friend" and sentiment != "negative":
         action = "welcome_tagged_guest"

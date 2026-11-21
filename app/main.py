@@ -51,8 +51,12 @@ class PredictRequest(BaseModel):
     # (ไม่กระทบ Make.com scenario เดิมที่ยังไม่ได้ตั้งค่า field นี้เลย)
     # ---------------------------------------------------------------------
     message_tags: Optional[Any] = None
+    # คอมเมนต์ที่กำลังตอบกลับอยู่ (ถ้าเป็นการตอบในเธรด) และว่าคนเขียนคอมเมนต์นั้นเป็นเพจเองหรือไม่
+    # ใช้ให้ตัวคัดความเกี่ยวข้องรู้บริบท เช่น เพื่อนตอบเพื่อนกันเองใต้คอมเมนต์ (ไม่ต้องให้ร้านตอบ)
+    parent_message: Optional[str] = ""
+    parent_from_page: Optional[Any] = None
 
-    @field_validator("message", mode="before")
+    @field_validator("message", "parent_message", mode="before")
     @classmethod
     def _null_message_to_empty_string(cls, v):
         return "" if v is None else v
@@ -99,6 +103,8 @@ def make_predict(req: PredictRequest):
         display_name=req.display_name,
         source=req.source,
         message_tags=req.message_tags,
+        parent_message=req.parent_message or "",
+        parent_from_page=req.parent_from_page,
     )
 
 @app.get("/dashboard", response_class=HTMLResponse)
