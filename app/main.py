@@ -3,7 +3,8 @@ import os
 import io
 from typing import Optional, Any
 import pandas as pd
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from urllib.parse import parse_qs
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, field_validator
 from app.engine import predict_message
@@ -111,6 +112,17 @@ def make_predict(req: PredictRequest):
                           else (str(req.parent_from_id) == os.environ.get("FB_PAGE_ID", "111707667057555")
                                 if req.parent_from_id not in (None, "") else None)),
     )
+
+# Make.com ส่งแบบ application/x-www-form-urlencoded ได้ (Make เข้ารหัสอักขระพิเศษให้เอง)
+# กันปัญหา JSON พังเมื่อคอมเมนต์มีเครื่องหมาย " หรือขึ้นบรรทัดใหม่
+@app.post("/make/predict-form")
+async def make_predict_form(request: Request):
+    raw = (await request.body()).decode("utf-8", errors="replace")
+    fields = {k: v[0] for k, v in parse_qs(raw, keep_blank_values=True).items()}
+    allowed = set(PredictRequest.model_fields)
+    req = PredictRequest(**{k: v for k, v in fields.items() if k in allowed})
+    return make_predict(req)
+
 
 @app.get("/dashboard", response_class=HTMLResponse)
 def dashboard(threshold: float = 70.0):
