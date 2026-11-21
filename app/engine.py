@@ -19,7 +19,7 @@ from app.keywords_data import (
     keyword_category_and_match, keyword_category_best_match,
     has_facebook_tags,
 )
-from app.openai_verifier import verify_sentiment, verify_category, generate_smart_reply, llm_status, check_relevance
+from app.openai_verifier import verify_sentiment, verify_category, generate_smart_reply, llm_status, check_relevance, check_comment
 
 # เกณฑ์เรียก OpenAI เป็นความเห็นที่สอง: เฉพาะตอนไม่มี keyword ไหน match เลย (ต้อง
 # เชื่อผล ML เดาเอง) แล้ว sentiment_confidence (ที่ calibrate แล้ว) ต่ำกว่านี้เท่านั้น
@@ -586,6 +586,27 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     # decision_engine.choose_action()) ถ้า Make.com ยังไม่ได้ส่ง field นี้มา (None) จะ
     # ไม่กระทบพฤติกรรมเดิมเลย เพราะ has_facebook_tags(None) คืน False เสมอ
     # ---------------------------------------------------------------------
+    # ---------------------------------------------------------------------
+    # ตรวจบริบทด้วย LLM ก่อนเลือก action: (1) คอมเมนต์นี้พูดกับร้านไหม (2) ความรู้สึกจริง
+    # ต่อร้าน (จับประชด/คำชมที่มีคำลบปน เช่น "ส่งไวมาก ของยังร้อนอยู่เลย")
+    # ใช้ผล LLM แก้ sentiment ของโมเดลเฉพาะกรณีขัดกันชัดเจน: ขั้วตรงข้าม (pos<->neg)
+    # หรือโมเดลบอกกลางแต่ LLM เห็นว่าเป็นคำติ
+    # ---------------------------------------------------------------------
+    relevance, llm_sentiment = (None, None)
+    if not str(message or "").strip():
+        relevance = "unrelated"   # คอมเมนต์ว่าง (สติกเกอร์/รูปอย่างเดียว) ไม่ตอบ
+    elif os.environ.get("ENABLE_RELEVANCE_FILTER", "true").lower() != "false":
+        relevance, llm_sentiment = check_comment(message, parent_message, parent_from_page)
+    # ตอบใต้คอมเมนต์ของผู้ใช้อื่นแบบชวน/ตอบรับคำชวน = คุยกันเองในเธรด ร้านไม่ต้องแทรก
+    if relevance == "invite_friend" and str(parent_message or "").strip() \
+            and str(parent_from_page).lower() not in ("true", "1"):
+        relevance = "unrelated"
+    if llm_sentiment and llm_sentiment != sentiment and (
+            {sentiment, llm_sentiment} == {"positive", "negative"}
+            or (sentiment == "neutral" and llm_sentiment == "negative")):
+        sentiment = llm_sentiment
+        sentiment_source = "openai_context"
+
     action = choose_action(sentiment, category_detail, segment, text, message_tags)
     template_reply = make_reply(action)
 
@@ -605,7 +626,6 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     # ไม่ให้ร้านไปตอบ "ขอบคุณที่ชอบร้าน" ผิดที่ผิดทาง: unrelated -> ไม่ตอบ (should_reply=False)
     # invite_friend -> ตอบต้อนรับ LLM เรียกไม่ได้ -> ตอบตามปกติ (ไม่พลาดลูกค้าจริง)
     # ---------------------------------------------------------------------
-    relevance = check_relevance(message, parent_message, parent_from_page) if os.environ.get("ENABLE_RELEVANCE_FILTER", "true").lower() != "false" else None
     should_reply = relevance != "unrelated"
     if relevance == "invite_friend" and sentiment != "negative":
         action = "welcome_tagged_guest"

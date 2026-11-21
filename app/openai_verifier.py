@@ -251,7 +251,9 @@ _REPLY_SYSTEM_PROMPT = (
     "5) ถ้าลูกค้าประชด ให้ตอบตามเจตนาที่แท้จริง (คำบ่น) ไม่ตอบรับคำชมตามตัวอักษร\n"
     "6) ใช้เฉพาะข้อมูลร้านที่เกี่ยวกับสิ่งที่ลูกค้าพูด ไม่ยัดข้อมูลอื่น (เช่น ถามเดลิเวอรี่ ไม่ต้องพูดเวลารอคิว) "
     "ห้ามสัญญาสิ่งที่ไม่มีในคำตอบต้นแบบ เช่น 'กำลังปรับระบบ' 'จะติดต่อกลับ' 'มีเมนูใหม่ทุกวัน'\n"
-    "7) ลิงก์/URL ต้องคัดลอกครบทุกตัวอักษร ห้ามย่อ\n"    "9) ห้ามเรียกชื่อคนที่อยู่ในคอมเมนต์ เพราะมักเป็นชื่อเพื่อนที่ถูกแท็ก ไม่ใช่คนที่คอมเมนต์ (ใช้ 'ลูกค้า' หรือไม่ต้องเรียกชื่อ)\n"
+    "7) ลิงก์/URL ต้องคัดลอกครบทุกตัวอักษร ห้ามย่อ\n"
+    "9) ห้ามเรียกชื่อคนที่อยู่ในคอมเมนต์ เพราะมักเป็นชื่อเพื่อนที่ถูกแท็ก ไม่ใช่คนที่คอมเมนต์ (ใช้ 'ลูกค้า' หรือไม่ต้องเรียกชื่อ)\n"
+    "10) ไม่ต้องใส่ชื่อร้านในคำตอบ (ยกเว้นลูกค้าถามชื่อร้าน) และชื่อเมนูต้องสะกดตรงกับข้อมูลร้านทุกตัวอักษร\n"
     "8) สั้น กระชับ ไม่เกิน 2 ประโยค (ยกเว้นต้องใส่ที่อยู่/ลิงก์) ไม่ทางการเกินไป ใช้อีโมจิได้ไม่เกิน 1 ตัว "
     "ตรวจคำสะกดให้ถูกต้อง\n\n"
     "ตอบกลับเป็น JSON เท่านั้น ห้ามมีข้อความอื่นนอกเหนือ JSON รูปแบบ: "
@@ -354,42 +356,55 @@ def generate_smart_reply(message: str, template_reply: str, context: dict = None
 
 _RELEVANCE_SYSTEM_PROMPT = (
     "คุณช่วยแอดมินเพจร้านอาหารคัดคอมเมนต์ใต้โพสต์ Facebook ว่าควรให้ร้านตอบหรือไม่ "
-    "จัดเป็น 1 ใน 3 แบบ:\n"
+    "และลูกค้ารู้สึกอย่างไรต่อร้าน\n"
+    "type จัดเป็น 1 ใน 3 แบบ:\n"
     "- restaurant: พูดถึงร้าน/อาหาร/เครื่องดื่ม/บริการ/ราคา/โปรโมชั่น/การสั่ง/การจัดส่ง หรือถามข้อมูลร้าน "
     "(ทั้งชม ติ ถาม รวมถึงประชด)\n"
     "- invite_friend: แท็กหรือชวนเพื่อนมากิน/มาร้าน โดยไม่มีคำถามหรือความเห็นต่อร้าน (เช่น 'ไปกินกันเถอะ', '@ชื่อ พาไปหน่อย')\n"
-    "- unrelated: คุยเรื่องส่วนตัวกับคนอื่น บอกรัก แซว ล้อเล่น หยอกกัน ตอบรับ/ปฏิเสธคำชวนของเพื่อน "
-    "(เช่น 'ไม่ไปกับคนชื่อ...หรอกนะ 😜', 'ได้เลย เดี๋ยวไปด้วย') สแปม โฆษณาอื่น หรือไม่เกี่ยวกับร้านเลย "
-    "(เช่น '@ชื่อ รักเมียนะ', 'ฝันดีนะ')\n"
+    "- unrelated: คุยเรื่องส่วนตัวกับคนอื่น บอกรัก แซว ล้อเล่น หยอกกัน ทวงหนี้/เรื่องเงินระหว่างเพื่อน "
+    "ตอบรับ/ปฏิเสธคำชวนของเพื่อน (เช่น 'ไม่ไปกับคนชื่อ...หรอกนะ 😜', 'ได้เลย เดี๋ยวไปด้วย') "
+    "อวยพร/ทักทายทั่วไป สแปม โฆษณาอื่น หรือไม่เกี่ยวกับร้านเลย "
+    "(เช่น '@ชื่อ รักเมียนะ', 'ฝันดีนะ', '@ชื่อ เมื่อไหร่จะคืนเงิน')\n"
     "ถ้าเป็นการตอบกลับใต้คอมเมนต์ของลูกค้าคนอื่น (ไม่ใช่ของเพจ) ให้ถือว่าเป็นการคุยกันเองระหว่างผู้ใช้ "
     "เว้นแต่ข้อความพูดถึงร้าน อาหาร บริการ หรือถามร้านอย่างชัดเจน\n"
     "คำว่า 'ไม่' หรืออีโมจิแซว ไม่ได้แปลว่าเป็นคำติร้าน ให้ดูว่ากำลังพูดกับใคร\n"
-    "ชื่อคนที่ขึ้นต้นคอมเมนต์มักเป็นการแท็กเพื่อน ให้ดูเนื้อหาที่เหลือเป็นหลัก "
-    'ตอบกลับเป็น JSON เท่านั้น รูปแบบ: {"type": "restaurant|invite_friend|unrelated"}'
+    "ชื่อคนที่ขึ้นต้นคอมเมนต์มักเป็นการแท็กเพื่อน ให้ดูเนื้อหาที่เหลือเป็นหลัก\n"
+    "sentiment คือความรู้สึกที่ผู้เขียนมีต่อร้านจริงๆ: positive / neutral / negative "
+    "คำถามทั่วไป = neutral; ชมเรื่องส่งไว/ของร้อน/คุ้ม = positive; "
+    "ประชด (เช่น 'บริการดีมาก รอแค่ชั่วโมงเดียวเอง 🙄', 'เก่งมากที่คิดเงินผิดทุกรอบ') = negative; "
+    "ถ้ามีทั้งชมและติ ให้เลือกด้านที่หนักกว่า\n"
+    'ตอบกลับเป็น JSON เท่านั้น รูปแบบ: {"type": "restaurant|invite_friend|unrelated", '
+    '"sentiment": "positive|neutral|negative"}'
 )
 
 
-def check_relevance(text: str, parent_message: str = "", parent_from_page=None):
-    """คืน 'restaurant' / 'invite_friend' / 'unrelated' หรือ None ถ้าเรียก LLM ไม่ได้
-    (ผู้เรียกต้องถือว่า None = ตอบตามปกติ เพื่อไม่ให้พลาดคอมเมนต์ของลูกค้าจริง)"""
+def check_comment(text: str, parent_message: str = "", parent_from_page=None):
+    """คืน (type, sentiment) จาก LLM โดยดูบริบทเธรด; (None, None) ถ้าเรียกไม่ได้"""
     client = _get_client()
     if client is None or not text or not str(text).strip():
-        return None
+        return None, None
     try:
         resp = client.chat.completions.create(
             model=OPENAI_MODEL,
             messages=[{"role": "system", "content": _RELEVANCE_SYSTEM_PROMPT},
                       {"role": "user", "content": (
-                          (f'คอมเมนต์นี้เป็นการตอบกลับใต้คอมเมนต์{"ของเพจร้าน" if str(parent_from_page).lower() in ("true", "1") else "อื่น"}: '
+                          (f'คอมเมนต์นี้เป็นการตอบกลับใต้คอมเมนต์{"ของเพจร้าน" if str(parent_from_page).lower() in ("true", "1") else "ของผู้ใช้คนอื่น"}: '
                            f'"{parent_message}"\n' if parent_message else "")
                           + f'คอมเมนต์: "{text}"')}],
             response_format={"type": "json_object"},
-            **_token_args(20),
+            **_token_args(40),
         )
-        t = str(json.loads(resp.choices[0].message.content).get("type", "")).strip()
+        data = json.loads(resp.choices[0].message.content)
+        t = str(data.get("type", "")).strip()
+        sent = str(data.get("sentiment", "")).strip()
         _record(True)
-        return t if t in ("restaurant", "invite_friend", "unrelated") else None
+        return (t if t in ("restaurant", "invite_friend", "unrelated") else None,
+                sent if sent in ("positive", "neutral", "negative") else None)
     except Exception as _e:
         _record(False, _e)
-        return None
+        return None, None
 
+
+def check_relevance(text: str, parent_message: str = "", parent_from_page=None):
+    """คืน 'restaurant' / 'invite_friend' / 'unrelated' หรือ None ถ้าเรียก LLM ไม่ได้"""
+    return check_comment(text, parent_message, parent_from_page)[0]

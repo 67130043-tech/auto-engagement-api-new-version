@@ -55,6 +55,9 @@ class PredictRequest(BaseModel):
     # ใช้ให้ตัวคัดความเกี่ยวข้องรู้บริบท เช่น เพื่อนตอบเพื่อนกันเองใต้คอมเมนต์ (ไม่ต้องให้ร้านตอบ)
     parent_message: Optional[str] = ""
     parent_from_page: Optional[Any] = None
+    # ทางเลือกสำหรับ Make.com: ส่ง id ของคนเขียนคอมเมนต์แม่มา ({{3.parent.from.id}})
+    # API จะเทียบกับ FB_PAGE_ID เองว่าเป็นคอมเมนต์ของเพจหรือไม่
+    parent_from_id: Optional[Any] = None
 
     @field_validator("message", "parent_message", mode="before")
     @classmethod
@@ -104,7 +107,9 @@ def make_predict(req: PredictRequest):
         source=req.source,
         message_tags=req.message_tags,
         parent_message=req.parent_message or "",
-        parent_from_page=req.parent_from_page,
+        parent_from_page=(req.parent_from_page if req.parent_from_page not in (None, "")
+                          else (str(req.parent_from_id) == os.environ.get("FB_PAGE_ID", "111707667057555")
+                                if req.parent_from_id not in (None, "") else None)),
     )
 
 @app.get("/dashboard", response_class=HTMLResponse)
