@@ -350,3 +350,39 @@ def generate_smart_reply(message: str, template_reply: str, context: dict = None
         # เหตุผลเดียวกับ verify_sentiment()/verify_category() ด้านบน: ห้ามทำให้
         # /make/predict พังเด็ดขาด ไม่ว่า OpenAI จะมีปัญหาอะไรก็ตาม
         return None
+
+
+_RELEVANCE_SYSTEM_PROMPT = (
+    "คุณช่วยแอดมินเพจร้านอาหารคัดคอมเมนต์ใต้โพสต์ Facebook ว่าควรให้ร้านตอบหรือไม่ "
+    "จัดเป็น 1 ใน 3 แบบ:\n"
+    "- restaurant: พูดถึงร้าน/อาหาร/เครื่องดื่ม/บริการ/ราคา/โปรโมชั่น/การสั่ง/การจัดส่ง หรือถามข้อมูลร้าน "
+    "(ทั้งชม ติ ถาม รวมถึงประชด)\n"
+    "- invite_friend: แท็กหรือชวนเพื่อนมากิน/มาร้าน โดยไม่มีคำถามหรือความเห็นต่อร้าน (เช่น 'ไปกินกันเถอะ', '@ชื่อ พาไปหน่อย')\n"
+    "- unrelated: คุยเรื่องส่วนตัวกับคนอื่น บอกรัก แซว ล้อเล่นกันเอง สแปม โฆษณาอื่น หรือไม่เกี่ยวกับร้านเลย "
+    "(เช่น '@ชื่อ รักเมียนะ', 'ฝันดีนะ')\n"
+    "ชื่อคนที่ขึ้นต้นคอมเมนต์มักเป็นการแท็กเพื่อน ให้ดูเนื้อหาที่เหลือเป็นหลัก "
+    'ตอบกลับเป็น JSON เท่านั้น รูปแบบ: {"type": "restaurant|invite_friend|unrelated"}'
+)
+
+
+def check_relevance(text: str):
+    """คืน 'restaurant' / 'invite_friend' / 'unrelated' หรือ None ถ้าเรียก LLM ไม่ได้
+    (ผู้เรียกต้องถือว่า None = ตอบตามปกติ เพื่อไม่ให้พลาดคอมเมนต์ของลูกค้าจริง)"""
+    client = _get_client()
+    if client is None or not text or not str(text).strip():
+        return None
+    try:
+        resp = client.chat.completions.create(
+            model=OPENAI_MODEL,
+            messages=[{"role": "system", "content": _RELEVANCE_SYSTEM_PROMPT},
+                      {"role": "user", "content": f'คอมเมนต์: "{text}"'}],
+            response_format={"type": "json_object"},
+            **_token_args(20),
+        )
+        t = str(json.loads(resp.choices[0].message.content).get("type", "")).strip()
+        _record(True)
+        return t if t in ("restaurant", "invite_friend", "unrelated") else None
+    except Exception as _e:
+        _record(False, _e)
+        return None
+

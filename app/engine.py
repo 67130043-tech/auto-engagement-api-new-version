@@ -19,7 +19,7 @@ from app.keywords_data import (
     keyword_category_and_match, keyword_category_best_match,
     has_facebook_tags,
 )
-from app.openai_verifier import verify_sentiment, verify_category, generate_smart_reply, llm_status
+from app.openai_verifier import verify_sentiment, verify_category, generate_smart_reply, llm_status, check_relevance
 
 # เกณฑ์เรียก OpenAI เป็นความเห็นที่สอง: เฉพาะตอนไม่มี keyword ไหน match เลย (ต้อง
 # เชื่อผล ML เดาเอง) แล้ว sentiment_confidence (ที่ calibrate แล้ว) ต่ำกว่านี้เท่านั้น
@@ -599,10 +599,23 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
     # เหมือนเดิมทุกประการ เปลี่ยนแค่ "คำพูด" ตอนตอบเท่านั้น ถ้าเรียก LLM ไม่สำเร็จ/ปิด
     # ไว้ (ENABLE_SMART_REPLY=false) จะ fallback กลับไปใช้ template_reply เดิมทันที
     # ---------------------------------------------------------------------
-    smart_reply = generate_smart_reply(message, template_reply,
-                                       {"sentiment": sentiment, "category": category, "action": action})
-    reply = smart_reply if smart_reply else template_reply
-    reply_source = "llm" if smart_reply else "template"
+    # ---------------------------------------------------------------------
+    # คัดคอมเมนต์ที่ไม่ได้พูดกับร้าน (เช่น แท็กเพื่อนแล้วคุยเรื่องส่วนตัว "@ชื่อ รักเมียนะ")
+    # ไม่ให้ร้านไปตอบ "ขอบคุณที่ชอบร้าน" ผิดที่ผิดทาง: unrelated -> ไม่ตอบ (should_reply=False)
+    # invite_friend -> ตอบต้อนรับ LLM เรียกไม่ได้ -> ตอบตามปกติ (ไม่พลาดลูกค้าจริง)
+    # ---------------------------------------------------------------------
+    relevance = check_relevance(message) if os.environ.get("ENABLE_RELEVANCE_FILTER", "true").lower() != "false" else None
+    should_reply = relevance != "unrelated"
+    if relevance == "invite_friend" and sentiment != "negative":
+        action = "welcome_tagged_guest"
+        template_reply = make_reply(action)
+    if should_reply:
+        smart_reply = generate_smart_reply(message, template_reply,
+                                           {"sentiment": sentiment, "category": category, "action": action})
+        reply = smart_reply if smart_reply else template_reply
+        reply_source = "llm" if smart_reply else "template"
+    else:
+        action, reply, reply_source = "no_reply", "", "skipped"
 
     reply_confidence = round((sentiment_confidence + category_confidence) / 2, 2)
 
@@ -630,6 +643,8 @@ def predict_message(user_id: str, message: str, channel: str = "manual", display
         # ใน keywords_data.py)
         "has_message_tags": bool(has_facebook_tags(message_tags)),
         "action": action,
+        "should_reply": should_reply,
+        "relevance": relevance or "unknown",
         "reply_message": reply,
         "reply_template": template_reply,
         "reply_source": reply_source,
